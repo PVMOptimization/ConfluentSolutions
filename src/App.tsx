@@ -453,8 +453,9 @@ img { display: block; max-width: 100%; }
 .form__bar { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--c-aqua-deep), var(--c-aqua)); transition: width var(--dur-base) var(--ease); }
 .form__step { display: grid; gap: var(--s-sm); padding-top: var(--s-xs); }
 .form__count { font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--c-aqua); }
-.form__q { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.25rem, 1.9vw, 1.6rem); line-height: 1.12; letter-spacing: -0.01em; color: var(--c-on-dark); }
-.form__hint { font-size: var(--t-sm); color: var(--c-on-dark-soft); margin-top: -0.35rem; }
+.form__q { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.45rem, 2.3vw, 1.9rem); line-height: 1.1; letter-spacing: -0.015em; color: #fff; text-shadow: 0 2px 14px rgba(8, 17, 44, 0.45); }
+.form__q--long { font-size: clamp(1.2rem, 1.75vw, 1.45rem); line-height: 1.18; }
+.form__hint { font-size: var(--t-sm); color: rgba(244, 248, 255, 0.86); margin-top: -0.35rem; }
 .field textarea {
   width: 100%; min-height: 96px; padding: var(--s-sm) var(--s-md); border-radius: var(--r-md); border: 1px solid var(--c-glass-edge); resize: vertical;
   background: rgba(8, 17, 44, 0.28); color: var(--c-on-dark); font-size: var(--t-md); line-height: 1.4; transition: border-color var(--dur-fast), background var(--dur-fast);
@@ -985,6 +986,8 @@ interface LeadAnswers {
   zip: string;
   details: string;
   smsConsent: boolean;
+  leakCheck: string;
+  budget: string;
 }
 
 const EMPTY_ANSWERS: LeadAnswers = {
@@ -999,29 +1002,53 @@ const EMPTY_ANSWERS: LeadAnswers = {
   zip: "",
   details: "",
   smsConsent: false,
+  leakCheck: "",
+  budget: "",
 };
 
-type ChoiceField = "service" | "urgency" | "ownership";
+type ChoiceField = "service" | "leakCheck" | "budget" | "urgency" | "ownership";
 type QuestionKind = "name" | "phone" | "email" | "choice" | "address" | "details";
 
 interface Question {
   kind: QuestionKind;
-  title: string;
-  hint: string;
+  title: string | ((a: LeadAnswers) => string);
+  hint: string | ((a: LeadAnswers) => string);
   field?: ChoiceField;
   options?: readonly string[];
+  // Only ask this question when it returns true (e.g. the leak check only for leak jobs).
+  when?: (a: LeadAnswers) => boolean;
+  // Use the smaller headline size for long questions.
+  long?: boolean;
 }
 
-// Matches the services Confluent wants booked (from their onboarding form).
-const FORM_SERVICES: readonly string[] = [
-  "Water line replacement",
-  "Gas line replacement",
-  "Yard line replacement",
-  "Whole-house repipe",
-  "Tunneling under the slab",
-  "Tankless water heater conversion",
-  "Something else",
+// Confluent's services, in the order they should appear in the form.
+// range + depends feed the budget question. They are DFW research ranges (Oct 2026);
+// replace them with Philip's real numbers when he sends them.
+interface ServiceOption {
+  label: string; // button text in the form
+  phrase: string; // how the budget question refers to the job
+  range: string; // what it usually runs, low to high
+  depends: string; // why it can run higher
+}
+
+const SERVICE_OPTIONS: readonly ServiceOption[] = [
+  { label: "Slab leak or yard line leak", phrase: "Fixing a slab or yard line leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
+  { label: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Cast iron sewer line under the slab", phrase: "Replacing cast iron under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
+  { label: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
+  { label: "Repipe + tankless (both)", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
 ];
+
+const OTHER_SERVICE = "Something else";
+const LEAK_SERVICE = "Slab leak or yard line leak";
+const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
+const serviceInfo = (a: LeadAnswers): ServiceOption | undefined => SERVICE_OPTIONS.find((s) => s.label === a.service);
+
+// A lead is qualified only with a $5,000+ budget (cash or financing).
+// Keep the first two in sync with QUALIFIED_BUDGETS in functions/api/lead.ts.
+const BUDGET_OPTIONS: readonly string[] = ["Yes, I have $5,000+ set aside", "Yes, with financing", "No, I'm under $5,000"];
 
 // Confluent counts a lead as qualified only if the job is within 2 weeks.
 // The first two options are qualified; keep this in sync with QUALIFIED_TIMELINES in functions/api/lead.ts.
@@ -1034,6 +1061,32 @@ const QUESTIONS: readonly Question[] = [
   { kind: "phone", title: "What's the best number to reach you?", hint: "We call back fast. No spam, ever." },
   { kind: "email", title: "And your email?", hint: "Optional. For your estimate and appointment details." },
   { kind: "choice", field: "service", title: "What do you need help with?", hint: "Pick the closest match. Financing available.", options: FORM_SERVICES },
+  {
+    kind: "choice",
+    field: "leakCheck",
+    title: "Have you ruled out toilets, sprinklers and outdoor faucets?",
+    hint: "Most high water bills start there. If you've checked them and it's still leaking, it's likely under the slab or in the yard line.",
+    options: ["Yes, I've checked them", "Not sure yet"],
+    when: (a) => a.service === LEAK_SERVICE,
+    long: true,
+  },
+  {
+    kind: "choice",
+    field: "budget",
+    title: (a) => {
+      const info = serviceInfo(a);
+      return info
+        ? `${info.phrase} usually runs ${info.range}. Do you have a budget of $5,000 or more for this project?`
+        : "Most of our projects run $5,000 or more. Do you have a budget of $5,000 or more for this project?";
+    },
+    hint: (a) => {
+      const info = serviceInfo(a);
+      const why = info ? `Depending on ${info.depends}. ` : "";
+      return `${why}Doing it right the first time costs less than doing it twice. Financing available.`;
+    },
+    options: BUDGET_OPTIONS,
+    long: true,
+  },
   {
     kind: "choice",
     field: "urgency",
@@ -1051,6 +1104,10 @@ const QUESTIONS: readonly Question[] = [
   { kind: "address", title: "Where's the job?", hint: "Street address and ZIP code." },
   { kind: "details", title: "Anything we should know before we call?", hint: "Optional. What you're seeing and how long it's been going on." },
 ];
+
+// The questions this visitor will actually see, based on their answers so far.
+const activeQuestions = (a: LeadAnswers): readonly Question[] => QUESTIONS.filter((q) => !q.when || q.when(a));
+const textFor = (value: string | ((a: LeadAnswers) => string), a: LeadAnswers): string => (typeof value === "function" ? value(a) : value);
 
 const PHONE_STEP = QUESTIONS.findIndex((q) => q.kind === "phone");
 
@@ -1106,8 +1163,100 @@ function validateStep(question: Question, a: LeadAnswers): string | null {
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
+    _fbq?: unknown;
   }
 }
+
+/* ==========================================================================
+   AD TRACKING (Meta -> site -> GoHighLevel)
+   - Saves which ad/campaign brought the visitor (UTMs + Facebook click ID) for 30 days
+     and sends it with every lead, so GoHighLevel knows the source.
+   - Loads the Meta Pixel only when VITE_META_PIXEL_ID is set in Cloudflare Pages.
+   ========================================================================== */
+const ATTR_KEY = "cs_attr";
+const ATTR_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+
+type Attribution = Partial<Record<(typeof UTM_KEYS)[number] | "fbclid" | "landingPage" | "referrer", string>> & {
+  fbclidAt?: number;
+  capturedAt?: number;
+};
+
+function readAttribution(): Attribution {
+  try {
+    const raw = window.localStorage.getItem(ATTR_KEY);
+    const a = raw ? (JSON.parse(raw) as Attribution) : {};
+    if (!a.capturedAt || Date.now() - a.capturedAt > ATTR_TTL_MS) return {};
+    return a;
+  } catch {
+    return {};
+  }
+}
+
+function captureAttribution(): void {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const found: Attribution = {};
+    for (const key of UTM_KEYS) {
+      const v = q.get(key);
+      if (v) found[key] = v.slice(0, 200);
+    }
+    const fbclid = q.get("fbclid");
+    if (fbclid) {
+      found.fbclid = fbclid.slice(0, 500);
+      found.fbclidAt = Date.now();
+    }
+    if (!Object.keys(found).length) return;
+    const ref = document.referrer.slice(0, 500);
+    window.localStorage.setItem(
+      ATTR_KEY,
+      JSON.stringify({ ...readAttribution(), ...found, landingPage: window.location.pathname.slice(0, 300), referrer: ref, capturedAt: Date.now() }),
+    );
+  } catch {
+    /* storage blocked: attribution just won't be saved */
+  }
+}
+
+function readCookie(name: string): string {
+  const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  if (!m || m[1] === undefined) return "";
+  try {
+    return decodeURIComponent(m[1]);
+  } catch {
+    return m[1];
+  }
+}
+
+// Facebook click cookie, rebuilt from the saved click ID if the pixel was blocked.
+function getFbc(a: Attribution): string {
+  const cookie = readCookie("_fbc");
+  if (cookie) return cookie;
+  return a.fbclid ? `fb.1.${a.fbclidAt ?? a.capturedAt ?? Date.now()}.${a.fbclid}` : "";
+}
+
+type Fbq = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; loaded: boolean; version: string; push: unknown };
+
+function initMetaPixel(pixelId: string | undefined): void {
+  if (!pixelId || typeof window === "undefined" || window.fbq) return;
+  const fbq = function (...args: unknown[]): void {
+    if (fbq.callMethod) fbq.callMethod(...args);
+    else fbq.queue.push(args);
+  } as Fbq;
+  fbq.push = fbq;
+  fbq.loaded = true;
+  fbq.version = "2.0";
+  fbq.queue = [];
+  window.fbq = fbq;
+  window._fbq = fbq;
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://connect.facebook.net/en_US/fbevents.js";
+  document.head.appendChild(script);
+  fbq("init", pixelId);
+  fbq("track", "PageView");
+}
+
+const META_PIXEL_ID: string | undefined = import.meta.env.VITE_META_PIXEL_ID;
 
 function LeadForm() {
   const [step, setStep] = useState(0);
@@ -1118,10 +1267,13 @@ function LeadForm() {
   const touched = useRef(false);
   const reduceMotion = useReducedMotion();
 
-  const total = QUESTIONS.length;
-  const question: Question = QUESTIONS[step] ?? FIRST_QUESTION;
+  const active = activeQuestions(answers);
+  const total = active.length;
+  const question: Question = active[step] ?? FIRST_QUESTION;
   const pct = status === "sent" ? 100 : Math.floor(((step + 1) / total) * 100);
   const isLast = step === total - 1;
+  const title = textFor(question.title, answers);
+  const hint = textFor(question.hint, answers);
 
   // Focus the new question's first input when it mounts (after the slide), never on first page load.
   const stepRef = useCallback((node: HTMLDivElement | null): void => {
@@ -1135,17 +1287,20 @@ function LeadForm() {
   };
 
   const send = useCallback(async (a: LeadAnswers, stage: "partial" | "complete", lastStep: number): Promise<boolean> => {
+    const attr = readAttribution();
     const payload = {
       leadId: leadId.current,
       stage,
       lastStep: lastStep + 1,
-      totalSteps: QUESTIONS.length,
+      totalSteps: activeQuestions(a).length,
       name: `${a.firstName.trim()} ${a.lastName.trim()}`.trim(),
       firstName: a.firstName.trim(),
       lastName: a.lastName.trim(),
       phone: formatPhone(a.phone),
       email: a.email.trim(),
       service: a.service,
+      leakCheck: a.leakCheck,
+      budget: a.budget,
       urgency: a.urgency,
       ownership: a.ownership,
       address: a.address.trim(),
@@ -1154,6 +1309,19 @@ function LeadForm() {
       smsConsent: a.smsConsent,
       smsConsentText: a.smsConsent ? SMS_CONSENT_TEXT : "",
       page: typeof window !== "undefined" ? window.location.href : "",
+      // Which ad sent them (saved when they landed from the ad).
+      utm_source: attr.utm_source ?? "",
+      utm_medium: attr.utm_medium ?? "",
+      utm_campaign: attr.utm_campaign ?? "",
+      utm_content: attr.utm_content ?? "",
+      utm_term: attr.utm_term ?? "",
+      fbclid: attr.fbclid ?? "",
+      landingPage: attr.landingPage ?? "",
+      referrer: attr.referrer ?? "",
+      fbc: getFbc(attr),
+      fbp: readCookie("_fbp"),
+      // Same ID the browser pixel uses, so Meta counts the lead once.
+      metaEventId: `lead-${leadId.current}`,
     };
     try {
       const response = await fetch(T.business.leadEndpoint, {
@@ -1170,19 +1338,21 @@ function LeadForm() {
 
   const goNext = async (a: LeadAnswers = answers): Promise<void> => {
     touched.current = true;
-    const problem = validateStep(question, a);
+    const list = activeQuestions(a);
+    const current = list[step] ?? FIRST_QUESTION;
+    const problem = validateStep(current, a);
     if (problem) {
       setError(problem);
       return;
     }
     setError(null);
 
-    if (isLast) {
+    if (step === list.length - 1) {
       setStatus("sending");
       const ok = await send(a, "complete", step);
       if (ok) {
         setStatus("sent");
-        window.fbq?.("track", "Lead");
+        window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
       } else {
         setStatus("error");
       }
@@ -1191,7 +1361,7 @@ function LeadForm() {
 
     // Once we have a phone number, save progress after every step (fire and forget).
     if (step >= PHONE_STEP) void send(a, "partial", step);
-    setStep((s) => Math.min(s + 1, total - 1));
+    setStep((s) => Math.min(s + 1, list.length - 1));
   };
 
   const goBack = (): void => {
@@ -1248,10 +1418,10 @@ function LeadForm() {
           <p className="form__count">
             Question {step + 1} of {total}
           </p>
-          <h2 className="form__q" id={`lead-q-${step}`}>
-            {question.title}
+          <h2 className={`form__q${question.long ? " form__q--long" : ""}`} id={`lead-q-${step}`}>
+            {title}
           </h2>
-          <p className="form__hint">{question.hint}</p>
+          <p className="form__hint">{hint}</p>
 
           {question.kind === "name" && (
             <div className="field--pair">
@@ -2308,6 +2478,11 @@ function MobileCallBar() {
 export default function App() {
   const [framesStatus, setFramesStatus] = useState<FramesStatus>("loading");
   const reduceMotion = useReducedMotion();
+  // Ad tracking: remember which ad brought them, and load the Meta Pixel if it's configured.
+  useEffect(() => {
+    captureAttribution();
+    initMetaPixel(META_PIXEL_ID);
+  }, []);
   return (
     <FramesContext.Provider value={framesStatus}>
       <style>{CSS}</style>
