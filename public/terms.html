@@ -40,8 +40,24 @@ footer p{color:rgba(244,248,255,.8)}
 footer a{color:#F4F8FF}
 footer nav{display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;margin-top:1rem}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '3646456538856668');
+fbq('track', 'PageView');
+</script>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3646456538856668&ev=PageView&noscript=1" /></noscript>
+
 <header class="top"><div class="wrap">
   <a class="brand" href="/">Confluent Solutions</a>
   <a class="call" href="tel:+18179997363">Call 817-999-7363</a>
