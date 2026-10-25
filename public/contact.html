@@ -54,6 +54,29 @@ fbq('init', '3646456538856668');
 fbq('track', 'PageView');
 </script>
 <!-- End Meta Pixel Code -->
+<!-- Call / Text click tracking: sends a Meta "Contact" event for every tel: and sms: link -->
+<script>
+(function () {
+  function buttonName(a) {
+    if (a.getAttribute('data-track')) return a.getAttribute('data-track');
+    var cls = (a.getAttribute('class') || '').trim().split(/\s+/)[0];
+    if (cls) return cls;
+    var p = a.closest('header,footer,nav,section,[class]');
+    if (!p) return 'link';
+    var pc = typeof p.className === 'string' ? p.className.trim().split(/\s+/)[0] : '';
+    return p.tagName.toLowerCase() + (pc ? '.' + pc : '');
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    var a = t && t.closest ? t.closest('a[href^="tel:"], a[href^="sms:"]') : null;
+    if (!a) return;
+    var method = a.getAttribute('href').indexOf('sms:') === 0 ? 'text' : 'call';
+    if (window.fbq) {
+      window.fbq('track', 'Contact', { contact_method: method, button: buttonName(a), page: location.pathname || '/' });
+    }
+  }, true);
+})();
+</script>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3646456538856668&ev=PageView&noscript=1" /></noscript>
