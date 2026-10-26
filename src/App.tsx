@@ -1183,7 +1183,7 @@ const GOOGLE_CLICK_KEYS = ["gclid", "gbraid", "wbraid"] as const;
 // Google Ads conversion for a completed quote form. Paste the label from the
 // "Quote Form Submit" event snippet (the part after the slash in send_to).
 const GOOGLE_ADS_ID = "AW-18522908290";
-const GOOGLE_ADS_LEAD_LABEL = "";
+const GOOGLE_ADS_LEAD_LABEL = "gEnbCO-MrqodEILNtIBF";
 
 type Attribution = Partial<
   Record<(typeof UTM_KEYS)[number] | (typeof GOOGLE_CLICK_KEYS)[number] | "fbclid" | "landingPage" | "referrer", string>
@@ -1258,6 +1258,8 @@ function sendGoogleLead(a: LeadAnswers, leadId: string): void {
   if (Object.keys(userData).length) window.gtag("set", "user_data", userData);
   window.gtag("event", "conversion", {
     send_to: `${GOOGLE_ADS_ID}/${GOOGLE_ADS_LEAD_LABEL}`,
+    value: 1.0,
+    currency: "USD",
     transaction_id: leadId,
   });
 }
