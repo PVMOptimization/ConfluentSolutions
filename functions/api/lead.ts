@@ -15,8 +15,8 @@
 //   budgetQualified    – said they have a $5,000+ budget (cash or financing)
 //   timelineQualified  – wants the work within 2 weeks (Confluent's window)
 //   isQualified        – both of the above: book these, nurture the rest
-//   adSource           – "facebook_ad" when they came from a Meta ad, otherwise "website"
-//   utm_* / fbclid     – which campaign and ad sent them
+//   adSource           – "facebook_ad", "google_ad", or "website"
+//   utm_* / fbclid / gclid / gbraid / wbraid – which campaign and ad sent them
 //
 // Optional Meta Conversions API (server-side Lead event, deduplicated with the browser pixel):
 // set META_PIXEL_ID and META_CAPI_TOKEN in Cloudflare Pages. Without them this part is skipped.
@@ -65,6 +65,9 @@ const TEXT_LIMITS = {
   utm_content: 200,
   utm_term: 200,
   fbclid: 500,
+  gclid: 200,
+  gbraid: 200,
+  wbraid: 200,
   landingPage: 300,
   referrer: 500,
   fbc: 700,
@@ -202,6 +205,7 @@ export const onRequestPost = async (context: PagesContext): Promise<Response> =>
   const timelineQualified = QUALIFIED_TIMELINES.includes(lead.urgency);
   const isQualified = budgetQualified && timelineQualified;
   const fromMetaAd = Boolean(lead.fbclid) || /facebook|instagram|^fb$|^ig$|^meta$/i.test(lead.utm_source);
+  const fromGoogleAd = Boolean(lead.gclid || lead.gbraid || lead.wbraid) || /^google$|adwords/i.test(lead.utm_source);
 
   const upstream = await fetch(env.LEAD_WEBHOOK_URL, {
     method: "POST",
@@ -217,7 +221,7 @@ export const onRequestPost = async (context: PagesContext): Promise<Response> =>
       timelineAnswered: lead.urgency !== "",
       timelineQualified,
       isQualified,
-      adSource: fromMetaAd ? "facebook_ad" : "website",
+      adSource: fromMetaAd ? "facebook_ad" : fromGoogleAd ? "google_ad" : "website",
       source: "cofulent-hero-form",
       receivedAt: new Date().toISOString(),
     }),
