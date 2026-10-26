@@ -119,6 +119,10 @@ fbq('track', 'PageView');
     if (window.fbq) {
       window.fbq('track', 'Contact', { contact_method: method, button: buttonName(a), page: location.pathname || '/' });
     }
+    // Google Ads "Click to call" conversion (call buttons only).
+    if (method === 'call' && window.gtag) {
+      window.gtag('event', 'conversion', { send_to: 'AW-18522908290/b04ICIqirqodEILNtIBF', value: 1.0, currency: 'USD' });
+    }
   }, true);
 })();
 </script>
