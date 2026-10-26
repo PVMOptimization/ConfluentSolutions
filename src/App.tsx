@@ -1164,6 +1164,7 @@ declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
     _fbq?: unknown;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -1177,7 +1178,16 @@ const ATTR_KEY = "cs_attr";
 const ATTR_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 const UTM_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 
-type Attribution = Partial<Record<(typeof UTM_KEYS)[number] | "fbclid" | "landingPage" | "referrer", string>> & {
+const GOOGLE_CLICK_KEYS = ["gclid", "gbraid", "wbraid"] as const;
+
+// Google Ads conversion for a completed quote form. Paste the label from the
+// "Quote Form Submit" event snippet (the part after the slash in send_to).
+const GOOGLE_ADS_ID = "AW-18522908290";
+const GOOGLE_ADS_LEAD_LABEL = "";
+
+type Attribution = Partial<
+  Record<(typeof UTM_KEYS)[number] | (typeof GOOGLE_CLICK_KEYS)[number] | "fbclid" | "landingPage" | "referrer", string>
+> & {
   fbclidAt?: number;
   capturedAt?: number;
 };
@@ -1198,6 +1208,10 @@ function captureAttribution(): void {
     const q = new URLSearchParams(window.location.search);
     const found: Attribution = {};
     for (const key of UTM_KEYS) {
+      const v = q.get(key);
+      if (v) found[key] = v.slice(0, 200);
+    }
+    for (const key of GOOGLE_CLICK_KEYS) {
       const v = q.get(key);
       if (v) found[key] = v.slice(0, 200);
     }
@@ -1232,6 +1246,20 @@ function getFbc(a: Attribution): string {
   const cookie = readCookie("_fbc");
   if (cookie) return cookie;
   return a.fbclid ? `fb.1.${a.fbclidAt ?? a.capturedAt ?? Date.now()}.${a.fbclid}` : "";
+}
+
+// Google Ads lead conversion with hashed-on-Google's-side customer data (enhanced conversions).
+function sendGoogleLead(a: LeadAnswers, leadId: string): void {
+  if (!window.gtag || !GOOGLE_ADS_LEAD_LABEL) return;
+  const digits = a.phone.replace(/\D/g, "").slice(-10);
+  const userData: Record<string, string> = {};
+  if (a.email.trim()) userData.email = a.email.trim().toLowerCase();
+  if (digits.length === 10) userData.phone_number = `+1${digits}`;
+  if (Object.keys(userData).length) window.gtag("set", "user_data", userData);
+  window.gtag("event", "conversion", {
+    send_to: `${GOOGLE_ADS_ID}/${GOOGLE_ADS_LEAD_LABEL}`,
+    transaction_id: leadId,
+  });
 }
 
 type Fbq = ((...args: unknown[]) => void) & { callMethod?: (...args: unknown[]) => void; queue: unknown[][]; loaded: boolean; version: string; push: unknown };
@@ -1316,6 +1344,10 @@ function LeadForm() {
       utm_content: attr.utm_content ?? "",
       utm_term: attr.utm_term ?? "",
       fbclid: attr.fbclid ?? "",
+      // Google click IDs, so GoHighLevel can send booked jobs back to Google Ads.
+      gclid: attr.gclid ?? "",
+      gbraid: attr.gbraid ?? "",
+      wbraid: attr.wbraid ?? "",
       landingPage: attr.landingPage ?? "",
       referrer: attr.referrer ?? "",
       fbc: getFbc(attr),
@@ -1353,6 +1385,7 @@ function LeadForm() {
       if (ok) {
         setStatus("sent");
         window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
+        sendGoogleLead(a, leadId.current);
       } else {
         setStatus("error");
       }
