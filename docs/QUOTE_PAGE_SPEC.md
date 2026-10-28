@@ -14,13 +14,13 @@ Each item is marked **P1** (fix first, biggest impact), **P2** or **P3**.
 |---|---|---|
 | Landing pages convert at a median of 6.6% (41k pages, 464M visits). The top quarter convert above 11%. | Unbounce benchmark via ClickMinded | Aim for 8–12% of ad clicks completing the form. |
 | Copy at a 5th–7th grade reading level converted at 11.1%, versus 5.3% for professional-level copy. | Unbounce 2024 via FoundryCRO | Use short words and short sentences. Headlines of 4–9 words. |
-| Matching the landing page to the ad gave a 212% lift (Moz/CRE case). Swapping headline text to match the ad gave a 31.4% lift. | FoundryCRO | Change the headline based on which ad sent the visitor (section 2). |
+| Matching the landing page to the ad gave a 212% lift (Moz/CRE case). Swapping headline text to match the ad gave a 31.4% lift. | FoundryCRO | Use one headline that names all 5 jobs, then make the first form question the job type (section 1.3). |
 | Specific headlines beat generic ones by 18–47%. Headlines naming a benefit and a time frame averaged a 23% lift. | FoundryCRO | "Plumbing and gas line work, done right" is generic, so replace it. |
 | One link on a page: 13.5% conversion. Five or more links: 10.5%. Removing navigation lifted every page HubSpot tested, by up to 28%. | VWO, HubSpot via ClickMinded | Strip /quote down to the form, call and text, and proof. |
 | Conversion drops as the number of form fields rises. Long text areas and dropdowns hurt most. | HubSpot (40k pages) | Cut optional typing. Use taps instead of typing. |
 | Multi-step forms convert well for 6+ fields when the easy questions come first. Steps should be labelled. 3–5 steps is the sweet spot. | Zuko | Start with a one-tap question, not "What's your name?" |
 | 97% of people read reviews for local businesses. 68% need 4+ stars, and 31% need 4.5+ (up from 17%). 74% want reviews from the last 3 months. | BrightLocal Local Consumer Review Survey 2026 | Real Google rating and recent reviews must be on screen near the form. There are none now. |
-| An exact rating with a review count is trusted more than a vague one. Proof placed close to the action button converts best. | SaaS Hero | Put "★ 4.9 · 87 Google reviews" directly above the form. Placeholder numbers until Philip supplies them. |
+| An exact rating with a review count is trusted more than a vague one. Proof placed close to the action button converts best. | SaaS Hero | Put "★★★★★ 5.0 · 44 Google reviews" directly above the form. |
 | A logo on the left gets 39% brand recall, versus 21% on the right. | NN/g via WPMU DEV | Keep the logo top left, but make it big enough to read. |
 | Conversion is about 3.5% lower for every extra 100 ms of load time. Pages over 4 seconds convert 22% lower. | Shopify, Yottaa via Shopify | /quote currently loads a 13 MB animation and 6.8 MB of service photos. |
 | Real photos of the crew and the work are trusted more than stock photos. | Hook Agency (SIGCHI/Wiley studies cited) | Use Philip's real crew, truck and job photos. Use a face if possible. |
@@ -43,30 +43,35 @@ It currently renders at **34×34 px**, and the "CONFLUENT SOLUTIONS" text inside
 - The right side of the header gets a phone button: `📞 817-999-7363`, an outline pill, at least 44px tall.
 - Remove the light-blue band. It doesn't match the navy hero and looks like a loading error.
 
-### 1.3 Make the headline match the ad that was clicked (dynamic text)
-Read `utm_content` (or a new `?offer=` parameter) on page load. The first two characters of every Meta ad name are the offer: `O1`–`O5`.
+### 1.3 One catch-all headline that matches every ad
+There's one page for 5 different ads plus Google, so the headline has to work for all of them. It does that in two ways:
+1. **The headline names all 5 jobs.** Whichever ad someone tapped, they see their problem in the first line.
+2. **The first form question is "What do you need help with?"** with the 5 jobs as big tap tiles. One tap puts them on their own path, so the match finishes inside the form instead of the headline.
 
-| Offer | Headline (4–9 words) | Subhead | Service picked in the form |
-|---|---|---|---|
-| O1 galvanized | **Rusty water? New pipes in one job.** | We replace the service line and every pipe in your home. One crew, one permit. | Whole-house repipe (galvanized pipes) |
-| O2 slab leak | **Water bill climbing? Find the hidden leak.** | We find leaks under the slab or in the yard line, and fix them without tearing up floors. | Slab leak or yard line leak |
-| O3 cast iron | **Sewer backing up? New line, floors untouched.** | We tunnel under your home and replace the cast iron. No jackhammers, no moving out. | Cast iron sewer line under the slab |
-| O4 repipe + tankless | **New pipes + endless hot water. One job.** | Repipe and tankless conversion together: one permit, one crew, one cleanup. | Repipe + tankless (both) |
-| O5 gas | **Gas off? We'll get it back on.** | We replace the line, pull the permit and handle the inspection. | Gas line replacement |
-| No match (Google, direct visits) | **Fort Worth repipes, leaks, sewer & gas lines.** | Answer 5 quick taps. Get a call back with a price range. | none |
+**Headline:** **Repipes, slab leaks, sewer & gas lines. Done right.**
 
+**Proof line** (directly under the headline, small, with gold stars):
+`★★★★★ 5.0 · 44 Google reviews` (links to the Google Business Profile)
+
+**Subhead:** Free estimates from a licensed master plumber with 35+ years in Fort Worth. Tap your problem below and we'll call with a price range.
+
+**Three checkmark lines** (one row on desktop, stacked on mobile):
+- ✓ Free estimate
+- ✓ License M-44554
+- ✓ Open 24/7
+
+Notes:
 - Remove the rotating "We handle ___" line. Motion beside the headline pulls attention away from the form.
-- Under the subhead, add 3 short checkmark lines:
-  - ✓ Licensed & insured [confirm with Philip]
-  - ✓ Price range before any work
-  - ✓ Financing available
+- Hold back "Insured" and "Financing available" until Philip confirms them. "Financing available" already appears in the form hints, so confirm it or remove it there too.
+- "Master plumber" is based on the M- prefix of his Texas license (TSBPE). Have Philip glance at it before launch.
+- If you want more precise matching later, an optional upgrade is to read `utm_content` (each Meta ad name starts with `O1`–`O5`) and pre-select that service tile. The headline stays the same either way.
 
 ### 1.4 Reorder the form: taps first, typing last
 At the moment, question 1 of 9 is "What's your name?", which asks for personal information before the visitor has invested anything. The new order:
 
 | Step | Question | Input |
 |---|---|---|
-| 1 | What do you need help with? | Big tap tiles with an icon each. **If the ad already chose the service, skip this step** and show "Slab leak ✓ (change)" at the top of the card. |
+| 1 | What do you need help with? | Big tap tiles with an icon each. Order them to match the ads: Whole-house repipe · Slab or yard line leak · Cast iron sewer under the slab · Repipe + tankless · Gas line · Something else. |
 | (2) | Leak check | Taps. Only shown for slab leaks, as now. |
 | 2 | When do you want the work done? | Taps |
 | 3 | Budget question (keep the price-range wording, it builds trust) | Taps |
@@ -75,7 +80,7 @@ At the moment, question 1 of 9 is "What's your name?", which asks for personal i
 | 6 | Street address + ZIP | Typing |
 | — | Email and "anything else" | Move to the thank-you screen as optional, or drop them |
 
-- That's 6 steps, or 5 when the ad already chose the service. Nobody types until step 5, when they're already committed.
+- That's 6 steps. Nobody types until step 5, when they're already committed.
 - Partial-lead rescue still works: the `partial` post to GHL fires as soon as the phone number is entered at step 5. Fewer partial leads will come in, but more people will finish the form.
 - Progress label: "Step 1 of 6 · about 45 seconds". Start the bar at 15%. Each step adds an equal share.
 - Tap tiles: full width, at least 56px tall, 12px gap, a left-side icon and a 17px label. Selecting a tile moves to the next step automatically, with no Continue button on tap steps.
@@ -86,26 +91,27 @@ At the moment, question 1 of 9 is "What's your name?", which asks for personal i
 At 390×844 (iPhone), there is about 250px of empty navy between the headline and the form. Close that gap. The first question, the first two tiles and the progress bar should all show without scrolling, above the sticky call bar.
 
 ### 1.6 Real proof directly above the form
-Add a single line between the headline block and the form card:
-`★★★★★ 4.9 · 87 Google reviews · Licensed M-XXXXX`
-Both numbers are **placeholders that Philip must supply**. Don't publish invented ratings. Link the line to his Google Business Profile reviews.
+The rating line from 1.3 (`★★★★★ 5.0 · 44 Google reviews`) sits between the headline block and the form card, so it's the last thing people read before the first question. Link it to the Google reviews.
+- Update the count by hand when it changes. Don't round up.
+- A perfect 5.0 clears the 4.5-star bar that 31% of people now require.
 
 ---
 
 ## 2. Below the form (P2): order and contents
 On /quote, keep only what helps someone decide on a $5k–$25k job:
 
-1. **Three real Google reviews** with first name, neighborhood or city, star rating and date (from the last 3 months if possible). Put one review about each offer type on the matching offer's page if you have them.
-2. **"What happens next": the existing 4-step section** (call or form → advice → find the problem first → price before work). Keep it, because explaining the process lowers anxiety. Change the heading to "What happens after you send this".
-3. **Before/after slider.** Keep it, but use one of Philip's real jobs.
-4. **"What it usually costs."** A table built from the price ranges already in `FORM_SERVICES` (slab leak $4.5k–15k, repipe $6k–20k and so on), followed by "Financing available." Showing prices up front screens out tire-kickers and builds trust.
-5. **FAQ, cut to 5 cost and process questions:**
+1. **Three real Google reviews** with first name, city, star rating and date (from the last 3 months if possible). Pick ones that mention repipes, leaks, sewer or gas work. Copy them from the Google profile (44 reviews, 5.0). eclecticplumber.com loads its reviews in a way that couldn't be scraped. A GHL reviews widget is another option if you want them to update automatically.
+2. **Meet the owner.** A photo of Philip O'Hara with 2 lines: "35+ years plumbing in Fort Worth. Licensed master plumber, M-44554. I or my crew lead every job." [Confirm the last line with Philip.] A face plus a name is the strongest trust signal a local contractor has.
+3. **"What happens next": the existing 4-step section** (call or form → advice → find the problem first → price before work). Keep it, because explaining the process lowers anxiety. Change the heading to "What happens after you send this".
+4. **Before/after slider.** Keep it, but use one of Philip's real jobs.
+5. **"What it usually costs."** A table built from the price ranges already in `FORM_SERVICES` (slab leak $4.5k–15k, repipe $6k–20k and so on), followed by "Financing available." Showing prices up front screens out tire-kickers and builds trust.
+6. **FAQ, cut to 5 cost and process questions:**
+   - Is the estimate free? **Yes.**
    - Do you tear up my floors?
    - How long does a repipe take?
    - Do you pull permits?
-   - Do you offer financing?
-   - Is the estimate free? [confirm with Philip]
-6. **Final call to action:** "Get my price range" scrolls back up to the form, plus the call button.
+   - Do you offer financing? [confirm with Philip]
+7. **Final call to action:** "Get my price range" scrolls back up to the form, plus the call button.
 
 **Remove from /quote** (keep them on the main site):
 - the 8-service grid, because drain cleaning and general repairs pull people away from the $5k+ offers
@@ -144,14 +150,25 @@ On /quote, keep only what helps someone decide on a $5k–$25k job:
 
 ---
 
-## 6. What Philip needs to supply (blocks parts of P1 and P2)
-1. Google rating, review count and 3 recent reviews (with permission to quote first name and city)
-2. Plumbing license number, and confirmation that he's insured
-3. Is the estimate free? Who provides the financing?
-4. 3–6 real photos: him, the crew, the truck, before/after shots of real jobs
-5. A horizontal logo file (PNG or SVG with a transparent background)
+## 6. Confirmed facts, and what's still missing
 
-Until he supplies them, leave those spots out. Don't fill them with made-up numbers.
+**Confirmed** (from the Google profile, eclecticplumber.com and JK):
+- Business: Confluent Solutions, owned by Philip O'Hara
+- License: M-44554
+- Experience: 35+ years. One spot on eclecticplumber.com says 33+, so use 35+.
+- Google: **5.0 ★, 44 reviews**. Hours: open 24 hours, 7 days.
+- **Estimates are free**
+- Phone: 817-999-7363. Address: 1319 Madeline Pl, Fort Worth 76107.
+- Badges: Nextdoor Neighborhood Fave, Rinnai Pro, Bradford White, Delta, BuildZoom (already in `/public/badges`)
+- Service area: Fort Worth, Haltom City, Richland Hills, White Settlement, Saginaw, Forest Hill, North Richland Hills, Watauga, Hurst, Euless, Bedford, Colleyville, Keller, Southlake, Crowley
+
+**Still needed from Philip:**
+1. 3 Google reviews to quote, with first name and city
+2. Is he insured? Who provides financing, if anyone? Is there a warranty on the work?
+3. 3–6 real photos: him, the crew, the truck, before/after shots of real jobs
+4. A horizontal logo file (PNG or SVG with a transparent background)
+
+Until he supplies them, leave those spots out. Don't fill them with made-up claims.
 
 ---
 
