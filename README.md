@@ -1,4 +1,4 @@
-# Cofulent Solutions
+# Confluent Solutions
 
 Vite + React + TypeScript. All page code is in `src/App.tsx`.
 
