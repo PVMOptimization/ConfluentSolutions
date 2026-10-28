@@ -164,6 +164,7 @@ const FAQS: readonly Faq[] = [
   { q: "Do you tear up my floors?", a: "As little as possible. We locate the problem first, then open only what has to open. For cast iron under the slab we tunnel underneath the house instead of breaking up the floors." },
   { q: "How long does a whole-house repipe take?", a: "Most homes take a few days, depending on size and the number of bathrooms. You get the timeline with your estimate." },
   { q: "Do you pull permits and handle inspections?", a: "Yes. Permits and city inspections are part of the job, including gas line work that needs a pressure test before the gas company turns service back on." },
+  { q: "Do you offer financing?", a: "Yes. Financing is available, so you can fix it right now and pay over time. Ask about it with your free estimate." },
   { q: "Who will I be dealing with?", a: "Confluent Solutions is owned by Philip O'Hara, a licensed master plumber (License M-44554) with 35+ years of experience in Fort Worth." },
 ]
 
@@ -186,6 +187,20 @@ const STAGES: readonly Stage[] = [
 // Update by hand from the Google Business Profile. Never round up.
 const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
 
+interface Review {
+  name: string;
+  when: string;
+  text: string;
+}
+
+// Real Google reviews (copied from the Google Business Profile, Oct 2026). Update as new ones come in.
+const REVIEWS: readonly Review[] = [
+  { name: "Linda M.", when: "1 week ago", text: "Cast iron leak under house in a puddle fixed by the smartest and fastest method. Brice stuck to crawling under house till he found the leak buried in a mess." },
+  { name: "Al G.", when: "This week", text: "This company consistently does awesome work, getting the job done in all a timely manner and makes sure that they communicate with the me what had been done all at a reasonable price. Joe Vicarri and another gentleman showed up and we're very cordial. Thank you Confluent solutions. They are highly recommended by me." },
+  { name: "Herbert H.", when: "This week", text: "Great service. Explained everything, efficient, and a pleasure to work with." },
+  { name: "Leslie H.", when: "This week", text: "Great work, very responsive, fair prices." },
+];
+
 interface Reason {
   title: string;
   detail: string;
@@ -202,7 +217,7 @@ const REASONS: readonly Reason[] = [
 
 const HERO_TITLE = "Repipes, slab leaks, sewer & gas lines. Done right.";
 const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Tap your problem below and we'll call with a price range.";
-const HERO_CHECKS: readonly string[] = ["Free estimate", "License M-44554", "Open 24/7"];
+const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
 
 
 
@@ -732,7 +747,7 @@ img { display: block; max-width: 100%; }
 
 /* Hero: headline, proof, subhead, checks, form all on the first screen */
 .hero { min-height: 0; }
-.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, rgba(10, 20, 52, 0.72), rgba(10, 20, 52, 0.86)); }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, rgba(10, 20, 52, 0.5) 0%, rgba(10, 20, 52, 0.25) 50%, rgba(10, 20, 52, 0.5) 100%); }
 .hero__layout { min-height: 0; align-items: center; padding-top: calc(var(--header-h) + var(--s-xl)); padding-bottom: var(--s-xxl); }
 .hero__copy { align-self: center; gap: var(--s-sm); }
 .hero__title { font-size: clamp(2.25rem, 4.6vw, 4.25rem); line-height: 1.02; max-width: 16ch; font-weight: 700; }
@@ -747,7 +762,7 @@ img { display: block; max-width: 100%; }
 .hero__checks li::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #22C55E; color: #06210f; font-size: 0.75rem; font-weight: 800; }
 
 /* Form: bigger tap targets, one column, clearer labels */
-.form { background: linear-gradient(160deg, rgba(24, 46, 111, 0.92), rgba(14, 29, 74, 0.95)); }
+.form { background: linear-gradient(160deg, rgba(24, 46, 111, 0.5), rgba(14, 29, 74, 0.6)); }
 .form__top { font-size: 0.8125rem; font-weight: 700; color: rgba(244, 248, 255, 0.9); }
 .form__pct { color: var(--c-aqua); }
 .form__track { height: 6px; }
@@ -806,9 +821,15 @@ img { display: block; max-width: 100%; }
 .lp__cost span { font-weight: 500; color: var(--c-ink); }
 .lp__cost strong { font-family: var(--f-display); color: var(--c-brand); white-space: nowrap; }
 .lp__cta { display: inline-flex; align-items: center; justify-content: center; margin-top: var(--s-xl); min-height: 56px; padding: 0 1.75rem; border-radius: var(--r-md); background: var(--c-call); color: var(--c-ink); font-weight: 700; font-size: 1.0625rem; }
-@media (max-width: 1024px) { .lp__steps { grid-template-columns: repeat(2, 1fr); } }
+.lp__rating { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: var(--s-md); color: var(--c-ink); font-size: 1.0625rem; }
+.lp__reviews { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-md); margin-top: var(--s-lg); }
+.lp__review { display: grid; gap: var(--s-sm); align-content: start; padding: var(--s-lg); }
+.lp__review p { color: var(--c-ink); font-size: 1rem; line-height: 1.5; }
+.lp__who { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; color: var(--c-ink-soft); }
+.lp__who svg { width: 16px; height: 16px; }
+@media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
-  .lp__steps, .lp__costs { grid-template-columns: 1fr; }
+  .lp__steps, .lp__costs, .lp__reviews { grid-template-columns: 1fr; }
   .lp__step { grid-template-columns: auto 1fr; column-gap: var(--s-md); padding: var(--s-md); }
   .lp__cost { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
   .lp__cta { width: 100%; }
@@ -982,7 +1003,7 @@ const QUESTIONS: readonly Question[] = [
     hint: (a) => {
       const info = serviceInfo(a);
       const why = info ? `Depending on ${info.depends}. ` : "";
-      return `${why}Doing it right the first time costs less than doing it twice.`;
+      return `${why}Financing available. Doing it right the first time costs less than doing it twice.`;
     },
     options: BUDGET_OPTIONS,
     long: true,
@@ -2026,6 +2047,33 @@ function MobileCallBar() {
 /* ==========================================================================
    LANDING PAGE SECTIONS: what happens next + what it usually costs
    ========================================================================== */
+function ReviewsSection() {
+  return (
+    <section className="section lp lp--deep" id="reviews">
+      <div className="wrap">
+        <p className="eyebrow">Google reviews</p>
+        <RevealHeading>Fort Worth homeowners, in their words.</RevealHeading>
+        <a className="lp__rating" href={T.business.google} target="_blank" rel="noopener noreferrer">
+          <span className="hero__stars" aria-hidden="true">★★★★★</span>
+          <strong>{GOOGLE_RATING.stars}</strong> from {GOOGLE_RATING.count} Google reviews
+        </a>
+        <ul className="lp__reviews">
+          {REVIEWS.map((r) => (
+            <li className="lp__review card" key={r.name}>
+              <span className="hero__stars" aria-label="5 out of 5 stars">★★★★★</span>
+              <p>&ldquo;{r.text}&rdquo;</p>
+              <span className="lp__who">
+                <GoogleIcon />
+                {r.name} · {r.when}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 function NextStepsSection() {
   return (
     <section className="section lp" id="next">
@@ -2054,7 +2102,7 @@ function CostSection() {
       <div className="wrap">
         <p className="eyebrow">What it usually costs</p>
         <RevealHeading>Straight numbers, before anyone shows up.</RevealHeading>
-        <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts.</p>
+        <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts. Financing available.</p>
         <ul className="lp__costs">
           {SERVICE_OPTIONS.map((o) => (
             <li className="lp__cost card" key={o.label}>
@@ -2088,6 +2136,7 @@ export default function App() {
       <WaterMeter />
       <motion.main initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, ease: HEADING_EASE }}>
         <HeroSection />
+        <ReviewsSection />
         <NextStepsSection />
         <WhySection />
         <CostSection />
