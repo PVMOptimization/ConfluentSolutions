@@ -1,18 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import type { FormEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
+import type { FormEvent } from "react";
 import {
   AnimatePresence,
-  animate,
   motion,
   useInView,
   useReducedMotion,
   useMotionValue,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
 } from "framer-motion";
-import type { MotionValue } from "framer-motion";
 
 // Lets TSX accept the <wistia-player> custom element.
 interface WistiaPlayerElement extends HTMLElement {
@@ -99,7 +96,7 @@ const T = {
     smsBody: "Hi Confluent Solutions, I need help with: ",
     address: "1319 Madeline Pl, Fort Worth, Texas 76107",
     leadEndpoint: "/api/lead",
-    logoCandidates: ["/logo.png", "/Logo.png", "/logo.PNG", "/logo.webp", "/logo.svg", "/logo.jpg"] as readonly string[], // first one that exists is used; save yours in public/
+    logoCandidates: ["/logo-h.png", "/logo.png", "/Logo.png", "/logo.PNG", "/logo.webp", "/logo.svg", "/logo.jpg"] as readonly string[], // first one that exists is used; save yours in public/
     wistia: { mediaId: "19s5ibgs65", playerSrc: "https://fast.wistia.com/player.js", embedSrc: "https://fast.wistia.com/embed/19s5ibgs65.js" },
     legalName: "Confluent Solutions", // name used on the legal pages and SMS consent; must match the EIN / A2P registration
     email: "consols@outlook.com",
@@ -119,53 +116,9 @@ const frameUrl = (n: number): string =>
 /* ==========================================================================
    CONTENT
    ========================================================================== */
-const SERVICES: readonly string[] = [
-  "Gas Line Repair & Gas Leak Detection",
-  "Water Line & Sewer Line Replacement",
-  "Whole-House Repiping Services",
-  "Slab Leak Detection & Repair",
-  "Drain Cleaning & Sewer Backup Repair",
-  "Water Heater Installation & Repair",
-  "Leak Detection Services",
-  "Residential Plumbing Repairs",
-];
 
-interface AreaGeo {
-  name: string;
-  lat: number;
-  lon: number;
-}
-const AREA_GEO: readonly AreaGeo[] = [
-  { name: "Fort Worth", lat: 32.75, lon: -97.33 },
-  { name: "Haltom City", lat: 32.8, lon: -97.27 },
-  { name: "Richland Hills", lat: 32.81, lon: -97.23 },
-  { name: "White Settlement", lat: 32.76, lon: -97.46 },
-  { name: "Saginaw", lat: 32.86, lon: -97.36 },
-  { name: "Forest Hill", lat: 32.67, lon: -97.27 },
-  { name: "North Richland Hills", lat: 32.83, lon: -97.23 },
-  { name: "Watauga", lat: 32.86, lon: -97.25 },
-  { name: "Hurst", lat: 32.82, lon: -97.19 },
-  { name: "Euless", lat: 32.84, lon: -97.08 },
-  { name: "Bedford", lat: 32.84, lon: -97.14 },
-  { name: "Colleyville", lat: 32.88, lon: -97.15 },
-  { name: "Keller", lat: 32.93, lon: -97.25 },
-  { name: "Southlake", lat: 32.94, lon: -97.13 },
-  { name: "Crowley", lat: 32.58, lon: -97.36 },
-];
-const SERVICE_AREAS: readonly string[] = AREA_GEO.map((area) => area.name);
-const ROTATING_LINES: readonly string[] = ["Slab leaks.", "Gas lines.", "Sewer backups.", "Water heaters.", "Burst pipes.", "Repiping."];
 
 // Drop a photo at /public/services/<slug>.jpg and the card uses it automatically. Index-aligned with SERVICES.
-const SERVICE_SLUGS: readonly string[] = [
-  "gas-line",
-  "water-sewer-line",
-  "repiping",
-  "slab-leak",
-  "drain-cleaning",
-  "water-heater",
-  "leak-detection",
-  "plumbing-repairs",
-];
 
 interface Badge {
   name: string;
@@ -179,7 +132,6 @@ const BADGES: readonly Badge[] = [
   { name: "Rinnai Pro", src: "/badges/rinnai-pro.png", width: 126, height: 126 },
   { name: "MapQuest", src: "/badges/mapquest.png", width: 306, height: 57 },
   { name: "BuildZoom", src: "/badges/buildzoom.png", width: 212, height: 38 },
-  { name: "Atmos Energy", src: "/badges/atmos-energy.png", width: 246, height: 114 },
   { name: "Bradford White Water Heaters", src: "/badges/bradford-white.png", width: 297, height: 110 },
   { name: "Delta", src: "/badges/delta.png", width: 294, height: 80 },
 ];
@@ -199,28 +151,8 @@ const STEPS: readonly Step[] = [
 ];
 
 // Fill in any of these and they appear on the site automatically. Empty values stay hidden.
-const TRUST_FACTS: readonly { label: string; value: string }[] = [
-  { label: "License", value: "" },
-  { label: "Insured", value: "" },
-  { label: "Warranty", value: "" },
-  { label: "Service call fee", value: "" },
-];
 
-interface Triage {
-  symptom: string;
-  level: "now" | "today" | "soon";
-  headline: string;
-  advice: string;
-}
 
-const TRIAGE: readonly Triage[] = [
-  { symptom: "I smell gas", level: "now", headline: "Leave the home first", advice: "Do not use switches, lighters or phones inside. From outside, call 911 and your gas utility, then call us for repair and leak detection." },
-  { symptom: "Water is flowing and won't stop", level: "now", headline: "Shut off the main valve", advice: "Turn off the main water shutoff, then call us right away. Move belongings away from the wet area." },
-  { symptom: "Sewage is backing up", level: "now", headline: "Stop using every drain", advice: "No sinks, showers or toilets until it is cleared. Call us for drain cleaning and sewer backup repair." },
-  { symptom: "Water heater is not working", level: "today", headline: "Call today", advice: "No hot water is disruptive but rarely dangerous. If you see water pooling under the tank, turn off its supply and call us." },
-  { symptom: "Damp floor spot or high water bill", level: "soon", headline: "Possible hidden leak", advice: "Check that the meter stops when everything is off. If it keeps moving, request a call for leak and slab leak detection." },
-  { symptom: "Slow drain or low pressure", level: "soon", headline: "Book a visit", advice: "Usually not an emergency, but it seldom fixes itself. Send a call request and we will schedule it." },
-];
 
 interface Faq {
   q: string;
@@ -228,13 +160,12 @@ interface Faq {
 }
 
 const FAQS: readonly Faq[] = [
-  { q: "How can I tell if a plumbing issue is urgent or can wait?", a: "Act immediately for a gas smell, water that will not stop, sewage backing into the home or no water at all. Slow drains, small drips and uneven pressure can usually wait for a scheduled visit, but they rarely fix themselves." },
-  { q: "Why does my water pressure suddenly drop throughout the house?", a: "Common causes are a failing pressure regulator or partly closed valve, buildup inside aging pipes, or a hidden leak. Testing pressure at the source shows which one it is." },
-  { q: "Why do plumbing leaks often go unnoticed until damage appears?", a: "Slab, in-wall and underground leaks stay out of sight. Clues include an unexplained jump in the water bill, damp or warm floor spots, musty smells, or a meter that moves while everything is off." },
-  { q: "Is it safe to use chemical drain cleaners regularly?", a: "Regular use is not recommended. Harsh chemicals can wear on pipes and fittings and do not remove the underlying cause. Mechanical cleaning or a camera inspection is the safer route for repeat clogs." },
-  { q: "What's the difference between a plumbing repair and a long-term solution?", a: "A repair fixes the section that failed. A long-term fix such as repiping or line replacement addresses why it failed, which matters when pipes are aging or keep failing." },
-  { q: "How often should plumbing systems be professionally inspected?", a: "A periodic inspection helps most homes, especially older ones and before buying or selling. Ask us what interval fits your home." },
-];
+  { q: "Is the estimate free?", a: "Yes. We come out, find the problem and give you the plan and price before any work starts. You decide." },
+  { q: "Do you tear up my floors?", a: "As little as possible. We locate the problem first, then open only what has to open. For cast iron under the slab we tunnel underneath the house instead of breaking up the floors." },
+  { q: "How long does a whole-house repipe take?", a: "Most homes take a few days, depending on size and the number of bathrooms. You get the timeline with your estimate." },
+  { q: "Do you pull permits and handle inspections?", a: "Yes. Permits and city inspections are part of the job, including gas line work that needs a pressure test before the gas company turns service back on." },
+  { q: "Who will I be dealing with?", a: "Confluent Solutions is owned by Philip O'Hara, a licensed master plumber (License M-44554) with 35+ years of experience in Fort Worth." },
+]
 
 interface Stage {
   time: string;
@@ -252,6 +183,9 @@ const STAGES: readonly Stage[] = [
   { time: "5s", label: "Connected", frame: 120 },
 ];
 
+// Update by hand from the Google Business Profile. Never round up.
+const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
+
 interface Reason {
   title: string;
   detail: string;
@@ -260,22 +194,17 @@ interface Reason {
 }
 
 const REASONS: readonly Reason[] = [
-  { title: "Decades of proven expertise", detail: "Experience that reads the problem before the shovel goes in.", spotX: "50%", spotY: "72%" },
-  { title: "True 24/7 emergency response", detail: "Leaks and gas issues keep no schedule. Call any hour: " + T.business.phoneDisplay + ".", spotX: "50%", spotY: "34%" },
-  { title: "Advanced, non-invasive solutions", detail: "Locate first, then repair only what has to open, so less of your property is torn up.", spotX: "16%", spotY: "68%" },
-  { title: "Honest, residential-focused service", detail: "Homes only. Plain answers on what is wrong and what the fix takes.", spotX: "74%", spotY: "14%" },
+  { title: "35+ years. Licensed master plumber.", detail: "Owner Philip O'Hara, License M-44554. Experience that reads the problem before the shovel goes in.", spotX: "50%", spotY: "72%" },
+  { title: "5.0 stars on Google", detail: `Rated ${GOOGLE_RATING.stars} by ${GOOGLE_RATING.count} Fort Worth-area homeowners.`, spotX: "50%", spotY: "34%" },
+  { title: "Find it first, open only what's needed", detail: "Leak and line detection before digging, and tunneling under the slab, so your floors stay put.", spotX: "16%", spotY: "68%" },
+  { title: "Free estimate. Price before work.", detail: "You get the plan and the price before anything starts. No surprise add-ons.", spotX: "74%", spotY: "14%" },
 ];
 
-const HERO_TITLE = "Plumbing and gas line work, done right.";
+const HERO_TITLE = "Repipes, slab leaks, sewer & gas lines. Done right.";
+const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Tap your problem below and we'll call with a price range.";
+const HERO_CHECKS: readonly string[] = ["Free estimate", "License M-44554", "Open 24/7"];
 
-const NAV_LINKS: readonly { href: string; label: string }[] = [
-  { href: "#services", label: "Services" },
-  { href: "#triage", label: "Is It Urgent?" },
-  { href: "#why", label: "Why Us" },
-  { href: "#jobs", label: "Job Files" },
-  { href: "#areas", label: "Areas" },
-  { href: "#faq", label: "FAQ" },
-];
+
 
 /* ==========================================================================
    STYLES: one template literal. Every rule references the :root variables.
@@ -782,6 +711,109 @@ img { display: block; max-width: 100%; }
 .footer__links a { color: var(--c-on-dark-soft); text-decoration: underline; text-underline-offset: 3px; }
 .footer__links a:hover { color: var(--c-on-dark); }
 .footer__legal { margin-top: var(--s-md); padding-top: var(--s-md); border-top: 1px solid rgba(255, 255, 255, 0.18); font-size: 11px; color: var(--c-on-dark-soft); }
+
+/* ==========================================================================
+   LANDING PAGE OVERRIDES (/quote conversion redesign, see docs/QUOTE_PAGE_SPEC.md)
+   ========================================================================== */
+.header { background: #fff; -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 1px 0 var(--c-line), 0 4px 18px rgba(11, 22, 51, 0.06); }
+.logo__img { height: 54px; max-width: 220px; }
+.header__phone {
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: 44px; padding: 0 1.1rem; border-radius: 999px;
+  border: 2px solid var(--c-brand); color: var(--c-brand); font-family: var(--f-display); font-weight: 700; font-size: 1rem; letter-spacing: 0.01em;
+  transition: background var(--dur-fast), color var(--dur-fast);
+}
+.header__phone:hover { background: var(--c-brand); color: #fff; }
+.icon-phone { width: 18px; height: 18px; fill: currentColor; flex: none; }
+@media (max-width: ${mq}) {
+  :root { --header-h: 64px; }
+  .logo__img { height: 44px; max-width: 150px; }
+  .header__phone { min-height: 40px; padding: 0 0.85rem; font-size: 0.9375rem; }
+}
+
+/* Hero: headline, proof, subhead, checks, form all on the first screen */
+.hero { min-height: 0; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(180deg, rgba(10, 20, 52, 0.72), rgba(10, 20, 52, 0.86)); }
+.hero__layout { min-height: 0; align-items: center; padding-top: calc(var(--header-h) + var(--s-xl)); padding-bottom: var(--s-xxl); }
+.hero__copy { align-self: center; gap: var(--s-sm); }
+.hero__title { font-size: clamp(2.25rem, 4.6vw, 4.25rem); line-height: 1.02; max-width: 16ch; font-weight: 700; }
+.hero__rating { display: inline-flex; align-items: center; gap: 0.4rem; width: fit-content; font-size: 1rem; color: var(--c-on-dark); text-shadow: none; }
+.hero__rating strong { font-weight: 700; }
+.hero__rating span:last-child { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, 0.45); }
+.hero__stars { color: #FBBF24; letter-spacing: 0.08em; font-size: 1.05rem; }
+.hero__sub { font-size: 1.125rem; line-height: 1.45; color: rgba(244, 248, 255, 0.92); max-width: 36rem; }
+.hero__checks { list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; font-weight: 700; font-size: 0.9375rem; color: #fff; }
+.hero__phone { font-size: clamp(1.75rem, 2.6vw, 2.25rem); border-bottom-width: 2px; }
+.hero__checks li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.hero__checks li::before { content: "✓"; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #22C55E; color: #06210f; font-size: 0.75rem; font-weight: 800; }
+
+/* Form: bigger tap targets, one column, clearer labels */
+.form { background: linear-gradient(160deg, rgba(24, 46, 111, 0.92), rgba(14, 29, 74, 0.95)); }
+.form__top { font-size: 0.8125rem; font-weight: 700; color: rgba(244, 248, 255, 0.9); }
+.form__pct { color: var(--c-aqua); }
+.form__track { height: 6px; }
+.form__q { font-size: clamp(1.4rem, 2.2vw, 1.75rem); }
+.form__hint { font-size: 0.9375rem; color: rgba(244, 248, 255, 0.88); margin-top: -0.2rem; }
+.choices { grid-template-columns: 1fr; gap: 0.6rem; }
+.choice { min-height: 54px; padding: 0.7rem 1rem; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.28); }
+.choice::after { content: "→"; opacity: 0.55; flex: none; }
+.choice:hover { background: rgba(255, 255, 255, 0.14); }
+.field input { min-height: 54px; font-size: 1rem; background: rgba(255, 255, 255, 0.1); }
+.form__nav { flex-wrap: wrap; }
+.form__go { width: 100%; margin-left: 0; order: -1; }
+.form__go .submit { width: 100%; justify-content: center; min-height: 56px; font-size: 1.0625rem; }
+.form__back { padding: 0.25rem 0; }
+.form__note { display: block; }
+.consent { font-size: 0.75rem; }
+.consent input { width: 20px; height: 20px; }
+
+@media (max-width: ${mq}) {
+  .hero__layout { align-content: start; gap: var(--s-lg); padding: calc(var(--header-h) + var(--s-lg)) var(--gutter) var(--s-xl); }
+  .hero__copy { gap: 0.55rem; }
+  .hero__title { font-size: 2.125rem; line-height: 1.04; max-width: none; }
+  .hero__sub { font-size: 1rem; }
+  .hero__checks { font-size: 0.875rem; gap: 0.35rem 0.9rem; }
+  .hero__side { align-self: start; }
+  .hero__copy .eyebrow { display: none; }
+  .form { padding: 1.1rem; }
+  .form__hint { font-size: 0.875rem; }
+  .choice { min-height: 52px; padding: 0.6rem 0.9rem; }
+  .field input { min-height: 52px; font-size: 16px; }
+}
+
+/* Bottom bar on phones: Call + Text */
+@media (max-width: ${mq}) {
+  .callbar { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.5rem var(--gutter) calc(0.5rem + env(safe-area-inset-bottom)); background: #fff; box-shadow: 0 -4px 18px rgba(11, 22, 51, 0.14); font-size: 1.0625rem; letter-spacing: 0.01em; }
+  .callbar a { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 48px; border-radius: 10px; font-weight: 700; }
+  .callbar__call { background: var(--c-call); color: var(--c-ink); }
+  .callbar__text { background: var(--c-brand); color: #fff; }
+  .callbar svg { width: 20px; height: 20px; }
+  .callbar__text svg { fill: none; stroke: currentColor; stroke-width: 1.8; }
+  .callbar__text circle { fill: currentColor; stroke: none; }
+  .callbar__call svg { fill: currentColor; }
+}
+
+/* Landing sections */
+.lp { background: var(--c-bg); }
+.lp--deep { background: var(--c-bg-deep); }
+.lp__steps { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-md); margin-top: var(--s-xl); }
+.lp__step { display: grid; gap: var(--s-sm); padding: var(--s-lg); align-content: start; }
+.lp__n { font-family: var(--f-display); font-weight: 700; font-size: 1.75rem; line-height: 1; color: var(--c-aqua-deep); }
+.lp__step h3 { font-family: var(--f-display); font-size: 1.125rem; line-height: 1.2; color: var(--c-brand); }
+.lp__step p { font-size: 0.9375rem; color: var(--c-ink-soft); margin-top: 0.25rem; }
+.lp__lead { margin-top: var(--s-md); max-width: 40rem; color: var(--c-ink-soft); font-size: 1.0625rem; }
+.lp__costs { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-sm); margin-top: var(--s-lg); max-width: 56rem; }
+.lp__cost { display: flex; justify-content: space-between; align-items: center; gap: var(--s-md); padding: 1rem 1.25rem; }
+.lp__cost span { font-weight: 500; color: var(--c-ink); }
+.lp__cost strong { font-family: var(--f-display); color: var(--c-brand); white-space: nowrap; }
+.lp__cta { display: inline-flex; align-items: center; justify-content: center; margin-top: var(--s-xl); min-height: 56px; padding: 0 1.75rem; border-radius: var(--r-md); background: var(--c-call); color: var(--c-ink); font-weight: 700; font-size: 1.0625rem; }
+@media (max-width: 1024px) { .lp__steps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: ${mq}) {
+  .lp__steps, .lp__costs { grid-template-columns: 1fr; }
+  .lp__step { grid-template-columns: auto 1fr; column-gap: var(--s-md); padding: var(--s-md); }
+  .lp__cost { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
+  .lp__cta { width: 100%; }
+}
+
 `;
 
 /* ==========================================================================
@@ -819,154 +851,12 @@ function Logo({ onDark = false }: { onDark?: boolean }) {
 type FramesStatus = "loading" | "ok" | "missing";
 const FramesContext = createContext<FramesStatus>("loading");
 
-interface EngineValues {
-  progress: MotionValue<number>;
-  stage: MotionValue<number>;
-}
 
-interface VideoScrollEngineProps {
-  onStatus: (status: FramesStatus) => void;
-  children: (values: EngineValues) => ReactNode;
-}
 
-function VideoScrollEngine({ onStatus, children }: VideoScrollEngineProps) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
-  const lastDrawn = useRef<number>(-1);
-  const loadedFlags = useRef<boolean[]>([]);
-  const [settled, setSettled] = useState<number>(0);
-  const [failed, setFailed] = useState<number>(0);
-  const ready = settled >= T.frames.count;
-
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const progress = useSpring(scrollYProgress, T.spring);
-  const progressRef = useRef<MotionValue<number>>(progress);
-  progressRef.current = progress;
-  const stage = useTransform(progress, (v) => Math.min(STAGES.length - 1, Math.max(0, Math.floor(v * STAGES.length))));
-
-  const indexFor = (v: number): number => Math.min(T.frames.count - 1, Math.max(0, Math.round(v * (T.frames.count - 1))));
-
-  // "Cover" draw: fills the canvas at any aspect ratio, centred on the focal point.
-  // While frames are still arriving it shows the nearest frame that has loaded, so there is never a blank screen.
-  const draw = useCallback((target: number): void => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    let index = -1;
-    for (let d = 0; d < T.frames.count && index < 0; d += 1) {
-      if (loadedFlags.current[target - d]) index = target - d;
-      else if (loadedFlags.current[target + d]) index = target + d;
-    }
-    const image = imagesRef.current[index];
-    if (!image || image.naturalWidth === 0) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const scale = Math.max(canvas.width / image.naturalWidth, canvas.height / image.naturalHeight);
-    const w = image.naturalWidth * scale;
-    const h = image.naturalHeight * scale;
-    ctx.drawImage(image, (canvas.width - w) * T.focal.x, (canvas.height - h) * T.focal.y, w, h);
-    lastDrawn.current = target;
-  }, []);
-
-  // Load frames in the background. No loading screen: the first frame is also the CSS background, and scrolling is never blocked.
-  useEffect(() => {
-    let cancelled = false;
-    const images = Array.from({ length: T.frames.count }, (_, i) => {
-      const img = new Image();
-      img.decoding = "async";
-      if (i === 0) img.fetchPriority = "high";
-      img.onload = () => {
-        loadedFlags.current[i] = true;
-        if (cancelled) return;
-        setSettled((n) => n + 1);
-        draw(indexFor(progressRef.current.get()));
-      };
-      img.onerror = () => {
-        if (cancelled) return;
-        setFailed((n) => n + 1);
-        setSettled((n) => n + 1);
-      };
-      img.src = frameUrl(i + 1);
-      return img;
-    });
-    imagesRef.current = images;
-    return () => {
-      cancelled = true;
-      images.forEach((img) => {
-        img.onload = null;
-        img.onerror = null;
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draw]);
-
-  useEffect(() => {
-    if ("scrollRestoration" in history) history.scrollRestoration = "manual";
-  }, []);
-
-  // Keep the canvas pixel buffer matched to its CSS box (capped DPR for performance).
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const resize = (): void => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(canvas.clientWidth * dpr);
-      canvas.height = Math.round(canvas.clientHeight * dpr);
-      draw(lastDrawn.current >= 0 ? lastDrawn.current : indexFor(progress.get()));
-    };
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(canvas);
-    return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draw]);
-
-  useMotionValueEvent(progress, "change", (v) => {
-    const index = indexFor(v);
-    if (index !== lastDrawn.current) draw(index);
-  });
-
-  const framesMissing = ready && failed > T.frames.count / 2;
-  useEffect(() => {
-    if (!ready) return;
-    if (framesMissing) {
-      console.error(`Hero frames failed to load. Expected ${T.frames.dir}/${T.frames.prefix}001${T.frames.ext} to ${T.frames.count}.`);
-      onStatus("missing");
-    } else {
-      onStatus("ok");
-    }
-  }, [ready, framesMissing, onStatus]);
-
-  return (
-    <section className="scrollsec" ref={sectionRef} id="process" aria-label="What happens when you call">
-      <div className="scrollsec__stick">
-        <canvas className="scrollsec__canvas" ref={canvasRef} aria-hidden="true" />
-        {framesMissing && (
-          <p className="hero__missing" role="alert">
-            Scroll frames did not load. Check that the folder public{T.frames.dir} was uploaded in full ({T.frames.count} files named {T.frames.prefix}001{T.frames.ext} to {T.frames.prefix}
-            {T.frames.count}
-            {T.frames.ext}).
-          </p>
-        )}
-        {children({ progress, stage })}
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================================================
    HERO
    ========================================================================== */
-function StageReadout({ stage }: { stage: MotionValue<number> }) {
-  const [index, setIndex] = useState<number>(stage.get());
-  useMotionValueEvent(stage, "change", setIndex);
-  const current = STAGES[index] ?? STAGES[0];
-  return (
-    <span className="meter__stage">
-      {current ? `${current.time} · ${current.label}` : ""}
-    </span>
-  );
-}
 
 /* ==========================================================================
    LEAD FORM: 8 questions, one at a time. Phone is asked second, and every
@@ -1007,7 +897,7 @@ const EMPTY_ANSWERS: LeadAnswers = {
 };
 
 type ChoiceField = "service" | "leakCheck" | "budget" | "urgency" | "ownership";
-type QuestionKind = "name" | "phone" | "email" | "choice" | "address" | "details";
+type QuestionKind = "contact" | "choice" | "address";
 
 interface Question {
   kind: QuestionKind;
@@ -1032,13 +922,13 @@ interface ServiceOption {
 }
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
-  { label: "Slab leak or yard line leak", phrase: "Fixing a slab or yard line leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
-  { label: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
   { label: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Slab leak or yard line leak", phrase: "Fixing a slab or yard line leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
   { label: "Cast iron sewer line under the slab", phrase: "Replacing cast iron under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Repipe + tankless (both)", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
   { label: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
   { label: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
-  { label: "Repipe + tankless (both)", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
+  { label: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
 ];
 
 const OTHER_SERVICE = "Something else";
@@ -1054,13 +944,16 @@ const BUDGET_OPTIONS: readonly string[] = ["Yes, I have $5,000+ set aside", "Yes
 // The first two options are qualified; keep this in sync with QUALIFIED_TIMELINES in functions/api/lead.ts.
 const TIMELINE_OPTIONS: readonly string[] = ["As soon as possible", "Within 2 weeks", "2 to 4 weeks", "1 to 3 months", "Just comparing prices"];
 
-const FIRST_QUESTION: Question = { kind: "name", title: "First things first. What's your name?", hint: "Takes about 60 seconds." };
+const FIRST_QUESTION: Question = {
+  kind: "choice",
+  field: "service",
+  title: "What do you need help with?",
+  hint: "Tap the closest match. Takes about 45 seconds.",
+  options: FORM_SERVICES,
+};
 
 const QUESTIONS: readonly Question[] = [
   FIRST_QUESTION,
-  { kind: "phone", title: "What's the best number to reach you?", hint: "We call back fast. No spam, ever." },
-  { kind: "email", title: "And your email?", hint: "Optional. For your estimate and appointment details." },
-  { kind: "choice", field: "service", title: "What do you need help with?", hint: "Pick the closest match. Financing available.", options: FORM_SERVICES },
   {
     kind: "choice",
     field: "leakCheck",
@@ -1069,6 +962,13 @@ const QUESTIONS: readonly Question[] = [
     options: ["Yes, I've checked them", "Not sure yet"],
     when: (a) => a.service === LEAK_SERVICE,
     long: true,
+  },
+  {
+    kind: "choice",
+    field: "urgency",
+    title: "When do you want the work done?",
+    hint: "Smell gas? Get everyone outside first, then call us.",
+    options: TIMELINE_OPTIONS,
   },
   {
     kind: "choice",
@@ -1082,17 +982,10 @@ const QUESTIONS: readonly Question[] = [
     hint: (a) => {
       const info = serviceInfo(a);
       const why = info ? `Depending on ${info.depends}. ` : "";
-      return `${why}Doing it right the first time costs less than doing it twice. Financing available.`;
+      return `${why}Doing it right the first time costs less than doing it twice.`;
     },
     options: BUDGET_OPTIONS,
     long: true,
-  },
-  {
-    kind: "choice",
-    field: "urgency",
-    title: "When do you want the work done?",
-    hint: "Smell gas? Get everyone outside first, then call us.",
-    options: TIMELINE_OPTIONS,
   },
   {
     kind: "choice",
@@ -1101,15 +994,14 @@ const QUESTIONS: readonly Question[] = [
     hint: "Helps us know who signs off on the work.",
     options: ["I own it", "I rent", "Landlord or property manager", "Commercial property"],
   },
-  { kind: "address", title: "Where's the job?", hint: "Street address and ZIP code." },
-  { kind: "details", title: "Anything we should know before we call?", hint: "Optional. What you're seeing and how long it's been going on." },
+  { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
+  { kind: "address", title: "Last step: where's the job?", hint: "Street address and ZIP code, so we can confirm we cover your area." },
 ];
 
 // The questions this visitor will actually see, based on their answers so far.
 const activeQuestions = (a: LeadAnswers): readonly Question[] => QUESTIONS.filter((q) => !q.when || q.when(a));
 const textFor = (value: string | ((a: LeadAnswers) => string), a: LeadAnswers): string => (typeof value === "function" ? value(a) : value);
 
-const PHONE_STEP = QUESTIONS.findIndex((q) => q.kind === "phone");
 
 // Optional, unchecked by default (carriers do not allow consent to be required or pre-checked).
 // The exact wording is sent with the lead so there is a record of what the person agreed to.
@@ -1122,7 +1014,6 @@ const isValidPhone = (value: string): boolean => {
   const d = digitsOnly(value);
   return d.length === 10 || (d.length === 11 && d.startsWith("1"));
 };
-const isValidEmail = (value: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 
 function formatPhone(value: string): string {
   let d = digitsOnly(value);
@@ -1144,19 +1035,14 @@ function newLeadId(): string {
 
 function validateStep(question: Question, a: LeadAnswers): string | null {
   switch (question.kind) {
-    case "name":
-      return a.firstName.trim() ? null : "Please enter your first name.";
-    case "phone":
+    case "contact":
+      if (!a.firstName.trim()) return "Please enter your first name.";
       return isValidPhone(a.phone) ? null : "Please enter a 10-digit phone number.";
-    case "email":
-      return !a.email.trim() || isValidEmail(a.email) ? null : "That email doesn't look right. Fix it or leave it blank.";
     case "choice":
       return question.field && a[question.field] ? null : "Pick one to continue.";
     case "address":
       if (!a.address.trim()) return "Please enter the street address.";
       return /^\d{5}$/.test(a.zip.trim()) ? null : "Please enter a 5-digit ZIP code.";
-    case "details":
-      return null;
   }
 }
 
@@ -1300,7 +1186,7 @@ function LeadForm() {
   const active = activeQuestions(answers);
   const total = active.length;
   const question: Question = active[step] ?? FIRST_QUESTION;
-  const pct = status === "sent" ? 100 : Math.floor(((step + 1) / total) * 100);
+  const pct = status === "sent" ? 100 : Math.round(15 + (step / total) * 85);
   const isLast = step === total - 1;
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
@@ -1395,7 +1281,8 @@ function LeadForm() {
     }
 
     // Once we have a phone number, save progress after every step (fire and forget).
-    if (step >= PHONE_STEP) void send(a, "partial", step);
+    const contactStep = list.findIndex((q) => q.kind === "contact");
+    if (contactStep !== -1 && step >= contactStep) void send(a, "partial", step);
     setStep((s) => Math.min(s + 1, list.length - 1));
   };
 
@@ -1424,12 +1311,12 @@ function LeadForm() {
         </div>
         <div className="form__done">
           <p className="form__count">All set</p>
-          <h2 className="form__q">Thanks, {answers.firstName.trim() || "there"}. We'll call you shortly.</h2>
+          <h2 className="form__q">Thanks, {answers.firstName.trim() || "there"}. Philip's team will call you shortly.</h2>
           <p className="form__hint">
             Keep your phone close. We'll call {formatPhone(answers.phone)} from {T.business.phoneDisplay}.
           </p>
           <p className="form__note">
-            Emergency? Call now: <a href={T.business.phoneHref}>{T.business.phoneDisplay}</a>
+            Rather talk now? <a href={T.business.phoneHref}>Call {T.business.phoneDisplay}</a>
           </p>
         </div>
       </div>
@@ -1441,8 +1328,10 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        <span>{step === 0 ? "Let's go" : "Get a call back fast"}</span>
-        <span className="form__pct">{pct}%</span>
+        <span>
+          Step {step + 1} of {total}
+        </span>
+        <span className="form__pct">{step === 0 ? "About 45 seconds" : `${pct}% done`}</span>
       </div>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
@@ -1450,45 +1339,27 @@ function LeadForm() {
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.div key={step} ref={stepRef} className="form__step" transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} {...slide}>
-          <p className="form__count">
-            Question {step + 1} of {total}
-          </p>
           <h2 className={`form__q${question.long ? " form__q--long" : ""}`} id={`lead-q-${step}`}>
             {title}
           </h2>
           <p className="form__hint">{hint}</p>
 
-          {question.kind === "name" && (
-            <div className="field--pair">
+          {question.kind === "contact" && (
+            <>
               <div className="field">
                 <input aria-label="First name" name="firstName" type="text" autoComplete="given-name" placeholder="First name" maxLength={60} value={answers.firstName} onChange={(e) => set("firstName", e.target.value)} />
               </div>
               <div className="field">
-                <input aria-label="Last name" name="lastName" type="text" autoComplete="family-name" placeholder="Last name" maxLength={60} value={answers.lastName} onChange={(e) => set("lastName", e.target.value)} />
+                <input aria-label="Mobile number" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="Mobile number" maxLength={20} value={answers.phone} onChange={(e) => set("phone", formatPhone(e.target.value))} />
               </div>
-            </div>
-          )}
-
-          {question.kind === "phone" && (
-            <div className="field">
-              <input aria-label="Phone number" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="817-000-0000" maxLength={20} value={answers.phone} onChange={(e) => set("phone", formatPhone(e.target.value))} />
-            </div>
-          )}
-
-          {question.kind === "phone" && (
-            <label className="consent">
-              <input type="checkbox" name="smsConsent" checked={answers.smsConsent} onChange={(e) => set("smsConsent", e.target.checked)} />
-              <span>
-                {SMS_CONSENT_TEXT} See our <a href={T.business.privacyHref} target="_blank" rel="noopener">Privacy Policy</a> and{" "}
-                <a href={T.business.termsHref} target="_blank" rel="noopener">Terms</a>.
-              </span>
-            </label>
-          )}
-
-          {question.kind === "email" && (
-            <div className="field">
-              <input aria-label="Email" name="email" type="email" inputMode="email" autoComplete="email" placeholder="you@email.com" maxLength={120} value={answers.email} onChange={(e) => set("email", e.target.value)} />
-            </div>
+              <label className="consent">
+                <input type="checkbox" name="smsConsent" checked={answers.smsConsent} onChange={(e) => set("smsConsent", e.target.checked)} />
+                <span>
+                  {SMS_CONSENT_TEXT} See our <a href={T.business.privacyHref} target="_blank" rel="noopener">Privacy Policy</a> and{" "}
+                  <a href={T.business.termsHref} target="_blank" rel="noopener">Terms</a>.
+                </span>
+              </label>
+            </>
           )}
 
           {question.kind === "choice" && question.field && question.options && (
@@ -1515,11 +1386,6 @@ function LeadForm() {
             </>
           )}
 
-          {question.kind === "details" && (
-            <div className="field">
-              <textarea aria-label="Details" name="details" placeholder="Example: water pooling by the water heater since this morning." maxLength={1000} value={answers.details} onChange={(e) => set("details", e.target.value)} />
-            </div>
-          )}
         </motion.div>
       </AnimatePresence>
 
@@ -1533,9 +1399,8 @@ function LeadForm() {
         </button>
         {question.kind !== "choice" && (
           <div className="form__go">
-            {question.kind !== "details" && <span className="form__enter">press Enter ↵</span>}
             <button className="submit" type="submit" disabled={status === "sending"}>
-              {isLast ? (status === "sending" ? "Sending…" : "Request my call") : "Continue →"}
+              {isLast ? (status === "sending" ? "Sending…" : "Get my free estimate →") : "Get my price range →"}
             </button>
           </div>
         )}
@@ -1563,13 +1428,23 @@ function HeroSection() {
                 aria-hidden="true"
                 initial={{ opacity: 0, y: "0.4em" }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ delay: 0.05 + i * 0.04, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               >
                 {word}
               </motion.span>
             ))}
           </h1>
-          <RotatingLine />
+          <a className="hero__rating" href={T.business.google} target="_blank" rel="noopener noreferrer">
+            <span className="hero__stars" aria-hidden="true">★★★★★</span>
+            <strong>{GOOGLE_RATING.stars}</strong>
+            <span>· {GOOGLE_RATING.count} Google reviews</span>
+          </a>
+          <p className="hero__sub">{HERO_SUB}</p>
+          <ul className="hero__checks">
+            {HERO_CHECKS.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
           <div className="hero__actions">
             <a className="hero__phone" href={T.business.phoneHref}>
               {T.business.phoneDisplay}
@@ -1588,172 +1463,19 @@ function HeroSection() {
 /* ==========================================================================
    SERVICES
    ========================================================================== */
-function useSpotlight<E extends HTMLElement>() {
-  const ref = useRef<E>(null);
-  const onPointerMove = (event: ReactPointerEvent<E>): void => {
-    const el = ref.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-    el.style.setProperty("--my", `${event.clientY - rect.top}px`);
-  };
-  return { ref, onPointerMove };
-}
 
-const ART_PATHS: readonly ReactNode[] = [
-  // gas: flame
-  <path key="gas" d="M32 6c2 10 14 16 14 30a14 14 0 0 1-28 0c0-7 4-10 7-14 1 5 4 7 6 8-1-8 0-16 1-24z" />,
-  // water / sewer line: two pipes and a coupling
-  <g key="line"><path d="M4 24h20v16H4z" /><path d="M40 24h20v16H40z" /><path d="M24 20h16v24H24z" /></g>,
-  // repiping: elbows
-  <g key="repipe"><path d="M8 10v20a8 8 0 0 0 8 8h12" /><path d="M20 10v16a4 4 0 0 0 4 4h8" /><path d="M36 38h20" /><path d="M32 30h24" /></g>,
-  // slab leak: slab and drop
-  <g key="slab"><path d="M4 46h56v10H4z" /><path d="M32 8c0 0-10 12-10 20a10 10 0 0 0 20 0c0-8-10-20-10-20z" /></g>,
-  // drain: grate
-  <g key="drain"><circle cx="32" cy="32" r="24" /><path d="M20 32h24M24 24h16M24 40h16" /></g>,
-  // water heater: tank
-  <g key="heater"><rect x="16" y="6" width="32" height="48" rx="8" /><path d="M24 54v6M40 54v6" /><path d="M32 24c3 4 6 6 6 10a6 6 0 0 1-12 0c0-3 2-4 3-6" /></g>,
-  // leak detection: magnifier with drop
-  <g key="detect"><circle cx="27" cy="27" r="18" /><path d="M40 40l18 18" /><path d="M27 17c0 0-6 7-6 11a6 6 0 0 0 12 0c0-4-6-11-6-11z" /></g>,
-  // repairs: wrench
-  <path key="repair" d="M46 6a14 14 0 0 0-12 19L8 51a5 5 0 0 0 7 7l26-26A14 14 0 0 0 58 18l-9 9-8-2-2-8 9-9z" />,
-];
 
-function ServiceCard({ index, title }: { index: number; title: string }) {
-  const spotlight = useSpotlight<HTMLLIElement>();
-  const slug = SERVICE_SLUGS[index];
-  const [photoFailed, setPhotoFailed] = useState<boolean>(false);
-  const photo = slug && !photoFailed ? `/services/${slug}.jpg` : undefined;
-  return (
-    <li className="service card spot" ref={spotlight.ref} onPointerMove={spotlight.onPointerMove}>
-      <div className="service__media">
-        {photo ? (
-          <img src={photo} alt={title} width={640} height={480} loading="lazy" onError={() => setPhotoFailed(true)} />
-        ) : (
-          <div className="service__art" aria-hidden="true">
-            <svg viewBox="0 0 64 64">{ART_PATHS[index]}</svg>
-          </div>
-        )}
-      </div>
-      <div className="service__body">
-        <span className="service__n">{String(index + 1).padStart(2, "0")}</span>
-        <span className="service__t">{title}</span>
-      </div>
-    </li>
-  );
-}
 
-function ServicesSection() {
-  return (
-    <section className="section mesh" id="services">
-      <div className="wrap">
-        <div className="services__head">
-          <p className="eyebrow">Services</p>
-          <RevealHeading>What we fix, find and replace.</RevealHeading>
-          <p className="services__lede">Residential plumbing and gas line work across the Fort Worth area.</p>
-        </div>
-        <ul className="services__grid">
-          {SERVICES.map((service, i) => (
-            <ServiceCard key={service} index={i} title={service} />
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================================================
    STATS STRIP (only figures that come from the supplied business details)
    ========================================================================== */
-function CountUp({ to }: { to: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
-  const value = useMotionValue<number>(0);
-  const [shown, setShown] = useState<number>(0);
-  useMotionValueEvent(value, "change", (v) => setShown(Math.round(v)));
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(value, to, { duration: 1.4, ease: [0.22, 1, 0.36, 1] });
-    return () => controls.stop();
-  }, [inView, to, value]);
-  return <span ref={ref}>{shown}</span>;
-}
 
-function StatsStrip() {
-  return (
-    <div className="stats">
-      <div className="wrap stats__row">
-        <div className="stat">
-          <span className="stat__n">
-            <CountUp to={24} />/7
-          </span>
-          <span className="stat__l">Emergency response</span>
-        </div>
-        <div className="stat">
-          <span className="stat__n">
-            <CountUp to={SERVICE_AREAS.length} />
-          </span>
-          <span className="stat__l">Cities served</span>
-        </div>
-        <div className="stat">
-          <span className="stat__n">
-            <CountUp to={SERVICES.length} />
-          </span>
-          <span className="stat__l">Core services</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* ==========================================================================
    TRIAGE: "Is it urgent?" interactive helper
    ========================================================================== */
-const LEVEL_LABEL: Record<Triage["level"], string> = { now: "Act now", today: "Call today", soon: "Book a visit" };
 
-function TriageSection() {
-  const [active, setActive] = useState<number>(0);
-  const item = TRIAGE[active] ?? TRIAGE[0];
-  if (!item) return null;
-  return (
-    <section className="section mesh" id="triage">
-      <div className="wrap">
-        <p className="eyebrow">Is it urgent?</p>
-        <RevealHeading>Pick what you are seeing.</RevealHeading>
-        <div className="triage__grid">
-          <ul className="triage__list">
-            {TRIAGE.map((t, i) => (
-              <li key={t.symptom}>
-                <button type="button" className="triage__btn" aria-pressed={active === i} onClick={() => setActive(i)}>
-                  <span>{t.symptom}</span>
-                  <span aria-hidden="true">→</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          <div className="triage__result" aria-live="polite">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={item.symptom}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-              >
-                <span className={`pill ${item.level === "now" ? "pill--now" : ""}`}>{LEVEL_LABEL[item.level]}</span>
-                <h3 className="triage__head">{item.headline}</h3>
-                <p className="triage__advice">{item.advice}</p>
-              </motion.div>
-            </AnimatePresence>
-            <a className="call-btn" href={T.business.phoneHref}>
-              Call {T.business.phoneDisplay}
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================================================
    FAQ
@@ -1985,64 +1707,8 @@ function WistiaBackground() {
 /* ==========================================================================
    PROCESS: scroll-scrubbed frames as the background, cards 01-04 revealed by scroll position
    ========================================================================== */
-function StepCard({ step, index, progress }: { step: Step; index: number; progress: MotionValue<number> }) {
-  const start = T.scroll.revealStart + index * T.scroll.revealStep;
-  const end = start + T.scroll.revealSpan;
-  const opacity = useTransform(progress, [start, end], [0, 1]);
-  const y = useTransform(progress, [start, end], [48, 0]);
-  return (
-    <motion.li className="step glass" style={{ opacity, y }}>
-      <span className="step__n">{step.n}</span>
-      <h3 className="step__t">{step.title}</h3>
-      <p className="step__b">{step.body}</p>
-    </motion.li>
-  );
-}
 
-function ProcessSection({ progress, stage }: { progress: MotionValue<number>; stage: MotionValue<number> }) {
-  return (
-    <>
-      <div className="process__layout">
-        <div className="process__head">
-          <p className="eyebrow">What happens when you call</p>
-          <h2 className="process__title">No guessing. Here is the whole job, start to finish.</h2>
-        </div>
-        <ol className="process__steps">
-          {STEPS.map((step, i) => (
-            <StepCard key={step.n} step={step} index={i} progress={progress} />
-          ))}
-        </ol>
-      </div>
-      <div className="meter" aria-hidden="true">
-        <div className="meter__row">
-          <StageReadout stage={stage} />
-        </div>
-        <div className="meter__track">
-          <motion.div className="meter__bar" style={{ scaleX: progress }} />
-        </div>
-      </div>
-    </>
-  );
-}
 
-function TrustFacts() {
-  const facts = TRUST_FACTS.filter((f) => f.value.trim() !== "");
-  if (facts.length === 0) return null;
-  return (
-    <div className="trust">
-      <div className="wrap">
-        <ul className="trust__list">
-          {facts.map((f) => (
-            <li key={f.label}>
-              <span>{f.label}</span>
-              {f.value}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 
 /* ==========================================================================
@@ -2246,43 +1912,7 @@ function TextUsButton() {
 }
 
 // Floating pill on phones, sitting just above the tap-to-call bar.
-function TextUsFab() {
-  return (
-    <motion.a
-      className="text-fab"
-      href={smsHref()}
-      aria-label={`Text ${T.business.name}`}
-      initial={{ opacity: 0, y: 24, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 1.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      whileTap={{ scale: 0.96 }}
-    >
-      <span className="text-btn__icon">
-        <ChatIcon />
-      </span>
-      <span>Text us</span>
-    </motion.a>
-  );
-}
 
-function MagneticCall() {
-  const x = useSpring(0, { stiffness: 220, damping: 18, mass: 0.4 });
-  const y = useSpring(0, { stiffness: 220, damping: 18, mass: 0.4 });
-  const onMove = (event: ReactPointerEvent<HTMLAnchorElement>): void => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    x.set((event.clientX - (rect.left + rect.width / 2)) * 0.25);
-    y.set((event.clientY - (rect.top + rect.height / 2)) * 0.35);
-  };
-  const onLeave = (): void => {
-    x.set(0);
-    y.set(0);
-  };
-  return (
-    <motion.a className="call-btn" href={T.business.phoneHref} style={{ x, y }} onPointerMove={onMove} onPointerLeave={onLeave}>
-      Call {T.business.phoneDisplay}
-    </motion.a>
-  );
-}
 
 /* ==========================================================================
    WATER DETAILS: animated headings, wave dividers, rotating line, level meter
@@ -2338,35 +1968,6 @@ function WaveDivider({ tone }: { tone: WaveTone }) {
   );
 }
 
-function RotatingLine() {
-  const reduce = useReducedMotion();
-  const [index, setIndex] = useState<number>(0);
-  useEffect(() => {
-    if (reduce) return;
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % ROTATING_LINES.length), T.map.rotateMs);
-    return () => window.clearInterval(id);
-  }, [reduce]);
-  const line = ROTATING_LINES[index] ?? "";
-  return (
-    <p className="hero__rotor">
-      <span className="hero__rotor-label">We handle</span>
-      <span className="hero__rotor-slot" aria-live="off">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.span
-            key={line}
-            className="hero__rotor-word"
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: "0%", opacity: 1 }}
-            exit={{ y: "-100%", opacity: 0 }}
-            transition={{ duration: 0.35, ease: HEADING_EASE }}
-          >
-            {line}
-          </motion.span>
-        </AnimatePresence>
-      </span>
-    </p>
-  );
-}
 
 function WaterMeter() {
   const { scrollYProgress } = useScroll();
@@ -2382,128 +1983,91 @@ function WaterMeter() {
 /* ==========================================================================
    SERVICE-AREA MAP (stylized, not to scale)
    ========================================================================== */
-function projectArea(area: AreaGeo): { x: number; y: number } {
-  const { w, h, pad, lonMin, lonSpan, latMax, latSpan } = T.map;
-  return {
-    x: pad + ((area.lon - lonMin) / lonSpan) * (w - pad * 2),
-    y: pad + ((latMax - area.lat) / latSpan) * (h - pad * 2),
-  };
-}
-const MAP_POINTS = AREA_GEO.map((area) => ({ name: area.name, ...projectArea(area) }));
-const MAP_LABEL_FLIP_X = T.map.w * 0.7;
-const MAP_LABEL_LIFT = 16;
-const MAP_DOT_R = 6;
-const MAP_DOT_R_ACTIVE = 9;
 
-function AreaMap() {
-  const [active, setActive] = useState<string>(T.map.home);
-  const current = MAP_POINTS.find((p) => p.name === active);
-  const flip = current !== undefined && current.x > MAP_LABEL_FLIP_X;
-  return (
-    <div className="map">
-      <div className="map__panel">
-        <svg className="map__svg" viewBox={`0 0 ${T.map.w} ${T.map.h}`} role="img" aria-label="Stylized map of the cities Confluent Solutions serves around Fort Worth">
-          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
-            <line key={`v${n}`} className="map__grid" x1={(T.map.w / 8) * n} y1={0} x2={(T.map.w / 8) * n} y2={T.map.h} />
-          ))}
-          {[1, 2, 3, 4, 5].map((n) => (
-            <line key={`h${n}`} className="map__grid" x1={0} y1={(T.map.h / 6) * n} x2={T.map.w} y2={(T.map.h / 6) * n} />
-          ))}
-          <path className="map__water" d="M92 192 C96 164 150 156 184 174 C214 190 196 222 152 224 C112 226 88 214 92 192 Z" />
-          <path className="map__river" d="M40 340 C150 312 240 252 310 272 S440 336 520 304 S690 384 770 452" />
-          {MAP_POINTS.map((p) => {
-            const isActive = p.name === active;
-            return (
-              <g key={p.name} className={isActive ? "map__node is-active" : "map__node"} aria-hidden="true" onPointerEnter={() => setActive(p.name)} onClick={() => setActive(p.name)}>
-                <circle cx={p.x} cy={p.y} r={T.map.pad / 2} fill="transparent" />
-                {isActive && <circle className="map__ring" cx={p.x} cy={p.y} r={MAP_DOT_R_ACTIVE} />}
-                {isActive && <circle className="map__ring map__ring--late" cx={p.x} cy={p.y} r={MAP_DOT_R_ACTIVE} />}
-                <circle className="map__dot" cx={p.x} cy={p.y} r={isActive ? MAP_DOT_R_ACTIVE : MAP_DOT_R} />
-              </g>
-            );
-          })}
-          {current && (
-            <text className="map__label" x={current.x} y={current.y - MAP_LABEL_LIFT} textAnchor={flip ? "end" : "middle"}>
-              {current.name}
-            </text>
-          )}
-          <text className="map__legend" x={T.map.pad / 2} y={T.map.h - T.map.pad / 3}>
-            STYLIZED MAP, NOT TO SCALE
-          </text>
-        </svg>
-      </div>
-      <div className="map__side">
-        <div className="map__figs">
-          <div>
-            <span className="map__n">
-              <CountUp to={SERVICE_AREAS.length} />
-            </span>
-            <span className="map__cap">Cities served</span>
-          </div>
-          <div>
-            <span className="map__n">
-              <CountUp to={24} />/7
-            </span>
-            <span className="map__cap">Emergency line</span>
-          </div>
-        </div>
-        <p className="map__now" aria-live="polite">
-          {active === T.map.home ? `Home base: ${T.business.address}.` : `We serve ${active}, TX. Call and we will get you on the schedule.`}
-        </p>
-        <ul className="map__chips">
-          {SERVICE_AREAS.map((city) => (
-            <li key={city}>
-              <button type="button" className={city === active ? "map__chip is-active" : "map__chip"} onPointerEnter={() => setActive(city)} onFocus={() => setActive(city)} onClick={() => setActive(city)}>
-                {city}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <div className="areas__cta">
-          <a className="call-btn" href={T.business.phoneHref}>
-            Call {T.business.phoneDisplay}
-          </a>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-function AreasSection() {
-  return (
-    <section className="section areas" id="areas">
-      <div className="wrap">
-        <p className="eyebrow">Service areas</p>
-        <RevealHeading>Serving Fort Worth and nearby.</RevealHeading>
-        <AreaMap />
-      </div>
-    </section>
-  );
-}
 
 function Header() {
   return (
     <header className="header">
       <div className="wrap header__row">
         <Logo />
-        <nav className="nav" aria-label="Primary">
-          {NAV_LINKS.map((link) => (
-            <a key={link.href} href={link.href}>
-              {link.label}
-            </a>
-          ))}
-        </nav>
-        <MagneticCall />
+        <a className="header__phone" href={T.business.phoneHref} aria-label={`Call ${T.business.phoneDisplay}`}>
+          <PhoneIcon />
+          <span>{T.business.phoneDisplay}</span>
+        </a>
       </div>
     </header>
   );
 }
 
+function PhoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="icon-phone">
+      <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z" />
+    </svg>
+  );
+}
+
 function MobileCallBar() {
   return (
-    <a className="callbar" href={T.business.phoneHref} aria-label={`Tap to call ${T.business.phoneDisplay}`}>
-      TAP TO CALL — {T.business.phoneDisplay}
-    </a>
+    <div className="callbar">
+      <a className="callbar__call" href={T.business.phoneHref} aria-label={`Call ${T.business.phoneDisplay}`}>
+        <PhoneIcon />
+        Call now
+      </a>
+      <a className="callbar__text" href={smsHref()} aria-label={`Text ${T.business.name}`}>
+        <ChatIcon />
+        Text us
+      </a>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   LANDING PAGE SECTIONS: what happens next + what it usually costs
+   ========================================================================== */
+function NextStepsSection() {
+  return (
+    <section className="section lp" id="next">
+      <div className="wrap">
+        <p className="eyebrow">What happens next</p>
+        <RevealHeading>What happens after you send this.</RevealHeading>
+        <ol className="lp__steps">
+          {STEPS.map((step) => (
+            <li className="lp__step card" key={step.n}>
+              <span className="lp__n">{step.n}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+function CostSection() {
+  return (
+    <section className="section lp lp--deep" id="cost">
+      <div className="wrap">
+        <p className="eyebrow">What it usually costs</p>
+        <RevealHeading>Straight numbers, before anyone shows up.</RevealHeading>
+        <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts.</p>
+        <ul className="lp__costs">
+          {SERVICE_OPTIONS.map((o) => (
+            <li className="lp__cost card" key={o.label}>
+              <span>{o.label}</span>
+              <strong>{o.range}</strong>
+            </li>
+          ))}
+        </ul>
+        <a className="lp__cta" href="#top">
+          Get my free estimate →
+        </a>
+      </div>
+    </section>
   );
 }
 
@@ -2511,7 +2075,6 @@ function MobileCallBar() {
    APP
    ========================================================================== */
 export default function App() {
-  const [framesStatus, setFramesStatus] = useState<FramesStatus>("loading");
   const reduceMotion = useReducedMotion();
   // Ad tracking: remember which ad brought them, and load the Meta Pixel if it's configured.
   useEffect(() => {
@@ -2519,32 +2082,22 @@ export default function App() {
     initMetaPixel(META_PIXEL_ID);
   }, []);
   return (
-    <FramesContext.Provider value={framesStatus}>
+    <FramesContext.Provider value="ok">
       <style>{CSS}</style>
       <Header />
       <WaterMeter />
       <motion.main initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, ease: HEADING_EASE }}>
         <HeroSection />
-        <StatsStrip />
-        <ServicesSection />
-        <VideoScrollEngine onStatus={setFramesStatus}>{({ progress, stage }) => <ProcessSection progress={progress} stage={stage} />}</VideoScrollEngine>
-        <TrustFacts />
-        <TriageSection />
-        <WaveDivider tone="bg-deep" />
+        <NextStepsSection />
         <WhySection />
-        <WaveDivider tone="deep-bg" />
+        <CostSection />
         <JobsSection />
-        <WaveDivider tone="bg-deep" />
         <BadgesSection />
-        <WaveDivider tone="deep-navy" />
-        <AreasSection />
-        <WaveDivider tone="navy-bg" />
         <FaqSection />
         <WaveDivider tone="bg-brand" />
       </motion.main>
       <Footer />
       <MobileCallBar />
-      <TextUsFab />
       <ExitIntentPopup />
     </FramesContext.Provider>
   );
