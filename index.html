@@ -96,7 +96,20 @@ t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
 fbq('init', '3646456538856668');
-fbq('track', 'PageView');
+window.__capi = function (name, id, data) {
+  try {
+    var b = JSON.stringify({ event_name: name, event_id: id, url: location.href, custom_data: data || {} });
+    if (navigator.sendBeacon) navigator.sendBeacon('/api/event', new Blob([b], { type: 'application/json' }));
+    else fetch('/api/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: b, keepalive: true });
+  } catch (e) {}
+};
+window.__evId = function (p) { return p + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10); };
+(function () {
+  var id = window.__evId('pv');
+  fbq('track', 'PageView', {}, { eventID: id });
+  // Server copy with the same ID (deduplicated). Short delay so the _fbp cookie exists.
+  setTimeout(function () { window.__capi('PageView', id); }, 1500);
+})();
 </script>
 <!-- End Meta Pixel Code -->
 <!-- Call / Text click tracking: sends a Meta "Contact" event for every tel: and sms: link -->
@@ -117,7 +130,10 @@ fbq('track', 'PageView');
     if (!a) return;
     var method = a.getAttribute('href').indexOf('sms:') === 0 ? 'text' : 'call';
     if (window.fbq) {
-      window.fbq('track', 'Contact', { contact_method: method, button: buttonName(a), page: location.pathname || '/' });
+      var cd = { contact_method: method, button: buttonName(a), page: location.pathname || '/' };
+      var cid = window.__evId ? window.__evId('ct') : 'ct-' + Date.now();
+      window.fbq('track', 'Contact', cd, { eventID: cid });
+      if (window.__capi) window.__capi('Contact', cid, cd);
     }
     // Google Ads "Click to call" conversion (call buttons only).
     if (method === 'call' && window.gtag) {
