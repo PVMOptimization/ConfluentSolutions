@@ -827,9 +827,11 @@ img { display: block; max-width: 100%; }
 .lp__review p { color: var(--c-ink); font-size: 1rem; line-height: 1.5; }
 .lp__who { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; color: var(--c-ink-soft); }
 .lp__who svg { width: 16px; height: 16px; }
+.lp__owner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-xl); align-items: center; }
+.lp__owner-img { width: 100%; height: auto; border-radius: var(--r-lg); box-shadow: var(--shadow-1); object-fit: cover; aspect-ratio: 4 / 3; }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
-  .lp__steps, .lp__costs, .lp__reviews { grid-template-columns: 1fr; }
+  .lp__steps, .lp__costs, .lp__reviews, .lp__owner { grid-template-columns: 1fr; }
   .lp__step { grid-template-columns: auto 1fr; column-gap: var(--s-md); padding: var(--s-md); }
   .lp__cost { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
   .lp__cta { width: 100%; }
@@ -991,6 +993,7 @@ const QUESTIONS: readonly Question[] = [
     hint: "Smell gas? Get everyone outside first, then call us.",
     options: TIMELINE_OPTIONS,
   },
+  { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
   {
     kind: "choice",
     field: "budget",
@@ -1015,7 +1018,6 @@ const QUESTIONS: readonly Question[] = [
     hint: "Helps us know who signs off on the work.",
     options: ["I own it", "I rent", "Landlord or property manager", "Commercial property"],
   },
-  { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
   { kind: "address", title: "Last step: where's the job?", hint: "Street address and ZIP code, so we can confirm we cover your area." },
 ];
 
@@ -2047,6 +2049,26 @@ function MobileCallBar() {
 /* ==========================================================================
    LANDING PAGE SECTIONS: what happens next + what it usually costs
    ========================================================================== */
+function OwnerSection() {
+  return (
+    <section className="section lp" id="owner">
+      <div className="wrap lp__owner">
+        <img src="/images/why-1200x900.jpg" alt="Confluent Solutions truck and crew on a Fort Worth job" width={1200} height={900} loading="lazy" className="lp__owner-img" />
+        <div>
+          <p className="eyebrow">Who you'll deal with</p>
+          <RevealHeading>A local master plumber, not a call center.</RevealHeading>
+          <p className="lp__lead">
+            Confluent Solutions is owned by Philip O'Hara, a licensed master plumber (License M-44554) with 35+ years fixing Fort Worth homes. You get a free estimate, a straight price before any work starts, and financing if you want it.
+          </p>
+          <a className="lp__cta" href="#top">
+            Get my free estimate →
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ReviewsSection() {
   return (
     <section className="section lp lp--deep" id="reviews">
@@ -2137,6 +2159,7 @@ export default function App() {
       <motion.main initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, ease: HEADING_EASE }}>
         <HeroSection />
         <ReviewsSection />
+        <OwnerSection />
         <NextStepsSection />
         <WhySection />
         <CostSection />
