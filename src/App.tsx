@@ -944,7 +944,7 @@ interface ServiceOption {
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
   { label: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
-  { label: "Slab leak or yard line leak", phrase: "Fixing a slab or yard line leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Water leak (meter keeps running)", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
   { label: "Cast iron sewer line under the slab", phrase: "Replacing cast iron under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
   { label: "Repipe + tankless (both)", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
   { label: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
@@ -953,7 +953,7 @@ const SERVICE_OPTIONS: readonly ServiceOption[] = [
 ];
 
 const OTHER_SERVICE = "Something else";
-const LEAK_SERVICE = "Slab leak or yard line leak";
+const LEAK_SERVICE = "Water leak (meter keeps running)";
 const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
 const serviceInfo = (a: LeadAnswers): ServiceOption | undefined => SERVICE_OPTIONS.find((s) => s.label === a.service);
 
@@ -978,9 +978,9 @@ const QUESTIONS: readonly Question[] = [
   {
     kind: "choice",
     field: "leakCheck",
-    title: "Have you ruled out toilets, sprinklers and outdoor faucets?",
-    hint: "Most high water bills start there. If you've checked them and it's still leaking, it's likely under the slab or in the yard line.",
-    options: ["Yes, I've checked them", "Not sure yet"],
+    title: "Where do you think the leak is: under the house or in the yard?",
+    hint: "If your water meter keeps running with everything turned off, you have a leak, and it could be under the slab.",
+    options: ["Under the house", "In the yard", "Not sure"],
     when: (a) => a.service === LEAK_SERVICE,
     long: true,
   },
