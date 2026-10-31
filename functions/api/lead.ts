@@ -82,6 +82,7 @@ type LeadPayload = Record<TextField, string> & {
   lastStep: number;
   totalSteps: number;
   smsConsent: boolean;
+  firstContact: boolean;
 };
 
 const json = (body: unknown, status: number): Response =>
@@ -127,6 +128,7 @@ function parseLead(value: unknown): LeadPayload | null {
     totalSteps: num(v.totalSteps),
     // Only text people who ticked the consent box. Without it, call or email instead.
     smsConsent: v.smsConsent === true,
+    firstContact: v.firstContact === true,
   };
 }
 
@@ -198,8 +200,8 @@ export const onRequestPost = async (context: PagesContext): Promise<Response> =>
   const lead = parseLead(body);
   if (!lead) return json({ ok: false, error: "invalid" }, 400);
 
-  // Phone is question 2, so the first post that reaches us is the first time we can call them.
-  const isFirstContact = lead.stage === "partial" ? lead.lastStep <= 2 : lead.totalSteps === 0;
+  // The form flags the first post that carries a phone number. Older form versions: phone was question 2.
+  const isFirstContact = lead.firstContact || (lead.stage === "partial" && lead.lastStep <= 2);
   const isComplete = lead.stage === "complete";
   const budgetQualified = QUALIFIED_BUDGETS.includes(lead.budget);
   const timelineQualified = QUALIFIED_TIMELINES.includes(lead.urgency);
@@ -227,7 +229,8 @@ export const onRequestPost = async (context: PagesContext): Promise<Response> =>
     }),
   });
 
-  if (upstream.ok && isComplete) {
+  // The lead counts for Meta as soon as we have a name and phone (same event ID as the browser pixel).
+  if (upstream.ok && isFirstContact) {
     const task = sendMetaLead(lead, env, request, isQualified);
     if (context.waitUntil) context.waitUntil(task);
     else await task;

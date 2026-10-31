@@ -216,6 +216,21 @@ const REASONS: readonly Reason[] = [
 ];
 
 const HERO_TITLE = "Repipes, slab leaks, sewer & gas lines. Done right.";
+// Headline per ad offer. Every Meta ad name starts with O1–O5 and is passed in utm_content.
+const AD_HEADLINES: Record<string, string> = {
+  O1: "Rusty water or weak pressure? Your old galvanized pipes are done.",
+  O2: "Water meter still spinning? You have a hidden leak.",
+  O3: "Sewer backing up again? Replace the cast iron, not your floors.",
+  O4: "Old pipes and a tired water heater? Fix both in one job.",
+  O5: "Gas shut off after a failed test? We'll get it back on.",
+};
+function heroTitle(): string {
+  if (typeof window === "undefined") return HERO_TITLE;
+  const fromUrl = new URLSearchParams(window.location.search).get("utm_content") ?? "";
+  const content = fromUrl || readAttribution().utm_content || "";
+  const offer = content.trim().slice(0, 2).toUpperCase();
+  return AD_HEADLINES[offer] ?? HERO_TITLE;
+}
 const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Tap your problem below and we'll call with a price range.";
 const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
 
@@ -1197,12 +1212,26 @@ function initMetaPixel(pixelId: string | undefined): void {
 
 const META_PIXEL_ID: string | undefined = import.meta.env.VITE_META_PIXEL_ID;
 
+// Microsoft Clarity session recordings + heatmaps (free). Paste the project ID from clarity.microsoft.com.
+const CLARITY_ID = "";
+function initClarity(id: string): void {
+  if (!id || typeof window === "undefined" || document.getElementById("clarity-js")) return;
+  const w = window as unknown as { clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] } };
+  w.clarity = w.clarity || Object.assign((...args: unknown[]) => { (w.clarity!.q = w.clarity!.q || []).push(args); }, {});
+  const s = document.createElement("script");
+  s.id = "clarity-js";
+  s.async = true;
+  s.src = `https://www.clarity.ms/tag/${id}`;
+  document.head.appendChild(s);
+}
+
 function LeadForm() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<LeadAnswers>(EMPTY_ANSWERS);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<FormStatus>("idle");
   const leadId = useRef<string>(newLeadId());
+  const leadFired = useRef(false);
   const touched = useRef(false);
   const reduceMotion = useReducedMotion();
 
@@ -1225,7 +1254,7 @@ function LeadForm() {
     if (error) setError(null);
   };
 
-  const send = useCallback(async (a: LeadAnswers, stage: "partial" | "complete", lastStep: number): Promise<boolean> => {
+  const send = useCallback(async (a: LeadAnswers, stage: "partial" | "complete", lastStep: number, firstContact = false): Promise<boolean> => {
     const attr = readAttribution();
     const payload = {
       leadId: leadId.current,
@@ -1265,6 +1294,8 @@ function LeadForm() {
       fbp: readCookie("_fbp"),
       // Same ID the browser pixel uses, so Meta counts the lead once.
       metaEventId: `lead-${leadId.current}`,
+      // True only on the first post that carries a phone number (starts speed-to-lead in GHL).
+      firstContact,
     };
     try {
       const response = await fetch(T.business.leadEndpoint, {
@@ -1295,8 +1326,9 @@ function LeadForm() {
       const ok = await send(a, "complete", step);
       if (ok) {
         setStatus("sent");
-        window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
-        sendGoogleLead(a, leadId.current);
+        fireLead(a);
+        window.fbq?.("trackCustom", "QuoteComplete", { content_name: a.service });
+        window.gtag?.("event", "quote_complete", { service: a.service });
       } else {
         setStatus("error");
       }
@@ -1305,9 +1337,36 @@ function LeadForm() {
 
     // Once we have a phone number, save progress after every step (fire and forget).
     const contactStep = list.findIndex((q) => q.kind === "contact");
-    if (contactStep !== -1 && step >= contactStep) void send(a, "partial", step);
+    if (contactStep !== -1 && step >= contactStep) {
+      const first = step === contactStep && !leadFired.current;
+      void send(a, "partial", step, first);
+      // The lead counts as soon as we have a name and phone number.
+      if (first) fireLead(a);
+    }
     setStep((s) => Math.min(s + 1, list.length - 1));
   };
+
+  // Meta + Google "Lead", once per visitor, same event ID as the server copy.
+  const fireLead = (a: LeadAnswers): void => {
+    if (leadFired.current) return;
+    leadFired.current = true;
+    window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
+    sendGoogleLead(a, leadId.current);
+  };
+
+  // Step-by-step tracking: shows where people stop (Meta custom event + Google Analytics event).
+  const trackedStep = useRef<number>(-1);
+  useEffect(() => {
+    if (status === "sent" || trackedStep.current === step) return;
+    trackedStep.current = step;
+    const q = active[step];
+    if (!q) return;
+    const name = q.kind === "choice" ? q.field ?? "choice" : q.kind;
+    const data = { step: step + 1, question: name, service: answers.service || "none" };
+    window.fbq?.("trackCustom", "FormStep", data);
+    window.gtag?.("event", "form_step", data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, status]);
 
   const goBack = (): void => {
     touched.current = true;
@@ -1437,14 +1496,15 @@ function LeadForm() {
 }
 
 function HeroSection() {
+  const [title] = useState<string>(heroTitle);
   return (
     <section className="hero" id="top" aria-label="Confluent Solutions, Fort Worth plumbing">
       <WistiaBackground />
       <div className="hero__layout">
         <div className="hero__copy">
           <p className="eyebrow">{T.business.name} · Fort Worth, TX</p>
-          <h1 className="hero__title" aria-label={HERO_TITLE}>
-            {HERO_TITLE.split(" ").map((word, i) => (
+          <h1 className="hero__title" aria-label={title}>
+            {title.split(" ").map((word, i) => (
               <motion.span
                 key={`${word}-${i}`}
                 className="hero__word"
@@ -2150,6 +2210,7 @@ export default function App() {
   useEffect(() => {
     captureAttribution();
     initMetaPixel(META_PIXEL_ID);
+    initClarity(CLARITY_ID);
   }, []);
   return (
     <FramesContext.Provider value="ok">
