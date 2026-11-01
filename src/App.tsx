@@ -231,7 +231,7 @@ function heroTitle(): string {
   const offer = content.trim().slice(0, 2).toUpperCase();
   return AD_HEADLINES[offer] ?? HERO_TITLE;
 }
-const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Tap your problem below and we'll call with a price range.";
+const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call with a price range.";
 const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
 
 
@@ -844,6 +844,18 @@ img { display: block; max-width: 100%; }
 .lp__who svg { width: 16px; height: 16px; }
 .lp__owner { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--s-xl); align-items: center; }
 .lp__owner-img { width: 100%; height: auto; border-radius: var(--r-lg); box-shadow: var(--shadow-1); object-fit: cover; aspect-ratio: 4 / 3; }
+/* Financing badge */
+.fin-badge { display: inline-flex; align-items: center; gap: 0.6rem; border-radius: 999px; background: linear-gradient(135deg, #22C55E, #16A34A); color: #fff; box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35); font-family: var(--f-display); }
+.fin-badge strong { font-weight: 700; letter-spacing: 0.01em; }
+.fin-badge__icon { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; color: #15803D; font-weight: 800; font-size: 1.05rem; }
+.hero__side { position: relative; padding-top: 22px; }
+.fin-badge--edge { position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 3; padding: 0.45rem 1.25rem 0.45rem 0.45rem; font-size: 1.15rem; white-space: nowrap; border: 3px solid #0E1D4A; }
+.hero__side .form { padding-top: 2.25rem; }
+.fin-badge--block { margin-top: var(--s-lg); padding: 0.75rem 1.5rem 0.75rem 0.75rem; border-radius: var(--r-lg); font-size: 1.25rem; }
+.fin-badge--block .fin-badge__icon { width: 44px; height: 44px; font-size: 1.4rem; }
+.fin-badge--block span:last-child { display: grid; line-height: 1.2; }
+.fin-badge--block small { font-family: var(--f-body); font-weight: 500; font-size: 0.9375rem; opacity: 0.95; }
+@media (max-width: ${mq}) { .hero__side .form { padding-top: 2.4rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
   .lp__steps, .lp__costs, .lp__reviews, .lp__owner { grid-template-columns: 1fr; }
@@ -953,24 +965,26 @@ interface Question {
 // range + depends feed the budget question. They are DFW research ranges (Oct 2026);
 // replace them with Philip's real numbers when he sends them.
 interface ServiceOption {
-  label: string; // button text in the form
+  label: string; // button text in the form: the symptom, in homeowner words (also sent to GHL as "service")
+  job: string; // the job behind it, used in the price list
   phrase: string; // how the budget question refers to the job
   range: string; // what it usually runs, low to high
   depends: string; // why it can run higher
 }
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
-  { label: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
-  { label: "Water leak (meter keeps running)", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
-  { label: "Cast iron sewer line under the slab", phrase: "Replacing cast iron under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
-  { label: "Repipe + tankless (both)", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
-  { label: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
-  { label: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
-  { label: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
-];
+  { label: "Rusty water or low water pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Water leak, high water bill, or meter keeps running", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Sewer backing up or cracked drain under the house", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Old pipes and an old water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
+  { label: "Gas line problem or failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
+  { label: "I want a tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
+  { label: "Leak or break in the yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
+]
 
-const OTHER_SERVICE = "Something else";
-const LEAK_SERVICE = "Water leak (meter keeps running)";
+const OTHER_SERVICE = "Not sure / something else";
+const LEAK_SERVICE = "Water leak, high water bill, or meter keeps running";
+const SEWER_SERVICE = "Sewer backing up or cracked drain under the house";
 const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
 const serviceInfo = (a: LeadAnswers): ServiceOption | undefined => SERVICE_OPTIONS.find((s) => s.label === a.service);
 
@@ -985,8 +999,8 @@ const TIMELINE_OPTIONS: readonly string[] = ["As soon as possible", "Within 2 we
 const FIRST_QUESTION: Question = {
   kind: "choice",
   field: "service",
-  title: "What do you need help with?",
-  hint: "Tap the closest match. Takes about 45 seconds.",
+  title: "What plumbing problem are you having?",
+  hint: "Choose what you're seeing. Not sure? That's fine, pick the last one.",
   options: FORM_SERVICES,
 };
 
@@ -999,6 +1013,16 @@ const QUESTIONS: readonly Question[] = [
     hint: "If your water meter keeps running with everything turned off, you have a leak, and it could be under the slab.",
     options: ["Under the house", "In the yard", "Not sure"],
     when: (a) => a.service === LEAK_SERVICE,
+    long: true,
+  },
+  {
+    kind: "choice",
+    // Shares the leakCheck field with the leak follow-up (only one of them is ever shown), so GHL needs no new field.
+    field: "leakCheck",
+    title: "What's going on with your sewer line?",
+    hint: "If another plumber already looked at it, we can often replace it by tunneling under the house instead of cutting through your floors.",
+    options: ["Drains keep backing up", "A plumber found a cracked pipe", "I was told it needs replacing", "Not sure"],
+    when: (a) => a.service === SEWER_SERVICE,
     long: true,
   },
   {
@@ -1536,6 +1560,10 @@ function HeroSection() {
           </div>
         </div>
         <div className="hero__side">
+          <div className="fin-badge fin-badge--edge">
+            <span className="fin-badge__icon" aria-hidden="true">$</span>
+            <strong>Financing available</strong>
+          </div>
           <LeadForm />
         </div>
       </div>
@@ -2185,10 +2213,17 @@ function CostSection() {
         <p className="eyebrow">What it usually costs</p>
         <RevealHeading>Straight numbers, before anyone shows up.</RevealHeading>
         <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts. Financing available.</p>
+        <div className="fin-badge fin-badge--block">
+          <span className="fin-badge__icon" aria-hidden="true">$</span>
+          <span>
+            <strong>Financing available</strong>
+            <small>Fix it right now, pay over time. Ask during your free estimate.</small>
+          </span>
+        </div>
         <ul className="lp__costs">
           {SERVICE_OPTIONS.map((o) => (
             <li className="lp__cost card" key={o.label}>
-              <span>{o.label}</span>
+              <span>{o.job}</span>
               <strong>{o.range}</strong>
             </li>
           ))}
