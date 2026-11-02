@@ -16,8 +16,8 @@ interface PagesContext {
   waitUntil?: (promise: Promise<unknown>) => void;
 }
 
-const ALLOWED_EVENTS = new Set(["PageView", "Contact"]);
-const ALLOWED_CUSTOM_KEYS = ["contact_method", "button", "page"];
+const ALLOWED_EVENTS = new Set(["PageView", "Contact", "FormStarted"]);
+const ALLOWED_CUSTOM_KEYS = ["contact_method", "button", "page", "content_name"];
 
 function readCookie(header: string | null, name: string): string {
   if (!header) return "";

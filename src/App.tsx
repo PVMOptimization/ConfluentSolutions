@@ -1398,7 +1398,20 @@ function LeadForm() {
     setStep((s) => Math.max(s - 1, 0));
   };
 
+  // "FormStarted": first answer tapped. Once per visitor; browser + server copy with the same event ID.
+  // Used as the Meta optimization event until there are enough Leads.
+  const startedFired = useRef(false);
+  const fireStarted = (service: string): void => {
+    if (startedFired.current) return;
+    startedFired.current = true;
+    const id = `fs-${leadId.current}`;
+    window.fbq?.("trackCustom", "FormStarted", { content_name: service }, { eventID: id });
+    (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("FormStarted", id, { content_name: service });
+    window.gtag?.("event", "form_started", { service });
+  };
+
   const pick = (field: ChoiceField, value: string): void => {
+    if (field === "service") fireStarted(value);
     const next = { ...answers, [field]: value };
     setAnswers(next);
     void goNext(next);
