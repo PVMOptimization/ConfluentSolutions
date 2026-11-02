@@ -224,14 +224,20 @@ const AD_HEADLINES: Record<string, string> = {
   O4: "Old pipes and a tired water heater? Fix both in one job.",
   O5: "Gas shut off after a failed test? We'll get it back on.",
 };
-function heroTitle(): string {
-  if (typeof window === "undefined") return HERO_TITLE;
+// O1–O5 from the ad link (utm_content), or "" when the visitor didn't come from one of the offer ads.
+function adOffer(): string {
+  if (typeof window === "undefined") return "";
   const fromUrl = new URLSearchParams(window.location.search).get("utm_content") ?? "";
   const content = fromUrl || readAttribution().utm_content || "";
   const offer = content.trim().slice(0, 2).toUpperCase();
-  return AD_HEADLINES[offer] ?? HERO_TITLE;
+  return offer in AD_HEADLINES ? offer : "";
+}
+function heroTitle(): string {
+  return AD_HEADLINES[adOffer()] ?? HERO_TITLE;
 }
 const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call with a price range.";
+const HERO_SUB_PRESET = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call with a price range.";
+const heroSub = (): string => (adOffer() ? HERO_SUB_PRESET : HERO_SUB);
 const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
 
 
@@ -783,6 +789,9 @@ img { display: block; max-width: 100%; }
 .form__track { height: 6px; }
 .form__q { font-size: clamp(1.4rem, 2.2vw, 1.75rem); }
 .form__hint { font-size: 0.9375rem; color: rgba(244, 248, 255, 0.88); margin-top: -0.2rem; }
+.form__got { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.8125rem; font-weight: 600; color: rgba(244, 248, 255, 0.92); margin: 0.1rem 0 -0.25rem; }
+.form__got span { color: #4ade80; font-weight: 800; }
+.form__change { background: none; border: 0; padding: 0.25rem 0.1rem; color: #93c5fd; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
 .choices { grid-template-columns: 1fr; gap: 0.6rem; }
 .choice { min-height: 54px; padding: 0.7rem 1rem; font-size: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.28); }
 .choice::after { content: "→"; opacity: 0.55; flex: none; }
@@ -985,6 +994,18 @@ const SERVICE_OPTIONS: readonly ServiceOption[] = [
 const OTHER_SERVICE = "Not sure / something else";
 const LEAK_SERVICE = "Water leak, high water bill, or meter keeps running";
 const SEWER_SERVICE = "Sewer backing up or cracked drain under the house";
+// The ad already told us the problem: start the form on the next question (endowed progress).
+const OFFER_SERVICE: Record<string, string> = {
+  O1: "Rusty water or low water pressure",
+  O2: LEAK_SERVICE,
+  O3: SEWER_SERVICE,
+  O4: "Old pipes and an old water heater",
+  O5: "Gas line problem or failed gas test",
+};
+const presetService = (): string => {
+  const label = OFFER_SERVICE[adOffer()] ?? "";
+  return SERVICE_OPTIONS.some((o) => o.label === label) ? label : "";
+};
 const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
 const serviceInfo = (a: LeadAnswers): ServiceOption | undefined => SERVICE_OPTIONS.find((s) => s.label === a.service);
 
@@ -1250,8 +1271,9 @@ function initClarity(id: string): void {
 }
 
 function LeadForm() {
-  const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<LeadAnswers>(EMPTY_ANSWERS);
+  const preset = useRef<string>(presetService());
+  const [step, setStep] = useState(preset.current ? 1 : 0);
+  const [answers, setAnswers] = useState<LeadAnswers>(() => (preset.current ? { ...EMPTY_ANSWERS, service: preset.current } : EMPTY_ANSWERS));
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<FormStatus>("idle");
   const leadId = useRef<string>(newLeadId());
@@ -1411,7 +1433,8 @@ function LeadForm() {
   };
 
   const pick = (field: ChoiceField, value: string): void => {
-    if (field === "service") fireStarted(value);
+    // First tap of any answer counts as starting the form (the service may already be filled in from the ad).
+    fireStarted(field === "service" ? value : answers.service || value);
     const next = { ...answers, [field]: value };
     setAnswers(next);
     void goNext(next);
@@ -1455,6 +1478,17 @@ function LeadForm() {
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
       </div>
+
+      {step > 0 && answers.service && (
+        <p className="form__got">
+          <span aria-hidden="true">✓</span> {answers.service}
+          {preset.current && step === 1 && (
+            <button type="button" className="form__change" onClick={goBack}>
+              change
+            </button>
+          )}
+        </p>
+      )}
 
       <AnimatePresence mode="wait" initial={false}>
         <motion.div key={step} ref={stepRef} className="form__step" transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} {...slide}>
@@ -1559,7 +1593,7 @@ function HeroSection() {
             <strong>{GOOGLE_RATING.stars}</strong>
             <span>· {GOOGLE_RATING.count} Google reviews</span>
           </a>
-          <p className="hero__sub">{HERO_SUB}</p>
+          <p className="hero__sub">{heroSub()}</p>
           <ul className="hero__checks">
             {HERO_CHECKS.map((c) => (
               <li key={c}>{c}</li>
