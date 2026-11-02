@@ -864,6 +864,8 @@ img { display: block; max-width: 100%; }
 .fin-badge--block .fin-badge__icon { width: 44px; height: 44px; font-size: 1.4rem; }
 .fin-badge--block span:last-child { display: grid; line-height: 1.2; }
 .fin-badge--block small { font-family: var(--f-body); font-weight: 500; font-size: 0.9375rem; opacity: 0.95; }
+.hero__below { display: none; }
+@media (max-width: ${mq}) { .hero__top-only { display: none; } .hero__below { display: grid; gap: 0.6rem; margin-top: 1rem; text-shadow: 0 2px 18px rgba(5, 10, 30, 0.6); } }
 @media (max-width: ${mq}) { .hero__side .form { padding-top: 2.4rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
@@ -1050,7 +1052,10 @@ const QUESTIONS: readonly Question[] = [
     kind: "choice",
     field: "urgency",
     title: "When do you want the work done?",
-    hint: "Smell gas? Get everyone outside first, then call us.",
+    hint: (a) =>
+      a.service.startsWith("Gas")
+        ? "Smell gas? Get everyone outside first, then call us."
+        : "Pick the closest one. It helps us schedule your free estimate.",
     options: TIMELINE_OPTIONS,
   },
   { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
@@ -1593,8 +1598,8 @@ function HeroSection() {
             <strong>{GOOGLE_RATING.stars}</strong>
             <span>· {GOOGLE_RATING.count} Google reviews</span>
           </a>
-          <p className="hero__sub">{heroSub()}</p>
-          <ul className="hero__checks">
+          <p className="hero__sub hero__top-only">{heroSub()}</p>
+          <ul className="hero__checks hero__top-only">
             {HERO_CHECKS.map((c) => (
               <li key={c}>{c}</li>
             ))}
@@ -1612,6 +1617,15 @@ function HeroSection() {
             <strong>Financing available</strong>
           </div>
           <LeadForm />
+          {/* On phones the subhead and checkmarks sit under the form, so the first question's buttons fit on screen. */}
+          <div className="hero__below" aria-hidden="true">
+            <ul className="hero__checks">
+              {HERO_CHECKS.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+            <p className="hero__sub">{heroSub()}</p>
+          </div>
         </div>
       </div>
     </section>
