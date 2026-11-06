@@ -1445,6 +1445,10 @@ function LeadForm() {
     (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("FormStarted", id, { content_name: service });
     window.gtag?.("event", "form_started", { service });
     clarity("event", "form_started");
+    // Standard "Contact" event = real intent (form tap here, call/text taps elsewhere). Meta optimizes on it.
+    const cid = `ct-${leadId.current}`;
+    window.fbq?.("track", "Contact", { content_name: service, contact_method: "form" }, { eventID: cid });
+    (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("Contact", cid, { content_name: service, contact_method: "form" });
   };
 
   const pick = (field: ChoiceField, value: string): void => {
