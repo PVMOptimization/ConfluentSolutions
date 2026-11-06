@@ -1263,7 +1263,12 @@ function initMetaPixel(pixelId: string | undefined): void {
 const META_PIXEL_ID: string | undefined = import.meta.env.VITE_META_PIXEL_ID;
 
 // Microsoft Clarity session recordings + heatmaps (free). Paste the project ID from clarity.microsoft.com.
-const CLARITY_ID = "";
+const CLARITY_ID = "z9hu2tcqp8";
+// Clarity custom events/tags so recordings can be filtered by ad, step reached and outcome.
+type ClarityFn = (...args: unknown[]) => void;
+const clarity = (...args: unknown[]): void => {
+  (window as unknown as { clarity?: ClarityFn }).clarity?.(...args);
+};
 function initClarity(id: string): void {
   if (!id || typeof window === "undefined" || document.getElementById("clarity-js")) return;
   const w = window as unknown as { clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] } };
@@ -1379,6 +1384,7 @@ function LeadForm() {
         setStatus("sent");
         fireLead(a);
         window.fbq?.("trackCustom", "QuoteComplete", { content_name: a.service });
+        clarity("event", "quote_complete");
         window.gtag?.("event", "quote_complete", { service: a.service });
       } else {
         setStatus("error");
@@ -1402,6 +1408,8 @@ function LeadForm() {
     if (leadFired.current) return;
     leadFired.current = true;
     window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
+    clarity("event", "lead");
+    clarity("upgrade", "lead");
     sendGoogleLead(a, leadId.current);
   };
 
@@ -1415,6 +1423,7 @@ function LeadForm() {
     const name = q.kind === "choice" ? q.field ?? "choice" : q.kind;
     const data = { step: step + 1, question: name, service: answers.service || "none" };
     window.fbq?.("trackCustom", "FormStep", data);
+    clarity("set", "furthest_step", String(step + 1));
     window.gtag?.("event", "form_step", data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, status]);
@@ -1435,6 +1444,7 @@ function LeadForm() {
     window.fbq?.("trackCustom", "FormStarted", { content_name: service }, { eventID: id });
     (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("FormStarted", id, { content_name: service });
     window.gtag?.("event", "form_started", { service });
+    clarity("event", "form_started");
   };
 
   const pick = (field: ChoiceField, value: string): void => {
@@ -2307,6 +2317,11 @@ export default function App() {
     captureAttribution();
     initMetaPixel(META_PIXEL_ID);
     initClarity(CLARITY_ID);
+    const ad = new URLSearchParams(window.location.search).get("utm_content") || readAttribution().utm_content || "";
+    if (ad) {
+      clarity("set", "ad", ad.slice(0, 60));
+      clarity("set", "offer", ad.trim().slice(0, 2).toUpperCase());
+    }
   }, []);
   return (
     <FramesContext.Provider value="ok">
