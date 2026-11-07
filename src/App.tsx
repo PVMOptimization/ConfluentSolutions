@@ -828,7 +828,9 @@ img { display: block; max-width: 100%; }
   .form__hint { font-size: 0.8125rem; line-height: 1.3; }
   .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
   /* The picked problem stays on one line, "change" next to it. */
-  .form__got { flex-wrap: nowrap; }
+  .form__got { flex-wrap: nowrap; min-width: 0; }
+  .hero__layout { grid-template-columns: minmax(0, 1fr); }
+  .hero__side, .hero__copy, .form--steps, .form__step { min-width: 0; }
   .form__got-text { font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .form__q, .form__q--long { font-size: 1.25rem; line-height: 1.15; }
   .form__hint { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
