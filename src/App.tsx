@@ -185,7 +185,7 @@ const STAGES: readonly Stage[] = [
 ];
 
 // Update by hand from the Google Business Profile. Never round up.
-const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
+const GOOGLE_RATING = { stars: "5.0", count: 49 } as const;
 
 interface Review {
   name: string;
@@ -816,6 +816,27 @@ img { display: block; max-width: 100%; }
   .form { padding: 1.1rem; }
   .form__hint { font-size: 0.875rem; }
   .choice { min-height: 52px; padding: 0.6rem 0.9rem; }
+  .choices--short { grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+  .choices--short .choice { min-height: 46px; padding: 0.5rem 0.6rem; font-size: 0.875rem; line-height: 1.15; justify-content: center; text-align: center; }
+  /* Financing moves into the form's top line on phones, so the answers clear the call bar. */
+  .hero__side .fin-badge--edge { display: none; }
+  .hero__side { padding-top: 0; }
+  .hero__side .form { padding-top: 1rem; }
+  .hero__layout { padding-top: calc(var(--header-h) + 0.75rem); gap: 0.85rem; }
+  .hero__title { font-size: 1.875rem; }
+  .form--steps { gap: 0.45rem; }
+  .form__hint { font-size: 0.8125rem; line-height: 1.3; }
+  .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
+  /* The picked problem stays on one line, "change" next to it. */
+  .form__got { flex-wrap: nowrap; min-width: 0; }
+  .hero__layout { grid-template-columns: minmax(0, 1fr); }
+  .hero__side, .hero__copy, .form--steps, .form__step { min-width: 0; }
+  .form__got-text { font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .form__q, .form__q--long { font-size: 1.25rem; line-height: 1.15; }
+  .form__hint { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .choice { min-height: 46px; padding: 0.5rem 0.85rem; font-size: 0.9375rem; }
+  .choices { gap: 0.45rem; }
+  .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
 }
 
@@ -866,7 +887,7 @@ img { display: block; max-width: 100%; }
 .fin-badge--block small { font-family: var(--f-body); font-weight: 500; font-size: 0.9375rem; opacity: 0.95; }
 .hero__below { display: none; }
 @media (max-width: ${mq}) { .hero__top-only { display: none; } .hero__below { display: grid; gap: 0.6rem; margin-top: 1rem; text-shadow: 0 2px 18px rgba(5, 10, 30, 0.6); } }
-@media (max-width: ${mq}) { .hero__side .form { padding-top: 2.4rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
+@media (max-width: ${mq}) { .hero__side .form { padding-top: 1rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
   .lp__steps, .lp__costs, .lp__reviews, .lp__owner { grid-template-columns: 1fr; }
@@ -1295,6 +1316,10 @@ function LeadForm() {
   const total = active.length;
   const question: Question = active[step] ?? FIRST_QUESTION;
   const pct = status === "sent" ? 100 : Math.round(15 + (step / total) * 85);
+  // Steps the visitor actually sees (an ad-preset service skips the first question).
+  const firstStep = preset.current ? 1 : 0;
+  const shownStep = step - firstStep + 1;
+  const shownTotal = total - firstStep;
   const isLast = step === total - 1;
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
@@ -1489,10 +1514,8 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        <span>
-          Step {step + 1} of {total}
-        </span>
-        <span className="form__pct">{step === 0 ? "About 45 seconds" : `${pct}% done`}</span>
+        <span>{step === firstStep ? "Free estimate · Financing available" : `Step ${shownStep} of ${shownTotal}`}</span>
+        <span className="form__pct">{step === firstStep ? "30 seconds" : `${pct}% done`}</span>
       </div>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
@@ -1500,7 +1523,7 @@ function LeadForm() {
 
       {step > 0 && answers.service && (
         <p className="form__got">
-          <span aria-hidden="true">✓</span> {answers.service}
+          <span aria-hidden="true">✓</span> <em className="form__got-text">{answers.service}</em>
           {preset.current && step === 1 && (
             <button type="button" className="form__change" onClick={goBack}>
               change
@@ -1535,7 +1558,7 @@ function LeadForm() {
           )}
 
           {question.kind === "choice" && question.field && question.options && (
-            <div className="choices" role="group" aria-labelledby={`lead-q-${step}`}>
+            <div className={`choices${question.options.every((o) => o.length <= 22) ? " choices--short" : ""}`} role="group" aria-labelledby={`lead-q-${step}`}>
               {question.options.map((option) => {
                 const field = question.field as ChoiceField;
                 return (
@@ -1828,7 +1851,11 @@ function WistiaBackground() {
   const bgRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<WistiaPlayerElement>(null);
   const inView = useInView(bgRef, { margin: "120px" });
-  const reduceMotion = useReducedMotion();
+  const motionOk = !useReducedMotion();
+  // Phones get the still poster only: the video player slowed the first paint in the
+  // Facebook in-app browser and shifted the whole hero when it started (Clarity CLS ~1.0).
+  const [wide] = useState(() => typeof window !== "undefined" && window.matchMedia(`(min-width: ${T.bp.mobile}px)`).matches);
+  const reduceMotion = !motionOk || !wide;
 
   // Same scripts as Wistia's embed code, loaded once.
   useEffect(() => {
