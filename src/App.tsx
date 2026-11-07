@@ -816,8 +816,16 @@ img { display: block; max-width: 100%; }
   .form { padding: 1.1rem; }
   .form__hint { font-size: 0.875rem; }
   .choice { min-height: 52px; padding: 0.6rem 0.9rem; }
-  .choices--short { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-  .choices--short .choice { min-height: 50px; padding: 0.55rem 0.7rem; font-size: 0.9375rem; line-height: 1.2; }
+  .choices--short { grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+  .choices--short .choice { min-height: 46px; padding: 0.5rem 0.6rem; font-size: 0.875rem; line-height: 1.15; justify-content: center; text-align: center; }
+  /* Financing moves into the form's top line on phones, so the answers clear the call bar. */
+  .hero__side .fin-badge--edge { display: none; }
+  .hero__side { padding-top: 0; }
+  .hero__side .form { padding-top: 1rem; }
+  .hero__layout { padding-top: calc(var(--header-h) + 0.75rem); gap: 0.85rem; }
+  .hero__title { font-size: 1.875rem; }
+  .form--steps { gap: 0.45rem; }
+  .form__hint { font-size: 0.8125rem; line-height: 1.3; }
   .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
 }
@@ -869,7 +877,7 @@ img { display: block; max-width: 100%; }
 .fin-badge--block small { font-family: var(--f-body); font-weight: 500; font-size: 0.9375rem; opacity: 0.95; }
 .hero__below { display: none; }
 @media (max-width: ${mq}) { .hero__top-only { display: none; } .hero__below { display: grid; gap: 0.6rem; margin-top: 1rem; text-shadow: 0 2px 18px rgba(5, 10, 30, 0.6); } }
-@media (max-width: ${mq}) { .hero__side .form { padding-top: 2.4rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
+@media (max-width: ${mq}) { .hero__side .form { padding-top: 1rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
   .lp__steps, .lp__costs, .lp__reviews, .lp__owner { grid-template-columns: 1fr; }
@@ -1496,7 +1504,7 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        <span>{step === firstStep ? "Free estimate" : `Step ${shownStep} of ${shownTotal}`}</span>
+        <span>{step === firstStep ? "Free estimate · Financing available" : `Step ${shownStep} of ${shownTotal}`}</span>
         <span className="form__pct">{step === firstStep ? "About 30 seconds" : `${pct}% done`}</span>
       </div>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
