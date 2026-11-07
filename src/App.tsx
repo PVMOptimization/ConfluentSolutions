@@ -827,6 +827,13 @@ img { display: block; max-width: 100%; }
   .form--steps { gap: 0.45rem; }
   .form__hint { font-size: 0.8125rem; line-height: 1.3; }
   .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
+  /* The picked problem stays on one line, "change" next to it. */
+  .form__got { flex-wrap: nowrap; }
+  .form__got-text { font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .form__q, .form__q--long { font-size: 1.25rem; line-height: 1.15; }
+  .form__hint { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .choice { min-height: 46px; padding: 0.5rem 0.85rem; font-size: 0.9375rem; }
+  .choices { gap: 0.45rem; }
   .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
 }
@@ -1514,7 +1521,7 @@ function LeadForm() {
 
       {step > 0 && answers.service && (
         <p className="form__got">
-          <span aria-hidden="true">✓</span> {answers.service}
+          <span aria-hidden="true">✓</span> <em className="form__got-text">{answers.service}</em>
           {preset.current && step === 1 && (
             <button type="button" className="form__change" onClick={goBack}>
               change
