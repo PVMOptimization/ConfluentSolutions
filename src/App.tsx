@@ -877,7 +877,12 @@ img { display: block; max-width: 100%; }
 .px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
 .px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
 .px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
-.px__fine { margin-top: 1rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
+.px__note { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
+.px__book { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--r-md); background: rgba(10, 60, 140, 0.06); }
+.px__book p { font-size: 0.9375rem; color: var(--c-ink); line-height: 1.45; }
+.px__book strong { color: var(--c-brand); }
+.px__cta { margin-top: 0.85rem; width: 100%; border: 0; cursor: pointer; font-family: inherit; }
+.px__fine { margin-top: 0.9rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
 /* Tablets use the phone layout, centered at a readable width. */
 @media (min-width: 600px) and (max-width: ${mq}) {
   .hero__layout { max-width: 640px; margin-inline: auto; }
@@ -1017,8 +1022,8 @@ interface Question {
 }
 
 // Confluent's services, in the order they should appear in the form.
-// range + depends feed the budget question. They are DFW research ranges (Oct 2026);
-// replace them with Philip's real numbers when he sends them.
+// range + depends feed the budget question and the price explorer. Lows checked against published
+// DFW/Fort Worth cost guides (Nov 2026); sewer-under-slab and yard-line are rough. Replace with Philip's numbers.
 interface ServiceOption {
   label: string; // button text in the form: the symptom, in homeowner words (also sent to GHL as "service")
   short: string; // chip text in the price explorer
@@ -1029,13 +1034,13 @@ interface ServiceOption {
 }
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
-  { label: "Rusty water or low water pressure", short: "Rusty water / low pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
-  { label: "Water leak, high water bill, or meter keeps running", short: "Hidden or slab leak", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
-  { label: "Sewer backing up or cracked drain under the house", short: "Sewer backing up", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
-  { label: "Old pipes and an old water heater", short: "Old pipes + water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
-  { label: "Gas line problem or failed gas test", short: "Gas line / failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
-  { label: "I want a tankless water heater", short: "Tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
-  { label: "Leak or break in the yard water line", short: "Yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
+  { label: "Rusty water or low water pressure", short: "Rusty water / low pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$4,500–$15,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Water leak, high water bill, or meter keeps running", short: "Hidden or slab leak", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$1,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Sewer backing up or cracked drain under the house", short: "Sewer backing up", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$3,000–$20,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Old pipes and an old water heater", short: "Old pipes + water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$9,000–$22,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
+  { label: "Gas line problem or failed gas test", short: "Gas line / failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$2,000–$10,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
+  { label: "I want a tankless water heater", short: "Tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$4,500–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
+  { label: "Leak or break in the yard water line", short: "Yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$1,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
 ]
 
 const OTHER_SERVICE = "Not sure / something else";
@@ -1091,13 +1096,13 @@ const QUESTIONS: readonly Question[] = [
     title: (a) => {
       const info = serviceInfo(a);
       return info
-        ? `If it's what it sounds like, ${info.phrase.charAt(0).toLowerCase()}${info.phrase.slice(1)} could run anywhere from ${info.range.replace("–", " to ")}. Do you have a budget of $5,000 or more?`
+        ? `If it's what it sounds like, ${info.phrase.charAt(0).toLowerCase()}${info.phrase.slice(1)} could run anywhere from ${info.range.replace("–", " to ")}. Which fits your budget?`
         : "Most of our projects run $5,000 or more. Do you have a budget of $5,000 or more for this project?";
     },
     hint: (a) => {
       const info = serviceInfo(a);
       const why = info ? `Depending on ${info.depends}. ` : "";
-      return `${why}Your free estimate confirms what's actually needed and the exact price before any work starts. Financing available.`;
+      return `${why}Your free estimate confirms what's actually needed and the exact price before any work starts. If it lands higher, financing spreads it out.`;
     },
     options: BUDGET_OPTIONS,
     long: true,
@@ -1480,6 +1485,20 @@ function LeadForm() {
     window.fbq?.("track", "Contact", { content_name: service, contact_method: "form" }, { eventID: cid });
     (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("Contact", cid, { content_name: service, contact_method: "form" });
   };
+
+  // "Book my free estimate" in the price explorer: start the form on that problem,
+  // unless the visitor is already past the first question.
+  useEffect(() => {
+    const onBook = (e: Event): void => {
+      const service = (e as CustomEvent<string>).detail;
+      if (!service || status === "sent" || step > (preset.current ? 1 : 0)) return;
+      fireStarted(service);
+      setAnswers((a) => ({ ...a, service }));
+      setStep(1);
+    };
+    window.addEventListener("cs:book", onBook);
+    return () => window.removeEventListener("cs:book", onBook);
+  });
 
   const pick = (field: ChoiceField, value: string): void => {
     // First tap of any answer counts as starting the form (the service may already be filled in from the ad).
@@ -2314,6 +2333,11 @@ function CostSection() {
     clarity("event", "price_check");
     clarity("set", "price_check", SERVICE_OPTIONS[i]?.short ?? "");
   };
+  const book = (): void => {
+    clarity("event", "price_book");
+    window.dispatchEvent(new CustomEvent("cs:book", { detail: o.label }));
+    document.getElementById("top")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   return (
     <section className="section lp lp--deep" id="cost">
       <div className="wrap">
@@ -2342,6 +2366,7 @@ function CostSection() {
               <span>$15,000</span>
               <span>$30,000+</span>
             </div>
+            <p className="px__note">Small spot repairs can cost less.</p>
             <div className="px__rows">
               <div className="px__row">
                 <h3>What moves the price</h3>
@@ -2352,12 +2377,17 @@ function CostSection() {
                 <p>Fixed right the first time, so you're not paying for the same problem again a few years down the road.</p>
               </div>
             </div>
-            <p className="px__fine">Financing available. Licensed Master Plumber, License M-44554.</p>
+            <div className="px__book">
+              <p>
+                <strong>Your free estimate pins down the real number</strong> before any work starts. If it lands on the higher end, financing spreads it out.
+              </p>
+              <button type="button" className="lp__cta px__cta" onClick={book}>
+                Book my free estimate →
+              </button>
+            </div>
+            <p className="px__fine">Licensed Master Plumber, License M-44554. 35+ years in Fort Worth.</p>
           </div>
         </div>
-        <a className="lp__cta" href="#top">
-          Get my exact price, free →
-        </a>
       </div>
     </section>
   );
