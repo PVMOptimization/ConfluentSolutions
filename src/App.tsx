@@ -877,6 +877,13 @@ img { display: block; max-width: 100%; }
 .px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
 .px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
 .px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
+/* Range step in the form */
+.rng { display: grid; gap: 0.35rem; margin-top: 0.35rem; }
+.rng__job { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-aqua); }
+.rng__range { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.9rem, 7vw, 2.4rem); line-height: 1.05; color: #fff; letter-spacing: -0.02em; }
+.rng__bar { margin: 0.4rem 0 0.6rem; background: rgba(255, 255, 255, 0.14); }
+.rng__go { width: 100%; margin-top: 0.25rem; }
+.rng__text { display: block; text-align: center; padding: 0.7rem; font-weight: 600; font-size: 0.9375rem; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 .px__note { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
 .px__book { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--r-md); background: rgba(10, 60, 140, 0.06); }
 .px__book p { font-size: 0.9375rem; color: var(--c-ink); line-height: 1.45; }
@@ -1007,7 +1014,7 @@ const EMPTY_ANSWERS: LeadAnswers = {
 };
 
 type ChoiceField = "service" | "leakCheck" | "budget" | "urgency" | "ownership";
-type QuestionKind = "contact" | "choice" | "address";
+type QuestionKind = "contact" | "choice" | "address" | "range";
 
 interface Question {
   kind: QuestionKind;
@@ -1079,6 +1086,13 @@ const FIRST_QUESTION: Question = {
 
 const QUESTIONS: readonly Question[] = [
   FIRST_QUESTION,
+  // Value first: show the typical price for their problem before asking anything else.
+  {
+    kind: "range",
+    title: "What Fort Worth homeowners typically pay",
+    hint: "Small repairs can cost less. Your free estimate finds what's actually wrong and locks in the exact price.",
+    when: (a) => Boolean(serviceInfo(a)),
+  },
   {
     kind: "choice",
     field: "urgency",
@@ -1162,6 +1176,8 @@ function validateStep(question: Question, a: LeadAnswers): string | null {
     case "address":
       if (!a.address.trim()) return "Please enter the street address.";
       return /^\d{5}$/.test(a.zip.trim()) ? null : "Please enter a 5-digit ZIP code.";
+    case "range":
+      return null;
   }
 }
 
@@ -1331,6 +1347,8 @@ function LeadForm() {
   const shownStep = step - firstStep + 1;
   const shownTotal = total - firstStep;
   const isLast = step === total - 1;
+  const rangeInfo = serviceInfo(answers);
+  const [rangeLo, rangeHi] = rangeInfo ? parseRange(rangeInfo.range) : [0, 0];
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
 
@@ -1493,12 +1511,20 @@ function LeadForm() {
       const service = (e as CustomEvent<string>).detail;
       if (!service || status === "sent" || step > (preset.current ? 1 : 0)) return;
       fireStarted(service);
-      setAnswers((a) => ({ ...a, service }));
-      setStep(1);
+      const next = { ...answers, service };
+      setAnswers(next);
+      const urgency = activeQuestions(next).findIndex((q) => q.field === "urgency");
+      setStep(urgency > 0 ? urgency : 1);
     };
     window.addEventListener("cs:book", onBook);
     return () => window.removeEventListener("cs:book", onBook);
   });
+
+  const continueFromRange = (): void => {
+    fireStarted(answers.service);
+    clarity("event", "range_continue");
+    void goNext();
+  };
 
   const pick = (field: ChoiceField, value: string): void => {
     // First tap of any answer counts as starting the form (the service may already be filled in from the ad).
@@ -1594,6 +1620,24 @@ function LeadForm() {
             </div>
           )}
 
+          {question.kind === "range" && rangeInfo && (
+            <div className="rng">
+              <p className="rng__job">{rangeInfo.job}</p>
+              <p className="rng__range">
+                {money(rangeLo)} to {money(rangeHi)}
+              </p>
+              <div className="px__bar rng__bar" aria-hidden="true">
+                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
+              </div>
+              <button type="button" className="submit rng__go" onClick={continueFromRange}>
+                Get my exact price, free →
+              </button>
+              <a className="rng__text" href={smsHref(answers.service)}>
+                Or text Philip a photo of the problem
+              </a>
+            </div>
+          )}
+
           {question.kind === "address" && (
             <>
               <div className="field">
@@ -1616,7 +1660,7 @@ function LeadForm() {
         <button type="button" className="form__back" onClick={goBack} hidden={step === 0}>
           ← Back
         </button>
-        {question.kind !== "choice" && (
+        {question.kind !== "choice" && question.kind !== "range" && (
           <div className="form__go">
             <button className="submit" type="submit" disabled={status === "sending"}>
               {isLast ? (status === "sending" ? "Sending…" : "Get my free estimate →") : "Get my price range →"}
@@ -2118,8 +2162,12 @@ function Footer() {
   );
 }
 
-function smsHref(): string {
-  return `sms:${T.business.smsNumber}?&body=${encodeURIComponent(T.business.smsBody)}`;
+// Pre-written text that names their problem, so tapping Text is one tap + send (photo optional).
+function smsHref(service: string = presetService()): string {
+  const body = service
+    ? `Hi Philip, I'm in Fort Worth and need a price on: ${service}. Here's a photo of what I'm seeing:`
+    : "Hi Philip, I'm in Fort Worth and need a price on a plumbing problem. Here's a photo of what I'm seeing:";
+  return `sms:${T.business.smsNumber}?&body=${encodeURIComponent(body)}`;
 }
 
 function ChatIcon() {
@@ -2234,7 +2282,7 @@ function MobileCallBar() {
       </a>
       <a className="callbar__text" href={smsHref()} aria-label={`Text ${T.business.name}`}>
         <ChatIcon />
-        Text us
+        Text a photo
       </a>
     </div>
   );
