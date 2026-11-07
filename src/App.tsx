@@ -80,7 +80,7 @@ const T = {
     mega: "clamp(3rem, 6.4vw, 6.5rem)",
   },
   sizeMobile: { xs: "0.6875rem", sm: "0.8125rem", md: "0.9375rem", lg: "1.0625rem", xl: "1.5rem", xxl: "2rem", mega: "2.375rem" },
-  bp: { mobile: 768, wide: 1280 },
+  bp: { mobile: 1024, wide: 1280 },
   layout: { max: "1200px", maxWide: "1360px", gutter: "clamp(1rem, 4vw, 3rem)", header: "88px", callBar: "60px", protrude: "clamp(28px, calc((100vw - 1230px) / 2), 88px)", wave: "clamp(32px, 5vw, 64px)", meterMin: 1280 },
   map: { w: 800, h: 520, pad: 50, lonMin: -97.5, lonSpan: 0.45, latMax: 32.97, latSpan: 0.42, home: "Fort Worth", rotateMs: 2600 },
   motion: { ease: "cubic-bezier(0.22, 1, 0.36, 1)", fast: "180ms", base: "320ms" },
@@ -861,6 +861,34 @@ img { display: block; max-width: 100%; }
 .lp__step h3 { font-family: var(--f-display); font-size: 1.125rem; line-height: 1.2; color: var(--c-brand); }
 .lp__step p { font-size: 0.9375rem; color: var(--c-ink-soft); margin-top: 0.25rem; }
 .lp__lead { margin-top: var(--s-md); max-width: 40rem; color: var(--c-ink-soft); font-size: 1.0625rem; }
+/* Price explorer: pick a problem, see the range */
+.px { margin-top: var(--s-lg); max-width: 56rem; }
+.px__chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.px__chip { min-height: 44px; padding: 0.55rem 0.95rem; border-radius: 999px; border: 1.5px solid var(--c-line); background: var(--c-paper); color: var(--c-ink); font-weight: 600; font-size: 0.9375rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.px__chip:hover { border-color: var(--c-brand); }
+.px__chip[aria-pressed="true"] { background: var(--c-brand); border-color: var(--c-brand); color: #fff; }
+.px__card { margin-top: var(--s-md); padding: 1.5rem 1.5rem 1.35rem; border-radius: var(--r-lg, 18px); background: var(--c-paper); box-shadow: 0 10px 30px rgba(10, 30, 70, 0.10); border: 1px solid var(--c-line); }
+.px__job { font-size: 0.875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-aqua-deep); }
+.px__could { margin-top: 0.6rem; color: var(--c-ink-soft); font-size: 1rem; }
+.px__range { font-family: var(--f-display); font-weight: 700; font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; color: var(--c-brand); letter-spacing: -0.02em; }
+.px__bar { position: relative; height: 10px; margin: 1.1rem 0 0.4rem; border-radius: 999px; background: rgba(10, 40, 90, 0.08); }
+.px__fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--c-aqua), var(--c-brand)); transition: left 0.35s ease, width 0.35s ease; }
+.px__scale { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--c-ink-soft); }
+.px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
+.px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
+.px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
+.px__note { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
+.px__book { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--r-md); background: rgba(10, 60, 140, 0.06); }
+.px__book p { font-size: 0.9375rem; color: var(--c-ink); line-height: 1.45; }
+.px__book strong { color: var(--c-brand); }
+.px__cta { margin-top: 0.85rem; width: 100%; border: 0; cursor: pointer; font-family: inherit; }
+.px__fine { margin-top: 0.9rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
+/* Tablets use the phone layout, centered at a readable width. */
+@media (min-width: 600px) and (max-width: ${mq}) {
+  .hero__layout { max-width: 640px; margin-inline: auto; }
+  .hero__title { font-size: 2.5rem; }
+}
+@media (max-width: ${mq}) { .px__rows { grid-template-columns: 1fr; } .px__card { padding: 1.25rem 1.1rem 1.1rem; } .px__chip { font-size: 0.875rem; padding: 0.5rem 0.8rem; } }
 .lp__costs { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-sm); margin-top: var(--s-lg); max-width: 56rem; }
 .lp__cost { display: flex; justify-content: space-between; align-items: center; gap: var(--s-md); padding: 1rem 1.25rem; }
 .lp__cost span { font-weight: 500; color: var(--c-ink); }
@@ -994,10 +1022,11 @@ interface Question {
 }
 
 // Confluent's services, in the order they should appear in the form.
-// range + depends feed the budget question. They are DFW research ranges (Oct 2026);
-// replace them with Philip's real numbers when he sends them.
+// range + depends feed the budget question and the price explorer. Lows checked against published
+// DFW/Fort Worth cost guides (Nov 2026); sewer-under-slab and yard-line are rough. Replace with Philip's numbers.
 interface ServiceOption {
   label: string; // button text in the form: the symptom, in homeowner words (also sent to GHL as "service")
+  short: string; // chip text in the price explorer
   job: string; // the job behind it, used in the price list
   phrase: string; // how the budget question refers to the job
   range: string; // what it usually runs, low to high
@@ -1005,13 +1034,13 @@ interface ServiceOption {
 }
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
-  { label: "Rusty water or low water pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
-  { label: "Water leak, high water bill, or meter keeps running", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
-  { label: "Sewer backing up or cracked drain under the house", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
-  { label: "Old pipes and an old water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
-  { label: "Gas line problem or failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
-  { label: "I want a tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
-  { label: "Leak or break in the yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
+  { label: "Rusty water or low water pressure", short: "Rusty water / low pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$4,500–$15,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Water leak, high water bill, or meter keeps running", short: "Hidden or slab leak", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$1,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Sewer backing up or cracked drain under the house", short: "Sewer backing up", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$3,000–$20,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Old pipes and an old water heater", short: "Old pipes + water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$9,000–$22,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
+  { label: "Gas line problem or failed gas test", short: "Gas line / failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$2,000–$10,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
+  { label: "I want a tankless water heater", short: "Tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$4,500–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
+  { label: "Leak or break in the yard water line", short: "Yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$1,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
 ]
 
 const OTHER_SERVICE = "Not sure / something else";
@@ -1052,31 +1081,12 @@ const QUESTIONS: readonly Question[] = [
   FIRST_QUESTION,
   {
     kind: "choice",
-    field: "leakCheck",
-    title: "Where do you think the leak is: under the house or in the yard?",
-    hint: "If your water meter keeps running with everything turned off, you have a leak, and it could be under the slab.",
-    options: ["Under the house", "In the yard", "Not sure"],
-    when: (a) => a.service === LEAK_SERVICE,
-    long: true,
-  },
-  {
-    kind: "choice",
-    // Shares the leakCheck field with the leak follow-up (only one of them is ever shown), so GHL needs no new field.
-    field: "leakCheck",
-    title: "What's going on with your sewer line?",
-    hint: "If another plumber already looked at it, we can often replace it by tunneling under the house instead of cutting through your floors.",
-    options: ["Drains keep backing up", "A plumber found a cracked pipe", "I was told it needs replacing", "Not sure"],
-    when: (a) => a.service === SEWER_SERVICE,
-    long: true,
-  },
-  {
-    kind: "choice",
     field: "urgency",
-    title: "When do you want the work done?",
+    title: "When do you want someone to take a look?",
     hint: (a) =>
       a.service.startsWith("Gas")
         ? "Smell gas? Get everyone outside first, then call us."
-        : "Pick the closest one. It helps us schedule your free estimate.",
+        : "No need to know exactly what's wrong. That's what the free estimate is for.",
     options: TIMELINE_OPTIONS,
   },
   { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
@@ -1086,13 +1096,13 @@ const QUESTIONS: readonly Question[] = [
     title: (a) => {
       const info = serviceInfo(a);
       return info
-        ? `${info.phrase} usually runs ${info.range}. Do you have a budget of $5,000 or more for this project?`
+        ? `If it's what it sounds like, ${info.phrase.charAt(0).toLowerCase()}${info.phrase.slice(1)} could run anywhere from ${info.range.replace("–", " to ")}. Which fits your budget?`
         : "Most of our projects run $5,000 or more. Do you have a budget of $5,000 or more for this project?";
     },
     hint: (a) => {
       const info = serviceInfo(a);
       const why = info ? `Depending on ${info.depends}. ` : "";
-      return `${why}Financing available. Doing it right the first time costs less than doing it twice.`;
+      return `${why}Your free estimate confirms what's actually needed and the exact price before any work starts. If it lands higher, financing spreads it out.`;
     },
     options: BUDGET_OPTIONS,
     long: true,
@@ -1475,6 +1485,20 @@ function LeadForm() {
     window.fbq?.("track", "Contact", { content_name: service, contact_method: "form" }, { eventID: cid });
     (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("Contact", cid, { content_name: service, contact_method: "form" });
   };
+
+  // "Book my free estimate" in the price explorer: start the form on that problem,
+  // unless the visitor is already past the first question.
+  useEffect(() => {
+    const onBook = (e: Event): void => {
+      const service = (e as CustomEvent<string>).detail;
+      if (!service || status === "sent" || step > (preset.current ? 1 : 0)) return;
+      fireStarted(service);
+      setAnswers((a) => ({ ...a, service }));
+      setStep(1);
+    };
+    window.addEventListener("cs:book", onBook);
+    return () => window.removeEventListener("cs:book", onBook);
+  });
 
   const pick = (field: ChoiceField, value: string): void => {
     // First tap of any answer counts as starting the form (the service may already be filled in from the ad).
@@ -2130,31 +2154,11 @@ function TextUsButton() {
 /* ==========================================================================
    WATER DETAILS: animated headings, wave dividers, rotating line, level meter
    ========================================================================== */
-const HEADING_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const HEADING_STAGGER_S = 0.07;
-const HEADING_DURATION_S = 0.7;
 
+// Headings render as plain text. The old word-by-word reveal hid them until scrolled into view,
+// and Clarity recordings showed those sections blank.
 function RevealHeading({ children }: { children: string }) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-12% 0px" });
-  const reduce = useReducedMotion();
-  const shown = inView || reduce === true;
-  return (
-    <h2 className="h2 reveal" ref={ref} aria-label={children}>
-      {children.split(" ").map((word, i) => (
-        <span className="reveal__mask" key={`${word}-${i}`} aria-hidden="true">
-          <motion.span
-            className="reveal__word"
-            initial={{ y: "115%" }}
-            animate={{ y: shown ? "0%" : "115%" }}
-            transition={{ delay: i * HEADING_STAGGER_S, duration: HEADING_DURATION_S, ease: HEADING_EASE }}
-          >
-            {word}
-          </motion.span>
-        </span>
-      ))}
-    </h2>
-  );
+  return <h2 className="h2 reveal">{children}</h2>;
 }
 
 type WaveTone = "bg-deep" | "deep-bg" | "deep-navy" | "navy-bg" | "bg-brand";
@@ -2308,31 +2312,82 @@ function NextStepsSection() {
   );
 }
 
+const PX_MAX = 30000; // right end of the price bar
+const parseRange = (r: string): [number, number] => {
+  const n = r.match(/[\d,]+/g)?.map((x) => Number(x.replace(/,/g, ""))) ?? [0, 0];
+  return [n[0] ?? 0, n[1] ?? n[0] ?? 0];
+};
+const money = (n: number): string => `$${n.toLocaleString("en-US")}`;
+
 function CostSection() {
+  // Start on the problem from the ad they clicked, if any.
+  const [pick, setPick] = useState(() => {
+    const preset = presetService();
+    const i = SERVICE_OPTIONS.findIndex((o) => o.label === preset);
+    return i >= 0 ? i : 0;
+  });
+  const o = SERVICE_OPTIONS[pick] ?? SERVICE_OPTIONS[0]!;
+  const [lo, hi] = parseRange(o.range);
+  const choose = (i: number) => {
+    setPick(i);
+    clarity("event", "price_check");
+    clarity("set", "price_check", SERVICE_OPTIONS[i]?.short ?? "");
+  };
+  const book = (): void => {
+    clarity("event", "price_book");
+    window.dispatchEvent(new CustomEvent("cs:book", { detail: o.label }));
+    document.getElementById("top")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   return (
     <section className="section lp lp--deep" id="cost">
       <div className="wrap">
-        <p className="eyebrow">What it usually costs</p>
-        <RevealHeading>Straight numbers, before anyone shows up.</RevealHeading>
-        <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts. Financing available.</p>
-        <div className="fin-badge fin-badge--block">
-          <span className="fin-badge__icon" aria-hidden="true">$</span>
-          <span>
-            <strong>Financing available</strong>
-            <small>Fix it right now, pay over time. Ask during your free estimate.</small>
-          </span>
+        <p className="eyebrow">What it could cost</p>
+        <RevealHeading>Pick what you're dealing with. See the range.</RevealHeading>
+        <p className="lp__lead">Typical Fort Worth-area ranges, not a quote. Your free estimate finds what's actually wrong and gives you the exact price before any work starts.</p>
+        <div className="px">
+          <div className="px__chips" role="group" aria-label="Choose a problem to see its price range">
+            {SERVICE_OPTIONS.map((s, i) => (
+              <button key={s.label} type="button" className="px__chip" aria-pressed={i === pick} onClick={() => choose(i)}>
+                {s.short}
+              </button>
+            ))}
+          </div>
+          <div className="px__card" aria-live="polite">
+            <p className="px__job">{o.job}</p>
+            <p className="px__could">Could be anywhere from</p>
+            <p className="px__range">
+              {money(lo)} to {money(hi)}
+            </p>
+            <div className="px__bar" aria-hidden="true">
+              <span className="px__fill" style={{ left: `${(lo / PX_MAX) * 100}%`, width: `${(Math.min(hi, PX_MAX) - lo) / PX_MAX * 100}%` }} />
+            </div>
+            <div className="px__scale" aria-hidden="true">
+              <span>$0</span>
+              <span>$15,000</span>
+              <span>$30,000+</span>
+            </div>
+            <p className="px__note">Small spot repairs can cost less.</p>
+            <div className="px__rows">
+              <div className="px__row">
+                <h3>What moves the price</h3>
+                <p>{o.depends.charAt(0).toUpperCase() + o.depends.slice(1)}.</p>
+              </div>
+              <div className="px__row">
+                <h3>Why do it right once</h3>
+                <p>Fixed right the first time, so you're not paying for the same problem again a few years down the road.</p>
+              </div>
+            </div>
+            <div className="px__book">
+              <p>
+                <strong>Your free estimate pins down the real number</strong> before any work starts. If it lands on the higher end, financing spreads it out.
+              </p>
+              <button type="button" className="lp__cta px__cta" onClick={book}>
+                Book my free estimate →
+              </button>
+            </div>
+            <p className="px__fine">Licensed Master Plumber, License M-44554. 35+ years in Fort Worth.</p>
+          </div>
         </div>
-        <ul className="lp__costs">
-          {SERVICE_OPTIONS.map((o) => (
-            <li className="lp__cost card" key={o.label}>
-              <span>{o.job}</span>
-              <strong>{o.range}</strong>
-            </li>
-          ))}
-        </ul>
-        <a className="lp__cta" href="#top">
-          Get my free estimate →
-        </a>
       </div>
     </section>
   );
@@ -2342,7 +2397,6 @@ function CostSection() {
    APP
    ========================================================================== */
 export default function App() {
-  const reduceMotion = useReducedMotion();
   // Ad tracking: remember which ad brought them, and load the Meta Pixel if it's configured.
   useEffect(() => {
     captureAttribution();
@@ -2359,7 +2413,7 @@ export default function App() {
       <style>{CSS}</style>
       <Header />
       <WaterMeter />
-      <motion.main initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, ease: HEADING_EASE }}>
+      <motion.main initial={false}>
         <HeroSection />
         <ReviewsSection />
         <OwnerSection />
