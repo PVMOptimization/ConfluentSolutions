@@ -185,7 +185,7 @@ const STAGES: readonly Stage[] = [
 ];
 
 // Update by hand from the Google Business Profile. Never round up.
-const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
+const GOOGLE_RATING = { stars: "5.0", count: 49 } as const;
 
 interface Review {
   name: string;
@@ -816,6 +816,9 @@ img { display: block; max-width: 100%; }
   .form { padding: 1.1rem; }
   .form__hint { font-size: 0.875rem; }
   .choice { min-height: 52px; padding: 0.6rem 0.9rem; }
+  .choices--short { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+  .choices--short .choice { min-height: 50px; padding: 0.55rem 0.7rem; font-size: 0.9375rem; line-height: 1.2; }
+  .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
 }
 
@@ -1295,6 +1298,10 @@ function LeadForm() {
   const total = active.length;
   const question: Question = active[step] ?? FIRST_QUESTION;
   const pct = status === "sent" ? 100 : Math.round(15 + (step / total) * 85);
+  // Steps the visitor actually sees (an ad-preset service skips the first question).
+  const firstStep = preset.current ? 1 : 0;
+  const shownStep = step - firstStep + 1;
+  const shownTotal = total - firstStep;
   const isLast = step === total - 1;
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
@@ -1489,10 +1496,8 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        <span>
-          Step {step + 1} of {total}
-        </span>
-        <span className="form__pct">{step === 0 ? "About 45 seconds" : `${pct}% done`}</span>
+        <span>{step === firstStep ? "Free estimate" : `Step ${shownStep} of ${shownTotal}`}</span>
+        <span className="form__pct">{step === firstStep ? "About 30 seconds" : `${pct}% done`}</span>
       </div>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
@@ -1535,7 +1540,7 @@ function LeadForm() {
           )}
 
           {question.kind === "choice" && question.field && question.options && (
-            <div className="choices" role="group" aria-labelledby={`lead-q-${step}`}>
+            <div className={`choices${question.options.every((o) => o.length <= 22) ? " choices--short" : ""}`} role="group" aria-labelledby={`lead-q-${step}`}>
               {question.options.map((option) => {
                 const field = question.field as ChoiceField;
                 return (
@@ -1828,7 +1833,11 @@ function WistiaBackground() {
   const bgRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<WistiaPlayerElement>(null);
   const inView = useInView(bgRef, { margin: "120px" });
-  const reduceMotion = useReducedMotion();
+  const motionOk = !useReducedMotion();
+  // Phones get the still poster only: the video player slowed the first paint in the
+  // Facebook in-app browser and shifted the whole hero when it started (Clarity CLS ~1.0).
+  const [wide] = useState(() => typeof window !== "undefined" && window.matchMedia(`(min-width: ${T.bp.mobile}px)`).matches);
+  const reduceMotion = !motionOk || !wide;
 
   // Same scripts as Wistia's embed code, loaded once.
   useEffect(() => {
