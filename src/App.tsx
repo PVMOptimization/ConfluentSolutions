@@ -826,6 +826,7 @@ img { display: block; max-width: 100%; }
   .hero__title { font-size: 1.875rem; }
   .form--steps { gap: 0.45rem; }
   .form__hint { font-size: 0.8125rem; line-height: 1.3; }
+  .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
   .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
 }
@@ -1505,7 +1506,7 @@ function LeadForm() {
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
         <span>{step === firstStep ? "Free estimate · Financing available" : `Step ${shownStep} of ${shownTotal}`}</span>
-        <span className="form__pct">{step === firstStep ? "About 30 seconds" : `${pct}% done`}</span>
+        <span className="form__pct">{step === firstStep ? "30 seconds" : `${pct}% done`}</span>
       </div>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
