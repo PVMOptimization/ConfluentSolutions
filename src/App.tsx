@@ -828,10 +828,10 @@ img { display: block; max-width: 100%; }
   .form__hint { font-size: 0.8125rem; line-height: 1.3; }
   .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
   /* The picked problem stays on one line, "change" next to it. */
-  .form__got { flex-wrap: nowrap; min-width: 0; }
+  .form__got { flex-wrap: nowrap; min-width: 0; align-items: flex-start; }
   .hero__layout { grid-template-columns: minmax(0, 1fr); }
   .hero__side, .hero__copy, .form--steps, .form__step { min-width: 0; }
-  .form__got-text { font-style: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .form__got-text { font-style: normal; min-width: 0; font-size: 0.8125rem; line-height: 1.3; }
   .form__q, .form__q--long { font-size: 1.25rem; line-height: 1.15; }
   .form__hint { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .choice { min-height: 46px; padding: 0.5rem 0.85rem; font-size: 0.9375rem; }
@@ -877,6 +877,14 @@ img { display: block; max-width: 100%; }
 .px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
 .px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
 .px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
+/* Header line as a button + its answer */
+.form__info-btn { appearance: none; background: none; border: 0; padding: 0.35rem 0; margin: -0.35rem 0; font: inherit; color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: pointer; }
+.form__info { margin-top: 0.6rem; padding: 0.8rem 0.9rem; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); display: grid; gap: 0.45rem; font-size: 0.875rem; line-height: 1.4; color: rgba(244, 248, 255, 0.92); }
+.form__info strong { color: #fff; }
+.form__info-go { width: 100%; margin-top: 0.2rem; }
+.rng__tap { display: grid; gap: 0.35rem; width: 100%; padding: 0; background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+.rng__tap .rng__job, .rng__tap .rng__range { display: block; }
+.rng__tap .px__bar { display: block; }
 /* Range step in the form */
 .rng { display: grid; gap: 0.35rem; margin-top: 0.35rem; }
 .rng__job { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-aqua); }
@@ -1520,6 +1528,13 @@ function LeadForm() {
     return () => window.removeEventListener("cs:book", onBook);
   });
 
+  // The header line was the most-tapped text on the page (Clarity dead clicks), so it opens an answer.
+  const [infoOpen, setInfoOpen] = useState(false);
+  const toggleInfo = (): void => {
+    setInfoOpen((o) => !o);
+    clarity("event", "info_tap");
+  };
+
   const continueFromRange = (): void => {
     fireStarted(answers.service);
     clarity("event", "range_continue");
@@ -1564,9 +1579,30 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        <span>{step === firstStep ? "Free estimate · Financing available" : `Step ${shownStep} of ${shownTotal}`}</span>
+        {step === firstStep ? (
+          <button type="button" className="form__info-btn" aria-expanded={infoOpen} onClick={toggleInfo}>
+            Free estimate · Financing available <span aria-hidden="true">{infoOpen ? "▴" : "▾"}</span>
+          </button>
+        ) : (
+          <span>{`Step ${shownStep} of ${shownTotal}`}</span>
+        )}
         <span className="form__pct">{step === firstStep ? "30 seconds" : `${pct}% done`}</span>
       </div>
+      {infoOpen && step === firstStep && (
+        <div className="form__info">
+          <p>
+            <strong>Free estimate:</strong> Philip's team comes out, finds what's actually wrong and gives you the exact price. No charge, no obligation.
+          </p>
+          <p>
+            <strong>Financing:</strong> If the price lands on the higher end, you can pay over time. Ask about it at your free estimate.
+          </p>
+          {question.kind === "range" && (
+            <button type="button" className="submit form__info-go" onClick={continueFromRange}>
+              Get my free estimate →
+            </button>
+          )}
+        </div>
+      )}
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
       </div>
@@ -1622,13 +1658,15 @@ function LeadForm() {
 
           {question.kind === "range" && rangeInfo && (
             <div className="rng">
-              <p className="rng__job">{rangeInfo.job}</p>
-              <p className="rng__range">
-                {money(rangeLo)} to {money(rangeHi)}
-              </p>
-              <div className="px__bar rng__bar" aria-hidden="true">
-                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
-              </div>
+              <button type="button" className="rng__tap" onClick={continueFromRange} aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}. Get my exact price, free`}>
+                <span className="rng__job">{rangeInfo.job}</span>
+                <span className="rng__range">
+                  {money(rangeLo)} to {money(rangeHi)}
+                </span>
+                <span className="px__bar rng__bar" aria-hidden="true">
+                  <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
+                </span>
+              </button>
               <button type="button" className="submit rng__go" onClick={continueFromRange}>
                 Get my exact price, free →
               </button>
