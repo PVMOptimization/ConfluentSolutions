@@ -227,17 +227,27 @@ const AD_HEADLINES: Record<string, string> = {
 // O1–O5 from the ad link (utm_content), or "" when the visitor didn't come from one of the offer ads.
 function adOffer(): string {
   if (typeof window === "undefined") return "";
+  // Came from /signs with a problem picked: that beats the ad they first clicked.
+  const problem = signsProblem();
+  if (problem) return PROBLEM_OFFER[problem] ?? "";
   const fromUrl = new URLSearchParams(window.location.search).get("utm_content") ?? "";
   const content = fromUrl || readAttribution().utm_content || "";
   const offer = content.trim().slice(0, 2).toUpperCase();
   return offer in AD_HEADLINES ? offer : "";
+}
+// /signs links back here with ?problem=<key>. Keys match the section ids on signs.html.
+const PROBLEM_OFFER: Record<string, string> = { repipe: "O1", leak: "O2", sewer: "O3", gas: "O5" };
+function signsProblem(): string {
+  if (typeof window === "undefined") return "";
+  const p = (new URLSearchParams(window.location.search).get("problem") ?? "").trim().toLowerCase();
+  return p in PROBLEM_SERVICE ? p : "";
 }
 function heroTitle(): string {
   return AD_HEADLINES[adOffer()] ?? HERO_TITLE;
 }
 const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call with a price range.";
 const HERO_SUB_PRESET = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call with a price range.";
-const heroSub = (): string => (adOffer() ? HERO_SUB_PRESET : HERO_SUB);
+const heroSub = (): string => (adOffer() || signsProblem() ? HERO_SUB_PRESET : HERO_SUB);
 const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
 
 
@@ -891,8 +901,15 @@ img { display: block; max-width: 100%; }
 .rng__range { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.9rem, 7vw, 2.4rem); line-height: 1.05; color: #fff; letter-spacing: -0.02em; }
 .rng__bar { margin: 0.4rem 0 0.6rem; background: rgba(255, 255, 255, 0.14); }
 .rng__go { width: 100%; margin-top: 0.25rem; }
+.signs-link { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.7rem; min-height: 42px; padding: 0.45rem 0.9rem; border-radius: 10px; border: 1px solid rgba(142, 197, 245, 0.5); background: rgba(142, 197, 245, 0.12); color: #fff; font-weight: 700; font-size: 0.9375rem; line-height: 1.25; text-align: center; text-decoration: none; }
+.signs-link:hover { background: rgba(142, 197, 245, 0.22); }
+.signs-link svg { flex: 0 0 18px; width: 18px; height: 18px; color: var(--c-aqua); }
+.signs-link--rng { margin-top: 0.2rem; }
 .rng__text { display: block; text-align: center; padding: 0.7rem; font-weight: 600; font-size: 0.9375rem; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
 .px__note { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
+.px__signs { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.75rem; min-height: 42px; padding: 0.4rem 0.95rem; border-radius: 999px; border: 1.5px solid var(--c-brand); color: var(--c-brand); font-weight: 700; font-size: 0.9375rem; text-decoration: none; }
+.px__signs:hover { background: rgba(24, 46, 111, 0.06); }
+.px__signs svg { flex: 0 0 17px; width: 17px; height: 17px; }
 .px__book { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--r-md); background: rgba(10, 60, 140, 0.06); }
 .px__book p { font-size: 0.9375rem; color: var(--c-ink); line-height: 1.45; }
 .px__book strong { color: var(--c-brand); }
@@ -1069,8 +1086,22 @@ const OFFER_SERVICE: Record<string, string> = {
   O4: "Old pipes and an old water heater",
   O5: "Gas line problem or failed gas test",
 };
+// Problem keys used by /signs (?problem=) and its section anchors (/signs#leak).
+const PROBLEM_SERVICE: Record<string, string> = {
+  repipe: "Rusty water or low water pressure",
+  leak: LEAK_SERVICE,
+  sewer: SEWER_SERVICE,
+  gas: "Gas line problem or failed gas test",
+  heater: "I want a tankless water heater",
+  yard: "Leak or break in the yard water line",
+};
+const signsHref = (service: string = ""): string => {
+  const key = Object.keys(PROBLEM_SERVICE).find((k) => PROBLEM_SERVICE[k] === service);
+  return key ? `/signs#${key}` : "/signs";
+};
 const presetService = (): string => {
-  const label = OFFER_SERVICE[adOffer()] ?? "";
+  const problem = signsProblem();
+  const label = problem ? (PROBLEM_SERVICE[problem] ?? "") : (OFFER_SERVICE[adOffer()] ?? "");
   return SERVICE_OPTIONS.some((o) => o.label === label) ? label : "";
 };
 const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
@@ -1656,6 +1687,12 @@ function LeadForm() {
             </div>
           )}
 
+          {question === FIRST_QUESTION && (
+            <a className="signs-link" href="/signs" onClick={() => clarity("event", "signs_open")}>
+              <SearchIcon /> Not sure what's wrong? Check the signs →
+            </a>
+          )}
+
           {question.kind === "range" && rangeInfo && (
             <div className="rng">
               <button type="button" className="rng__tap" onClick={continueFromRange} aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}. Get my exact price, free`}>
@@ -1672,6 +1709,9 @@ function LeadForm() {
               </button>
               <a className="rng__text" href={smsHref(answers.service)}>
                 Or text Philip a photo of the problem
+              </a>
+              <a className="signs-link signs-link--rng" href={signsHref(answers.service)} onClick={() => clarity("event", "signs_open")}>
+                <SearchIcon /> Not sure this is your problem? Check the signs →
               </a>
             </div>
           )}
@@ -2208,6 +2248,15 @@ function smsHref(service: string = presetService()): string {
   return `sms:${T.business.smsNumber}?&body=${encodeURIComponent(body)}`;
 }
 
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
+      <path d="M15.5 15.5 21 21" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ChatIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2453,6 +2502,9 @@ function CostSection() {
               <span>$30,000+</span>
             </div>
             <p className="px__note">Small spot repairs can cost less.</p>
+            <a className="px__signs" href={signsHref(o.label)} onClick={() => clarity("event", "signs_open")}>
+              <SearchIcon /> Not sure it's this? See the signs →
+            </a>
             <div className="px__rows">
               <div className="px__row">
                 <h3>What moves the price</h3>
