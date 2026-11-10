@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// Two pages:
+// Three pages:
 //   index.html -> "/"       homepage (static, holds the GoHighLevel chat widget, no forms)
 //   quote.html -> "/quote"  the React landing page with the 8-question form (no chat widget)
+//   signs.html -> "/signs"  static "do I have this problem?" page, links back to /quote
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -11,6 +12,7 @@ export default defineConfig({
       input: {
         home: "index.html",
         quote: "quote.html",
+        signs: "signs.html",
       },
     },
   },
