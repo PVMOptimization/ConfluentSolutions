@@ -86,168 +86,174 @@ window.__evId = function (p) { return p + '-' + Date.now() + '-' + Math.random()
       })(window, document, "clarity", "script", "z9hu2tcqp8");
     </script>
 <style>
-:root{--bg:#EEF3FA;--paper:#FFFFFF;--brand:#182e6f;--brand-dark:#0E1D4A;--navy-2:#13265C;--ink:#0B1633;--ink-soft:#4A5A82;--line:rgba(24,46,111,.12);--aqua:#8EC5F5;--aqua-deep:#2F6FB5;--call:#F26B1D;--call-hi:#FF8A3D;--ok:#1E9E6A;--on-dark:#F4F8FF;--on-dark-soft:rgba(244,248,255,.78);--display:'Space Grotesk','Helvetica Neue',Arial,sans-serif;--body:'DM Sans','Helvetica Neue',Arial,sans-serif;--gutter:clamp(1rem,4vw,2rem);--max:880px;--r:16px;--cta-h:104px;--ease:cubic-bezier(.22,1,.36,1)}
+:root{--bg:#EEF3FA;--paper:#FFFFFF;--brand:#182e6f;--brand-dark:#0E1D4A;--navy-2:#13265C;--ink:#0B1633;--ink-soft:#44527A;--line:rgba(24,46,111,.14);--aqua:#8EC5F5;--aqua-deep:#2A63A6;--call:#F26B1D;--call-soft:#FFF4EC;--ok:#17855A;--danger:#B42318;--on-dark:#F4F8FF;--on-dark-soft:rgba(244,248,255,.82);--display:'Space Grotesk','Helvetica Neue',Arial,sans-serif;--body:'DM Sans','Helvetica Neue',Arial,sans-serif;--g:clamp(16px,4.5vw,32px);--r:16px;--ease:cubic-bezier(.22,1,.36,1);--bar:76px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:128px;-webkit-text-size-adjust:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1rem;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--cta-h) + env(safe-area-inset-bottom))}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:16px}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bar) + env(safe-area-inset-bottom))}
 a{color:inherit}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
-:focus-visible{outline:3px solid var(--aqua-deep);outline-offset:3px;border-radius:6px}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
 b,strong{font-weight:700}
+:focus-visible{outline:3px solid var(--aqua-deep);outline-offset:2px;border-radius:8px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--aqua-deep)}
 
-/* Header */
-.top{position:sticky;top:0;z-index:30;background:rgba(14,29,74,.96);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:var(--on-dark)}
-.top .wrap{display:flex;align-items:center;gap:1rem;min-height:60px;max-width:1100px}
-.brand{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--display);font-weight:700;font-size:1.05rem;text-decoration:none}
-.brand svg{color:var(--aqua)}
-.top__call{margin-left:auto;display:inline-flex;align-items:center;gap:.45rem;min-height:40px;padding:0 .95rem;border-radius:999px;border:1px solid rgba(255,255,255,.35);font-weight:700;font-size:.92rem;text-decoration:none;white-space:nowrap}
+/* Header: scrolls away, nothing pinned at the top */
+.top{background:var(--brand-dark);color:var(--on-dark)}
+.top__in{display:flex;align-items:center;gap:12px;max-width:1080px;margin:0 auto;padding:6px var(--g);min-height:56px}
+.brand{display:inline-flex;align-items:center;gap:8px;min-height:44px;font-family:var(--display);font-weight:700;font-size:17px;text-decoration:none}
+.brand svg{width:22px;height:22px;color:var(--aqua)}
+.top__call{margin-left:auto;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.4);font-weight:700;font-size:15px;text-decoration:none;white-space:nowrap}
 .top__call svg{width:16px;height:16px}
 
-/* Category chips (sticky under header) */
-.chips{position:sticky;top:60px;z-index:25;background:rgba(238,243,250,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.chips__row{display:flex;gap:.5rem;overflow-x:auto;scrollbar-width:none;padding:.6rem var(--gutter);max-width:1100px;margin:0 auto}
-.chips__row::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:.4rem;min-height:38px;padding:0 .85rem;border-radius:999px;background:var(--paper);border:1px solid var(--line);font-size:.88rem;font-weight:500;text-decoration:none;color:var(--ink);transition:background .2s,color .2s,border-color .2s}
-.chip svg{width:16px;height:16px;color:var(--aqua-deep)}
-.chip[aria-current="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
-.chip[aria-current="true"] svg{color:var(--aqua)}
-.chip__n{display:none;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--call);color:#fff;font-size:.72rem;font-weight:700;align-items:center;justify-content:center}
-.chip__n.on{display:inline-flex}
-
 /* Hero */
-.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 85% 0%,#25458f 0%,rgba(37,69,143,0) 60%),linear-gradient(180deg,var(--brand-dark),var(--navy-2));color:var(--on-dark)}
-.hero::after{content:"";position:absolute;inset:auto -10% -1px -10%;height:60px;background:var(--bg);border-radius:50% 50% 0 0/100% 100% 0 0}
-.hero .wrap{position:relative;z-index:1;padding-top:clamp(2rem,6vw,3.5rem);padding-bottom:clamp(3.5rem,8vw,5rem)}
-.eyebrow{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--aqua)}
-.eyebrow::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--call);box-shadow:0 0 0 4px rgba(242,107,29,.25)}
-h1{font-family:var(--display);font-weight:700;font-size:clamp(1.9rem,6.4vw,3rem);line-height:1.08;letter-spacing:-.01em;margin:.7rem 0 .8rem}
-h1 em{font-style:normal;color:var(--aqua)}
-.hero__sub{font-size:clamp(1rem,2.6vw,1.15rem);color:var(--on-dark-soft);max-width:36em}
-.hero__how{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;margin-top:1.2rem;font-size:.9rem;color:var(--on-dark)}
-.hero__how span{display:inline-flex;align-items:center;gap:.45rem}
-.hero__how i{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(142,197,245,.18);color:var(--aqua);font-style:normal;font-weight:700;font-size:.75rem}
-.hero__test{display:inline-flex;align-items:center;gap:.5rem;margin-top:1.4rem;min-height:46px;padding:0 1.1rem;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);font-weight:700;font-size:.95rem;text-decoration:none}
+.hero{background:linear-gradient(180deg,var(--brand-dark),var(--navy-2));color:var(--on-dark)}
+.hero__in{max-width:1080px;margin:0 auto;padding:20px var(--g) 36px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,7vw,44px);line-height:1.1;letter-spacing:-.01em;max-width:18em}
+.hero p{margin-top:12px;font-size:clamp(17px,2.4vw,19px);color:var(--on-dark-soft);max-width:36em}
+.hero__trust{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:16px;font-size:15px;color:var(--on-dark)}
+.hero__trust span{display:inline-flex;align-items:center;gap:6px}
+.hero__trust svg{width:16px;height:16px;color:var(--aqua)}
+.stars{color:#FFC24B;letter-spacing:1px}
+
+/* Layout: one column on phones and tablets; content + sticky results panel on desktop */
+.layout{max-width:1080px;margin:0 auto;padding:0 var(--g);display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.layout>*{min-width:0}
+.main{display:grid;gap:20px;margin-top:-16px}
 
 /* Meter test */
-.test{position:relative;margin-top:-1.5rem;z-index:2}
-.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);box-shadow:0 10px 30px rgba(14,29,74,.08)}
-.test .card{padding:clamp(1.1rem,3.5vw,1.6rem)}
-.kicker{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--aqua-deep)}
-h2{font-family:var(--display);font-weight:700;font-size:clamp(1.35rem,4.2vw,1.75rem);line-height:1.15;margin:.35rem 0 .5rem}
-.test__steps{list-style:none;display:grid;gap:.7rem;margin:1rem 0 1.1rem;counter-reset:s}
-.test__steps li{display:grid;grid-template-columns:30px 1fr;gap:.7rem;align-items:start;counter-increment:s}
-.test__steps li::before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--bg);color:var(--brand);font-family:var(--display);font-weight:700}
-.dial{display:flex;align-items:center;gap:.9rem;padding:.8rem;border-radius:12px;background:var(--bg);margin-bottom:1rem}
-.dial svg{flex:0 0 72px;width:72px;height:72px}
-.dial p{font-size:.9rem;color:var(--ink-soft)}
-.dial__tri{transform-origin:36px 36px;animation:spin 3.2s linear infinite}
+.test{border-color:rgba(242,107,29,.35);box-shadow:0 8px 24px rgba(14,29,74,.08)}
+.test__btn{display:grid;grid-template-columns:48px 1fr 28px;gap:12px;align-items:center;width:100%;min-height:72px;padding:14px 16px}
+.test__icon{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:var(--call-soft);color:var(--call)}
+.test__icon svg{width:26px;height:26px}
+.test__title{display:block;font-family:var(--display);font-weight:700;font-size:18px;line-height:1.25}
+.test__sub{display:block;margin-top:2px;font-size:15px;color:var(--ink-soft)}
+.test__panel{padding:0 16px 18px}
+.steps{list-style:none;display:grid;gap:12px;margin:4px 0 16px;counter-reset:s}
+.steps li{display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start;counter-increment:s}
+.steps li::before{content:counter(s);display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--bg);color:var(--brand);font-family:var(--display);font-weight:700}
+.dial{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;background:var(--bg);margin-bottom:16px}
+.dial svg{flex:0 0 64px;width:64px;height:64px}
+.dial p{font-size:15px;color:var(--ink-soft)}
+.dial__tri{transform-origin:32px 32px;animation:spin 3.2s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.test__ask{font-weight:700;margin-bottom:.6rem}
-.test__btns{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
-.tbtn{min-height:52px;padding:.5rem .8rem;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-weight:700;text-align:center;transition:border-color .2s,background .2s,transform .15s var(--ease)}
-.tbtn:active{transform:scale(.98)}
-.tbtn[aria-pressed="true"]{border-color:var(--brand);background:#E8EFFA}
-.test__result{display:none;margin-top:.9rem;padding:.85rem 1rem;border-radius:12px;font-size:.95rem}
-.test__result.show{display:block;animation:rise .35s var(--ease)}
-.test__result--bad{background:#FFF1E8;border:1px solid rgba(242,107,29,.35)}
-.test__result--ok{background:#E9F7F1;border:1px solid rgba(30,158,106,.3)}
-@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.test__ask{font-weight:700;margin-bottom:10px}
+.test__choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{min-height:52px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);font-weight:700;text-align:center}
+.choice[aria-pressed="true"]{border-color:var(--brand);background:#E8EFFA}
+.verdict{margin-top:14px;padding:14px 16px;border-radius:12px;font-size:16px}
+.verdict--bad{background:var(--call-soft);border:1px solid rgba(242,107,29,.35)}
+.verdict--ok{background:#EAF7F1;border:1px solid rgba(23,133,90,.3)}
+.verdict a{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:var(--brand)}
 
-/* Intro line above sections */
-.intro{margin:2.2rem 0 .3rem}
-.intro p{color:var(--ink-soft);max-width:38em}
-
-/* Problem sections */
-.prob{margin-top:1.4rem;scroll-margin-top:128px}
-.prob__head{display:grid;grid-template-columns:52px 1fr;gap:.9rem;align-items:center;padding:1.1rem clamp(1rem,3.5vw,1.5rem) 1rem}
-.prob__icon{display:grid;place-items:center;width:52px;height:52px;border-radius:14px;background:linear-gradient(145deg,var(--brand),#2a4ea8);color:#fff}
-.prob__icon svg{width:28px;height:28px}
-.prob__head h2{margin:0;font-size:clamp(1.2rem,3.8vw,1.5rem)}
-.prob__means{font-size:.9rem;color:var(--ink-soft);margin-top:.15rem}
-.prob__means b{color:var(--ink)}
-.prob__meter{display:flex;align-items:center;gap:.6rem;padding:0 clamp(1rem,3.5vw,1.5rem) .8rem;font-size:.8rem;color:var(--ink-soft)}
-.prob__track{flex:1;height:6px;border-radius:999px;background:var(--bg);overflow:hidden}
-.prob__fill{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--aqua-deep),var(--call));transition:width .45s var(--ease)}
-.signs{list-style:none;border-top:1px solid var(--line)}
+/* List of problem areas (accordions) */
+.list__head h2{font-family:var(--display);font-weight:700;font-size:clamp(22px,5vw,28px);line-height:1.2}
+.list__head p{margin-top:6px;color:var(--ink-soft)}
+.gasline{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:12px 14px;border-radius:12px;background:#FDEDEC;border:1px solid rgba(180,35,24,.25);font-size:15px}
+.gasline svg{flex:0 0 20px;width:20px;height:20px;margin-top:2px;color:var(--danger)}
+.gasline a{font-weight:700;white-space:nowrap;display:inline-block;padding:2px 0}
+.areas{display:grid;gap:12px;margin-top:16px}
+.area{background:var(--paper);border:1px solid var(--line);border-radius:var(--r)}
+.area.is-open{border-color:rgba(24,46,111,.32);box-shadow:0 8px 24px rgba(14,29,74,.08)}
+.area__h{font:inherit}
+.area.is-open .area__h{position:sticky;top:0;z-index:5;background:var(--paper);border-radius:var(--r) var(--r) 0 0;border-bottom:1px solid var(--line)}
+.area__btn{display:grid;grid-template-columns:44px 1fr auto 28px;gap:12px;align-items:center;width:100%;min-height:76px;padding:14px 14px 14px 16px;border-radius:var(--r)}
+.area__icon{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#EAF1FB;color:var(--brand)}
+.area__icon svg{width:24px;height:24px}
+.area__title{display:block;font-family:var(--display);font-weight:700;font-size:18px;line-height:1.25}
+.area__sub{display:block;margin-top:2px;font-size:15px;line-height:1.4;color:var(--ink-soft)}
+.area__count{display:none;min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:var(--call);color:#fff;font-size:14px;font-weight:700;align-items:center;justify-content:center}
+.area__count.on{display:inline-flex}
+.area__caret,.test__caret{display:grid;place-items:center;width:28px;height:28px;color:var(--brand);transition:transform .25s var(--ease)}
+.area__caret svg,.test__caret svg{width:20px;height:20px}
+[aria-expanded="true"] .area__caret,[aria-expanded="true"] .test__caret{transform:rotate(180deg)}
+.area__panel{padding:4px 0 0}
+.alert{display:flex;gap:10px;margin:12px 16px 4px;padding:12px 14px;border-radius:12px;background:#FDEDEC;border:1px solid rgba(180,35,24,.25);font-size:15px}
+.alert svg{flex:0 0 20px;width:20px;height:20px;margin-top:2px;color:var(--danger)}
+.alert a{font-weight:700;white-space:nowrap;display:inline-block;padding:2px 0}
+.area__means{padding:12px 16px 4px;font-size:15px;color:var(--ink-soft)}
+.area__means b{color:var(--ink)}
+.signs{list-style:none;margin-top:8px}
 .signs li+li{border-top:1px solid var(--line)}
-.sign{display:grid;grid-template-columns:30px 1fr;gap:.8rem;width:100%;padding:1rem clamp(1rem,3.5vw,1.5rem);transition:background .2s}
-.sign:hover{background:#F6F9FD}
-.sign__box{display:grid;place-items:center;width:28px;height:28px;margin-top:1px;border-radius:8px;border:2px solid #B9C7E0;background:#fff;transition:background .2s,border-color .2s,transform .2s var(--ease)}
-.sign__box svg{width:16px;height:16px;color:#fff;opacity:0;transform:scale(.5);transition:opacity .2s,transform .25s var(--ease)}
-.sign[aria-pressed="true"]{background:#FFF7F1}
-.sign[aria-pressed="true"] .sign__box{background:var(--call);border-color:var(--call);transform:scale(1.06)}
-.sign[aria-pressed="true"] .sign__box svg{opacity:1;transform:none}
-.sign__if{display:block;font-size:1.02rem;line-height:1.4}
+.sign{position:relative;display:grid;grid-template-columns:28px 1fr;gap:14px;padding:16px;cursor:pointer;transition:background .15s}
+.sign:hover{background:#F7FAFE}
+.sign input{position:absolute;opacity:0;width:28px;height:28px;left:16px;top:16px;margin:0;cursor:pointer}
+.sign__box{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;border:2px solid #8FA3C7;background:#fff;transition:background .15s,border-color .15s}
+.sign__box svg{width:16px;height:16px;color:#fff;opacity:0;transform:scale(.6);transition:opacity .15s,transform .2s var(--ease)}
+.sign input:checked~.sign__box{background:var(--call);border-color:var(--call)}
+.sign input:checked~.sign__box svg{opacity:1;transform:none}
+.sign input:focus-visible~.sign__box{outline:3px solid var(--aqua-deep);outline-offset:2px}
+.sign:has(input:checked){background:var(--call-soft)}
+.sign__if{display:block;font-size:17px;line-height:1.45}
 .sign__if b{color:var(--brand)}
-.sign__need{display:inline-block;margin-top:.45rem;padding:.25rem .7rem;line-height:1.4;border-radius:999px;background:#EAF2FD;color:var(--brand);font-size:.84rem;font-weight:500}
-.sign__need b{font-weight:700}
-.sign__need::before{content:"→ ";font-weight:700;color:var(--aqua-deep)}
-.sign__why{display:block;margin-top:.4rem;font-size:.88rem;color:var(--ink-soft)}
-.sign__tag{display:none;white-space:nowrap;margin-left:.4rem;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--call)}
-.sign[aria-pressed="true"] .sign__tag{display:inline}
-.prob__foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.7rem;padding:1rem clamp(1rem,3.5vw,1.5rem) 1.15rem;border-top:1px solid var(--line);background:#F8FAFE;border-radius:0 0 var(--r) var(--r)}
-.prob__foot p{font-size:.88rem;color:var(--ink-soft);flex:1 1 220px}
-.prob__go{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:0 1rem;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;font-size:.92rem;text-decoration:none;white-space:nowrap}
-.alert{display:grid;grid-template-columns:24px 1fr;gap:.7rem;margin:0 clamp(1rem,3.5vw,1.5rem) 1rem;padding:.85rem 1rem;border-radius:12px;background:#FDECEC;border:1px solid rgba(200,40,40,.28);font-size:.92rem}
-.alert svg{width:22px;height:22px;color:#C62828}
-.alert a{font-weight:700}
+.sign__need{display:inline-block;margin-top:8px;padding:4px 10px;border-radius:8px;background:#EAF1FB;color:var(--brand);font-size:15px;line-height:1.4}
+.sign__need::before{content:"→ ";font-weight:700}
+.sign__why{display:block;margin-top:8px;font-size:15px;line-height:1.5;color:var(--ink-soft)}
+.area__foot{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:16px;border-top:1px solid var(--line);background:#F7FAFE;border-radius:0 0 var(--r) var(--r)}
+.area__foot p{flex:1 1 240px;font-size:15px;color:var(--ink-soft)}
+.area__go{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 18px;border-radius:12px;background:var(--brand);color:#fff;font-weight:700;font-size:16px;text-decoration:none}
 
-/* Fort Worth band */
-.fw{margin-top:2.4rem;padding:clamp(1.2rem,4vw,1.8rem);border-radius:var(--r);background:linear-gradient(160deg,var(--brand-dark),#1b3478);color:var(--on-dark)}
+/* Results */
+.results{padding:20px;scroll-margin-top:16px}
+.results h2{margin-top:6px;font-family:var(--display);font-weight:700;font-size:22px;line-height:1.25}
+.results__empty p{margin-top:6px;font-size:16px;color:var(--ink-soft)}
+.results__list{list-style:none;display:grid;gap:8px;margin:12px 0}
+.results__list li{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-radius:10px;background:var(--bg);font-size:16px}
+.results__list li:first-child{background:var(--call-soft);font-weight:700}
+.results__list li span:last-child{white-space:nowrap}
+.results__need{font-size:16px}
+.results__go{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:56px;margin-top:16px;padding:8px 16px;border-radius:14px;background:var(--call);color:var(--ink);font-family:var(--display);font-weight:700;font-size:18px;text-decoration:none;box-shadow:0 8px 20px rgba(242,107,29,.32)}
+.results__fine{margin-top:12px;font-size:15px;color:var(--ink-soft)}
+.results__call{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin-top:4px;font-weight:700;color:var(--brand)}
+.results__call svg{width:16px;height:16px}
+
+/* Context + trust */
+.fw{padding:20px;border-radius:var(--r);background:linear-gradient(160deg,var(--brand-dark),#1b3478);color:var(--on-dark)}
 .fw .kicker{color:var(--aqua)}
-.fw h2{color:#fff}
-.fw__grid{display:grid;gap:.9rem;margin-top:1rem}
-.fw__item{display:grid;grid-template-columns:36px 1fr;gap:.75rem;font-size:.95rem;color:var(--on-dark-soft)}
-.fw__item b{display:block;color:#fff;font-family:var(--display);font-size:1rem;margin-bottom:.1rem}
-.fw__item i{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:rgba(142,197,245,.16);color:var(--aqua);font-style:normal}
-.fw__item i svg{width:20px;height:20px}
+.fw h2{margin-top:6px;font-family:var(--display);font-size:22px;line-height:1.25;color:#fff}
+.fw ul{list-style:none;display:grid;gap:12px;margin-top:12px}
+.fw li{font-size:16px;color:var(--on-dark-soft)}
+.fw li b{color:#fff}
+.who{display:grid;gap:16px;padding:16px}
+.who img{width:100%;aspect-ratio:16/9;object-fit:cover;object-position:50% 35%;border-radius:12px;background:var(--bg)}
+.who h2{margin-top:6px;font-family:var(--display);font-size:22px;line-height:1.25}
+.who ul{list-style:none;display:grid;gap:8px;margin:12px 0}
+.who li{display:flex;gap:10px;align-items:flex-start;font-size:16px}
+.who li svg{flex:0 0 18px;width:18px;height:18px;margin-top:4px;color:var(--ok)}
+.who__text{display:inline-flex;align-items:center;min-height:44px;font-weight:700;color:var(--brand)}
+.note{font-size:15px;color:var(--ink-soft);text-align:center}
+.foot{max-width:1080px;margin:28px auto 0;padding:20px var(--g) 12px;border-top:1px solid var(--line);font-size:15px;color:var(--ink-soft);text-align:center}
+.foot nav{display:flex;flex-wrap:wrap;justify-content:center;gap:0 8px;margin-top:6px}
+.foot nav a,.foot p a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}
 
-/* Trust */
-.who{display:grid;gap:1.1rem;margin-top:1.6rem;padding:clamp(1rem,3.5vw,1.4rem);align-items:center}
-.who__img{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:50% 30%;border-radius:12px;background:var(--bg)}
-.who h2{margin-top:.2rem}
-.who__list{list-style:none;display:grid;gap:.45rem;margin:.6rem 0 .9rem}
-.who__list li{display:flex;gap:.55rem;align-items:flex-start;font-size:.95rem}
-.who__list svg{flex:0 0 18px;width:18px;height:18px;margin-top:3px;color:var(--ok)}
-.stars{color:#F5A623;letter-spacing:1px}
-.who__text{display:inline-flex;align-items:center;gap:.45rem;font-weight:700;color:var(--brand);text-decoration:none;border-bottom:2px solid var(--aqua)}
-.note{margin:1.6rem 0 0;font-size:.82rem;color:var(--ink-soft);text-align:center}
-.foot{margin-top:2rem;padding:1.6rem 0 1rem;border-top:1px solid var(--line);font-size:.82rem;color:var(--ink-soft);text-align:center}
-.foot nav{display:flex;flex-wrap:wrap;justify-content:center;gap:.4rem 1.1rem;margin-top:.5rem}
+/* Pinned button: phones and tablets only, slides away when the results card or footer is on screen */
+.cta{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:10px var(--g) calc(10px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);box-shadow:0 -6px 20px rgba(14,29,74,.10);transition:transform .3s var(--ease)}
+.cta.is-away{transform:translateY(110%)}
+.cta__btn{display:flex;align-items:center;justify-content:center;gap:10px;max-width:640px;min-height:56px;margin:0 auto;padding:6px 16px;border-radius:14px;background:var(--call);color:var(--ink);font-family:var(--display);font-weight:700;font-size:clamp(16px,4.6vw,19px);text-decoration:none;white-space:nowrap}
+.cta__n{display:none;min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:var(--ink);color:#fff;font-family:var(--body);font-size:14px;align-items:center;justify-content:center}
+.cta__n.on{display:inline-flex}
 
-/* Trailing CTA */
-.cta{position:fixed;left:0;right:0;bottom:0;z-index:40;padding:.55rem var(--gutter) calc(.7rem + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(14,29,74,.10)}
-.cta__inner{max-width:620px;margin:0 auto}
-.cta__line{display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:22px;margin-bottom:.4rem;font-size:.86rem;font-weight:500;color:var(--ink);text-align:center}
-.cta__line b{color:var(--call)}
-.cta__btn{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;min-height:62px;padding:.5rem 1.2rem;border-radius:16px;background:var(--call);color:var(--ink);font-family:var(--display);font-weight:700;font-size:clamp(1.05rem,3.6vw,1.2rem);text-decoration:none;box-shadow:0 10px 28px rgba(242,107,29,.4),0 2px 0 rgba(0,0,0,.08) inset;transition:transform .2s var(--ease),box-shadow .2s}
-.cta__btn:hover{transform:translateY(-2px);box-shadow:0 14px 34px rgba(242,107,29,.48)}
-.cta__btn:active{transform:scale(.985)}
-.cta__btn::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:35%;background:linear-gradient(100deg,rgba(255,255,255,0),rgba(255,255,255,.45),rgba(255,255,255,0));transform:skewX(-18deg);animation:shine 3.6s ease-in-out infinite}
-@keyframes shine{0%,62%{left:-40%}100%{left:130%}}
-.cta__arrow{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:rgba(11,22,51,.12);transition:transform .25s var(--ease)}
-.cta__btn:hover .cta__arrow{transform:translateX(3px)}
-.cta__sub{display:block;margin-top:.35rem;font-size:.76rem;color:var(--ink-soft);text-align:center}
-.cta.bump .cta__btn{animation:bump .5s var(--ease)}
-@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
-
-@media (min-width:760px){
-  .who{grid-template-columns:260px 1fr}
-  .fw__grid{grid-template-columns:1fr 1fr}
-  .hero::after{height:80px}
+@media (max-width:359px){.brand{font-size:15px}.top__call{padding:0 12px;font-size:14px}}
+@media (min-width:600px) and (max-width:999px){.layout{max-width:680px}.hero__in{max-width:680px}}
+@media (min-width:1000px){
+  body{padding-bottom:0}
+  .cta{display:none}
+  .layout{grid-template-columns:minmax(0,600px) 340px;justify-content:space-between;align-items:start;gap:40px}
+  .main{grid-column:1}
+  .results{grid-column:2;grid-row:1;position:sticky;top:24px;margin-top:-16px;box-shadow:0 12px 32px rgba(14,29,74,.12)}
+  .who{grid-template-columns:240px 1fr;align-items:center}
+  .who img{aspect-ratio:4/3}
 }
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3646456538856668&ev=PageView&noscript=1" /></noscript>
-
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></symbol>
+  <symbol id="i-caret" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M6 9l6 6 6-6"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><path fill="currentColor" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 32 32"><path fill="currentColor" d="M16 2C16 2 6 14 6 20a10 10 0 0 0 20 0C26 14 16 2 16 2z"/></symbol>
   <symbol id="i-faucet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h9a4 4 0 0 1 4 4v1"/><path d="M4 6v6"/><path d="M9 9V6M7 6h4"/><path d="M17 17.5c0 1.1-.9 2-2 2s-2-.9-2-2c0-1.3 2-3.5 2-3.5s2 2.2 2 3.5z"/></g></symbol>
   <symbol id="i-meter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 12l4-3"/><path d="M8 16.5h8"/><path d="M12 6.5v1"/></g></symbol>
   <symbol id="i-drain" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h7v6h11"/><path d="M3 6v6M21 12v6"/><path d="M14 18.5c.8-.8 2.2-.8 3 0"/></g></symbol>
@@ -255,286 +261,338 @@ h2{font-family:var(--display);font-weight:700;font-size:clamp(1.35rem,4.2vw,1.75
   <symbol id="i-heater" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="16" rx="3"/><path d="M9 21h6"/><path d="M12 9c-1 1.2-1.5 2-1.5 2.8a1.5 1.5 0 0 0 3 0c0-.8-.5-1.6-1.5-2.8z"/></g></symbol>
   <symbol id="i-yard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-4 5 4v6H3z"/><path d="M13 16h8"/><path d="M3 20h18"/><path d="M15 13c.6-1 1.2-1.6 2-2M18 13c.4-.8.9-1.3 1.6-1.7"/></g></symbol>
   <symbol id="i-warn" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/></symbol>
-  <symbol id="i-soil" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h18"/><path d="M5 12l3 3 3-4 3 5 3-3 2 2"/><path d="M3 19h18"/></g></symbol>
-  <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6v8H4z"/><path d="M10 19v-5h4v5"/></g></symbol>
-  <symbol id="i-msg" viewBox="0 0 24 24"><path fill="currentColor" d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.2 3.6a.6.6 0 0 1-1-.46V16H6.5A2.5 2.5 0 0 1 4 13.5v-8z"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.2 4.2L19 7"/></symbol>
 </svg>
 
-<header class="top"><div class="wrap">
-  <a class="brand" href="/quote"><svg viewBox="0 0 32 32" aria-hidden="true" width="22" height="22"><path fill="currentColor" d="M16 2C16 2 6 14 6 20a10 10 0 0 0 20 0C26 14 16 2 16 2z"/></svg><span>Confluent Solutions</span></a>
+<header class="top"><div class="top__in">
+  <a class="brand" href="/quote"><svg aria-hidden="true"><use href="#i-drop"/></svg><span>Confluent Solutions</span></a>
   <a class="top__call" data-track="signs-header-call" href="tel:+18179997363"><svg aria-hidden="true"><use href="#i-phone"/></svg>817-999-7363</a>
 </div></header>
 
-<nav class="chips" aria-label="Problem areas"><div class="chips__row">
-  <a class="chip" href="#repipe" data-k="repipe"><svg aria-hidden="true"><use href="#i-faucet"/></svg>Rusty water / pressure<span class="chip__n"></span></a>
-  <a class="chip" href="#leak" data-k="leak"><svg aria-hidden="true"><use href="#i-meter"/></svg>Hidden leak<span class="chip__n"></span></a>
-  <a class="chip" href="#sewer" data-k="sewer"><svg aria-hidden="true"><use href="#i-drain"/></svg>Sewer &amp; drains<span class="chip__n"></span></a>
-  <a class="chip" href="#gas" data-k="gas"><svg aria-hidden="true"><use href="#i-flame"/></svg>Gas line<span class="chip__n"></span></a>
-  <a class="chip" href="#heater" data-k="heater"><svg aria-hidden="true"><use href="#i-heater"/></svg>Water heater<span class="chip__n"></span></a>
-  <a class="chip" href="#yard" data-k="yard"><svg aria-hidden="true"><use href="#i-yard"/></svg>Yard line<span class="chip__n"></span></a>
-</div></nav>
-
-<main>
-<section class="hero"><div class="wrap">
-  <p class="eyebrow">Free 2-minute self-check</p>
-  <h1>Is something wrong with your plumbing? <em>Here's what the signs mean.</em></h1>
-  <p class="hero__sub">Tap every sign that sounds like your house. You'll see what it usually points to, and what it usually takes to fix it.</p>
-  <div class="hero__how"><span><i>1</i>Tap what you notice</span><span><i>2</i>See what it means</span><span><i>3</i>Get the exact price, free</span></div>
-  <a class="hero__test" href="#meter-test">Start with the 60-second leak test ↓</a>
+<main id="top-main">
+<section class="hero"><div class="hero__in">
+  <h1>Something off with your plumbing? See what the signs mean.</h1>
+  <p>Open what you're noticing and check every sign that fits. You'll see what it usually points to and what it takes to fix.</p>
+  <div class="hero__trust"><span><svg aria-hidden="true"><use href="#i-ok"/></svg>Master Plumber M-44554</span><span><span class="stars" aria-hidden="true">★★★★★</span> 5.0 · 49 Google reviews</span><span><svg aria-hidden="true"><use href="#i-ok"/></svg>Free estimates</span></div>
 </div></section>
 
-<div class="wrap">
-  <section class="test" id="meter-test"><div class="card">
-    <p class="kicker">The 60-second leak test</p>
-    <h2>Your water meter can tell you if you have a leak.</h2>
-    <ol class="test__steps">
-      <li><span>Turn off every faucet, the dishwasher, the washer and the sprinklers. Make sure no toilet is running.</span></li>
-      <li><span>Open the meter box, usually near the street at the front of the yard.</span></li>
-      <li><span>Watch the <b>small triangle or star-shaped dial</b> for 60 seconds. That's the leak indicator. The big sweep hand only tells you how much water you've used.</span></li>
-    </ol>
-    <div class="dial">
-      <svg viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="33" fill="#fff" stroke="#B9C7E0" stroke-width="3"/><circle cx="36" cy="36" r="26" fill="none" stroke="#E3EAF5" stroke-width="2"/><g class="dial__tri"><path d="M36 22 L44 40 L28 40 Z" fill="#F26B1D"/></g><circle cx="36" cy="36" r="3" fill="#182e6f"/></svg>
-      <p><b>If it turns while everything is off,</b> water is going somewhere. Even a slow turn counts.</p>
-    </div>
-    <p class="test__ask">What did your leak dial do?</p>
-    <div class="test__btns" role="group" aria-label="Leak test result">
-      <button type="button" class="tbtn" data-test="moved" aria-pressed="false">It moved</button>
-      <button type="button" class="tbtn" data-test="still" aria-pressed="false">It stayed still</button>
-    </div>
-    <div class="test__result test__result--bad" id="test-moved" role="status"><b>You likely have a leak.</b> If the yard by the meter is dry, it's probably inside the walls or under the slab. If there's a soggy patch outside, check the yard line signs. We've marked it below. A free estimate finds exactly where it is.</div>
-    <div class="test__result test__result--ok" id="test-still" role="status"><b>Good news: no active leak on the water side right now.</b> Rusty water, slow drains, gas or water heater trouble are separate problems. Check those signs below.</div>
-  </div></section>
+<div class="layout">
+<div class="main">
 
-  <div class="intro">
-    <p class="kicker">37 common signs, 6 problem areas</p>
-    <h2>Tap every sign you've noticed.</h2>
-    <p>These are signs, not a diagnosis. Philip's free estimate finds what's actually wrong and gives you the exact price before any work starts.</p>
+  <section class="test card" id="meter-test">
+    <h2 class="vh">60-second leak test</h2>
+    <button type="button" class="test__btn" aria-expanded="false" aria-controls="test-panel" id="test-btn">
+      <span class="test__icon" aria-hidden="true"><svg><use href="#i-meter"/></svg></span>
+      <span><span class="test__title">Not sure if you have a leak?</span><span class="test__sub">Take the 60-second water meter test</span></span>
+      <span class="test__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+    </button>
+    <div class="test__panel" id="test-panel" role="region" aria-labelledby="test-btn" hidden>
+      <ol class="steps">
+        <li><span>Turn off every faucet, the dishwasher, the washer and the sprinklers. Make sure no toilet is running.</span></li>
+        <li><span>Open the meter box. It's usually near the street at the front of the yard.</span></li>
+        <li><span>Watch the <b>small triangle or star-shaped dial</b> for 60 seconds. That's the leak indicator. The big sweep hand only shows how much water you've used.</span></li>
+      </ol>
+      <div class="dial">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="#fff" stroke="#8FA3C7" stroke-width="3"/><g class="dial__tri"><path d="M32 19 L39 35 L25 35 Z" fill="#F26B1D"/></g><circle cx="32" cy="32" r="3" fill="#182e6f"/></svg>
+        <p><b>If it turns while everything is off,</b> water is going somewhere. Even a slow turn counts.</p>
+      </div>
+      <p class="test__ask" id="test-ask">What did your leak dial do?</p>
+      <div class="test__choices" role="group" aria-labelledby="test-ask">
+        <button type="button" class="choice" data-test="moved" aria-pressed="false">It moved</button>
+        <button type="button" class="choice" data-test="still" aria-pressed="false">It stayed still</button>
+      </div>
+      <div class="verdict verdict--bad" id="test-moved" role="status" hidden><b>You likely have a leak.</b> If the yard by the meter is dry, it's probably inside a wall or under the slab. A soggy patch outside points to the yard line. We've checked this sign for you.<br><a href="#leak" data-open="leak">See the other leak signs ↓</a></div>
+      <div class="verdict verdict--ok" id="test-still" role="status" hidden><b>Good news: no active leak on the water side right now.</b> Rusty water, drains, gas and water heater problems are separate. Check those below.</div>
+    </div>
+  </section>
+
+  <section class="list" aria-labelledby="list-h">
+    <div class="list__head">
+      <h2 id="list-h">What are you noticing?</h2>
+      <p>Tap a problem to open it, then check every sign that fits. 37 signs in all.</p>
+    </div>
+    <div class="areas">
+<section class="area" id="repipe" data-k="repipe">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="repipe-panel" id="repipe-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-faucet"/></svg></span>
+    <span class="area__label"><span class="area__title">Rusty water or weak pressure</span><span class="area__sub">Rusty water, weak pressure, pinhole leaks</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="repipe-panel" role="region" aria-labelledby="repipe-btn" hidden>
+    
+    <p class="area__means">Usually means <b>old, corroded supply pipes</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="repipe-1"><input type="checkbox" id="repipe-1" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your water is <b>brown or rusty when you first turn on the tap</b></span><span class="sign__need">You may need a <b>whole-house repipe</b></span><span class="sign__why">Old galvanized steel pipes rust from the inside, and the rust flakes off into your water.</span></span></label></li>
+<li><label class="sign" for="repipe-2"><input type="checkbox" id="repipe-2" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your pressure is <b>weak at more than one faucet or shower</b></span><span class="sign__need">You may need a <b>whole-house repipe</b></span><span class="sign__why">Rust and scale close old pipes off from the inside. One weak faucet is usually a clogged aerator. The whole house is usually the pipes.</span></span></label></li>
+<li><label class="sign" for="repipe-3"><input type="checkbox" id="repipe-3" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your pipes have <b>sprung 2 or more pinhole leaks</b> in a few years</span><span class="sign__need">You may need a <b>repipe, not another patch</b></span><span class="sign__why">The rest of the line is the same age and condition as the spots that already failed.</span></span></label></li>
+<li><label class="sign" for="repipe-4"><input type="checkbox" id="repipe-4" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your pipes are <b>gray metal with threaded joints</b> (look under a sink or at the water heater)</span><span class="sign__need">You may need a <b>repipe soon</b></span><span class="sign__why">That's galvanized steel, common in older Fort Worth homes. Most of it is at or past the end of its life.</span></span></label></li>
+<li><label class="sign" for="repipe-5"><input type="checkbox" id="repipe-5" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your pipes are <b>gray plastic stamped "PB"</b></span><span class="sign__need">You may need a <b>whole-house repipe</b></span><span class="sign__why">That's polybutylene, used in many homes from about 1978 to 1995. It's known to crack and burst without warning.</span></span></label></li>
+<li><label class="sign" for="repipe-6"><input type="checkbox" id="repipe-6" name="repipe"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your water <b>tastes or smells like metal</b></span><span class="sign__need">You may need a <b>pipe inspection</b></span><span class="sign__why">Corroding pipes often change the taste of your water before they start to leak.</span></span></label></li>
+    </ul>
+    <div class="area__foot"><p>Your free estimate checks the pipes and gives you the exact price before any work starts.</p><a class="area__go" href="/quote?problem=repipe&amp;from=signs">Price my repipe, free <span aria-hidden="true">→</span></a></div>
   </div>
-
-  <!-- 1. Repipe -->
-  <section class="prob card" id="repipe" data-k="repipe">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-faucet"/></svg></div><div><h2>Rusty water or weak pressure</h2><p class="prob__means">Usually means: <b>old, corroded supply pipes</b></p></div></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 6</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your water is <b>brown or rusty when you first turn on the tap</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>whole-house repipe</b></span><span class="sign__why">Old galvanized steel pipes rust from the inside, and the rust flakes off into your water.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your pressure is <b>weak at more than one faucet or shower</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>whole-house repipe</b></span><span class="sign__why">Rust and scale close old pipes off from the inside. One weak faucet is usually a clogged aerator. The whole house is usually the pipes.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your pipes have <b>sprung 2 or more pinhole leaks</b> in a few years<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>repipe, not another patch</b></span><span class="sign__why">The rest of the line is the same age and condition as the spots that already failed.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your pipes are <b>gray metal with threaded joints</b> (look under a sink or at the water heater)<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>repipe soon</b></span><span class="sign__why">That's galvanized steel, common in older Fort Worth homes. Most of it is at or past the end of its life.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your pipes are <b>gray plastic stamped "PB"</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>whole-house repipe</b></span><span class="sign__why">That's polybutylene, used in many homes from about 1978 to 1995. It's known to crack and burst without warning.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your water <b>tastes or smells like metal</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>pipe inspection</b></span><span class="sign__why">Corroding pipes often change the taste of your water before they start to leak.</span></span></button></li>
+</section>
+<section class="area" id="leak" data-k="leak">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="leak-panel" id="leak-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-meter"/></svg></span>
+    <span class="area__label"><span class="area__title">Hidden or slab leak</span><span class="area__sub">Meter won't stop, high bill, warm floor</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="leak-panel" role="region" aria-labelledby="leak-btn" hidden>
+    
+    <p class="area__means">Usually means <b>water escaping under the slab or inside a wall</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="leak-1"><input type="checkbox" id="leak-1" name="leak" data-id="leak-dial"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your meter's <b>leak dial is moving with everything turned off</b></span><span class="sign__need">You may need <b>leak detection</b></span><span class="sign__why">It's the most reliable at-home sign. Water is going somewhere you can't see. (Try the 60-second test at the top.)</span></span></label></li>
+<li><label class="sign" for="leak-2"><input type="checkbox" id="leak-2" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your water bill is <b>higher and your habits aren't</b></span><span class="sign__need">You may need <b>leak detection</b></span><span class="sign__why">You're paying for water you never see, and slab leaks are a common cause.</span></span></label></li>
+<li><label class="sign" for="leak-3"><input type="checkbox" id="leak-3" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your house is quiet but you <b>hear water running</b></span><span class="sign__need">You may need a <b>slab leak repair</b></span><span class="sign__why">Running water with every fixture off means a line is leaking behind a wall or under the floor.</span></span></label></li>
+<li><label class="sign" for="leak-4"><input type="checkbox" id="leak-4" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If a spot on your floor is <b>warm under bare feet</b></span><span class="sign__need">You may need a <b>slab leak repair</b></span><span class="sign__why">A hot water line leaking under the slab heats the concrete above it.</span></span></label></li>
+<li><label class="sign" for="leak-5"><input type="checkbox" id="leak-5" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your carpet is <b>damp or a room smells musty</b> and nothing spilled</span><span class="sign__need">You may need <b>leak detection</b></span><span class="sign__why">Water from a slab leak wicks up into flooring and baseboards.</span></span></label></li>
+<li><label class="sign" for="leak-6"><input type="checkbox" id="leak-6" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your water heater is <b>running more than it used to</b></span><span class="sign__need">You may need a <b>hot water leak check</b></span><span class="sign__why">It may be reheating water that's leaking out of a hot line under the house.</span></span></label></li>
+<li><label class="sign" for="leak-7"><input type="checkbox" id="leak-7" name="leak"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If <b>new cracks show up in floors or walls</b> after a dry spell</span><span class="sign__need">You may need a <b>slab leak check</b></span><span class="sign__why">Fort Worth clay shrinks in drought and swells with rain. The slab moves, and pipes under it can break with it.</span></span></label></li>
     </ul>
-    <div class="prob__foot"><p>Your free estimate checks the pipes and gives you the exact price before any work starts.</p><a class="prob__go" href="/quote?problem=repipe">Price my repipe →</a></div>
-  </section>
-
-  <!-- 2. Hidden leak -->
-  <section class="prob card" id="leak" data-k="leak">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-meter"/></svg></div><div><h2>Hidden or slab leak</h2><p class="prob__means">Usually means: <b>water escaping under the slab or inside a wall</b></p></div></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 7</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false" data-id="leak-dial"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your meter's <b>leak dial is moving with everything turned off</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need&nbsp;<b>leak detection</b></span><span class="sign__why">It's the most reliable at-home sign. Water is going somewhere you can't see. (See the 60-second test above.)</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your water bill is <b>higher and your habits aren't</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need&nbsp;<b>leak detection</b></span><span class="sign__why">You're paying for water you never see, and slab leaks are a common cause.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your house is quiet but you <b>hear water running</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>slab leak repair</b></span><span class="sign__why">Running water with every fixture off means a line is leaking behind a wall or under the floor.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If a spot on your floor is <b>warm under bare feet</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>slab leak repair</b></span><span class="sign__why">A hot water line leaking under the slab heats the concrete above it.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your carpet is <b>damp or a room smells musty</b> and nothing spilled<span class="sign__tag">That's me</span></span><span class="sign__need">you may need&nbsp;<b>leak detection</b></span><span class="sign__why">Water from a slab leak wicks up into flooring and baseboards.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your water heater is <b>running more than it used to</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>hot water leak check</b></span><span class="sign__why">It may be reheating water that's leaking out of a hot line under the house.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If <b>new cracks show up in floors or walls</b> after a dry spell<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>slab leak check</b></span><span class="sign__why">Fort Worth clay shrinks in drought and swells with rain. The slab moves, and pipes under it can break with it.</span></span></button></li>
+    <div class="area__foot"><p>We find the leak first, then fix only what's needed. Often we reroute or tunnel instead of breaking up floors.</p><a class="area__go" href="/quote?problem=leak&amp;from=signs">Price my leak repair, free <span aria-hidden="true">→</span></a></div>
+  </div>
+</section>
+<section class="area" id="sewer" data-k="sewer">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="sewer-panel" id="sewer-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-drain"/></svg></span>
+    <span class="area__label"><span class="area__title">Sewer backups or old cast iron</span><span class="area__sub">Backups, gurgling drains, sewer smell</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="sewer-panel" role="region" aria-labelledby="sewer-btn" hidden>
+    
+    <p class="area__means">Usually means <b>a cracked, scaled or collapsed line under the slab</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="sewer-1"><input type="checkbox" id="sewer-1" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If <b>more than one drain backs up</b> at the same time</span><span class="sign__need">You may need a <b>sewer camera inspection</b></span><span class="sign__why">One slow sink is a clog. Several at once points to the main line.</span></span></label></li>
+<li><label class="sign" for="sewer-2"><input type="checkbox" id="sewer-2" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your toilet <b>gurgles when the washer drains</b> or the tub empties</span><span class="sign__need">You may need a <b>main line repair</b></span><span class="sign__why">Air is being pushed back up because water can't get out of the house fast enough.</span></span></label></li>
+<li><label class="sign" for="sewer-3"><input type="checkbox" id="sewer-3" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your house or yard <b>smells like sewage</b></span><span class="sign__need">You may need a <b>sewer line inspection</b></span><span class="sign__why">Cracked pipes let sewer gas escape under the house or into the yard.</span></span></label></li>
+<li><label class="sign" for="sewer-4"><input type="checkbox" id="sewer-4" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your line gets <b>snaked more than once a year</b></span><span class="sign__need">You may need a <b>sewer line replacement</b></span><span class="sign__why">Cracks and scale keep catching debris. Snaking clears it but doesn't fix the pipe.</span></span></label></li>
+<li><label class="sign" for="sewer-5"><input type="checkbox" id="sewer-5" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If water <b>comes up in the tub or shower when you flush</b></span><span class="sign__need">You may need a <b>main line repair</b></span><span class="sign__why">The lowest drain in the house backs up first when the main line is blocked.</span></span></label></li>
+<li><label class="sign" for="sewer-6"><input type="checkbox" id="sewer-6" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your home was <b>built before the mid-1970s</b></span><span class="sign__need">You may need a <b>cast iron replacement</b></span><span class="sign__why">Drains under older slabs are usually cast iron, which cracks and scales shut with age. We tunnel under the slab so your floors stay put.</span></span></label></li>
+<li><label class="sign" for="sewer-7"><input type="checkbox" id="sewer-7" name="sewer"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If <b>roaches or drain flies keep coming from your drains</b></span><span class="sign__need">You may need a <b>sewer line inspection</b></span><span class="sign__why">Cracked lines under the slab can give them a way into the house.</span></span></label></li>
     </ul>
-    <div class="prob__foot"><p>We find the leak first, then fix only what's needed. Often we reroute or tunnel instead of breaking up floors.</p><a class="prob__go" href="/quote?problem=leak">Price my leak repair →</a></div>
-  </section>
-
-  <!-- 3. Sewer -->
-  <section class="prob card" id="sewer" data-k="sewer">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-drain"/></svg></div><div><h2>Sewer backups and cast iron drains</h2><p class="prob__means">Usually means: <b>a cracked, scaled or collapsed line under the slab</b></p></div></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 7</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If <b>more than one drain backs up</b> at the same time<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>sewer camera inspection</b></span><span class="sign__why">One slow sink is a clog. Several at once points to the main line.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your toilet <b>gurgles when the washer drains</b> or the tub empties<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>main line repair</b></span><span class="sign__why">Air is being pushed back up because water can't get out of the house fast enough.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your house or yard <b>smells like sewage</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>sewer line inspection</b></span><span class="sign__why">Cracked pipes let sewer gas escape under the house or into the yard.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your line gets <b>snaked more than once a year</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>sewer line replacement</b></span><span class="sign__why">Cracks and scale keep catching debris. Snaking clears it but doesn't fix the pipe.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If water <b>comes up in the tub or shower when you flush</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>main line repair</b></span><span class="sign__why">The lowest drain in the house backs up first when the main line is blocked.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your home was <b>built before the mid-1970s</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>cast iron replacement</b></span><span class="sign__why">Drains under older slabs are usually cast iron, which cracks and scales shut with age. We tunnel under the slab so your floors stay put.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If <b>roaches or drain flies keep coming from your drains</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>sewer line inspection</b></span><span class="sign__why">Cracked lines under the slab can give them a way into the house.</span></span></button></li>
+    <div class="area__foot"><p>A camera down the line shows exactly where it's cracked before anything gets opened up.</p><a class="area__go" href="/quote?problem=sewer&amp;from=signs">Price my sewer line, free <span aria-hidden="true">→</span></a></div>
+  </div>
+</section>
+<section class="area" id="gas" data-k="gas">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="gas-panel" id="gas-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-flame"/></svg></span>
+    <span class="area__label"><span class="area__title">Gas line problems</span><span class="area__sub">Failed gas test, dead grass, new gas appliance</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="gas-panel" role="region" aria-labelledby="gas-btn" hidden>
+    <p class="alert"><svg aria-hidden="true"><use href="#i-warn"/></svg><span><b>Smell rotten eggs or hear hissing?</b> Get everyone out first. Then call 911 and Atmos Energy at <a href="tel:+18663228667">1-866-322-8667</a>.</span></p>
+    <p class="area__means">Usually means <b>a leaking, old or undersized gas line</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="gas-1"><input type="checkbox" id="gas-1" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your gas was <b>shut off or red-tagged after a failed test</b></span><span class="sign__need">You may need a <b>gas line repair</b></span><span class="sign__why">A licensed plumber has to fix the line and pass a pressure test before your gas can be turned back on.</span></span></label></li>
+<li><label class="sign" for="gas-2"><input type="checkbox" id="gas-2" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If there's a <b>strip of dead grass across your yard</b></span><span class="sign__need">You may need a <b>gas line check</b></span><span class="sign__why">Gas leaking from a buried line can kill the plants above it.</span></span></label></li>
+<li><label class="sign" for="gas-3"><input type="checkbox" id="gas-3" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your gas bill is <b>higher and your use isn't</b></span><span class="sign__need">You may need a <b>gas leak test</b></span><span class="sign__why">A slow leak can run for months before anyone smells it.</span></span></label></li>
+<li><label class="sign" for="gas-4"><input type="checkbox" id="gas-4" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your burner flames are <b>yellow or orange instead of blue</b></span><span class="sign__need">You may need a <b>gas appliance check</b></span><span class="sign__why">It can mean the gas isn't burning cleanly, which can produce carbon monoxide. Have it checked soon.</span></span></label></li>
+<li><label class="sign" for="gas-5"><input type="checkbox" id="gas-5" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If you're <b>adding a gas range, generator, pool heater or outdoor kitchen</b></span><span class="sign__need">You may need a <b>new or larger gas line</b></span><span class="sign__why">New appliances often need more gas than the old line can carry.</span></span></label></li>
+<li><label class="sign" for="gas-6"><input type="checkbox" id="gas-6" name="gas"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If you're <b>remodeling or selling your home</b></span><span class="sign__need">You may need a <b>gas pressure test</b></span><span class="sign__why">Many remodel permits and home sales call for a passing gas test.</span></span></label></li>
     </ul>
-    <div class="prob__foot"><p>A camera down the line shows exactly where it's cracked before anything gets opened up.</p><a class="prob__go" href="/quote?problem=sewer">Price my sewer line →</a></div>
-  </section>
-
-  <!-- 4. Gas -->
-  <section class="prob card" id="gas" data-k="gas">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-flame"/></svg></div><div><h2>Gas line problems</h2><p class="prob__means">Usually means: <b>a leaking, old or undersized gas line</b></p></div></div>
-    <div class="alert" role="note"><svg aria-hidden="true"><use href="#i-warn"/></svg><p><b>Smell rotten eggs or hear hissing right now?</b> Get everyone out of the house first. Then call 911 and Atmos Energy at <a href="tel:+18663228667">1-866-322-8667</a>. Don't flip switches or use anything that sparks on the way out.</p></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 6</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your gas was <b>shut off or red-tagged after a failed test</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>gas line repair</b></span><span class="sign__why">A licensed plumber has to fix the line and pass a pressure test before your gas can be turned back on.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If there's a <b>strip of dead grass across your yard</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>gas line check</b></span><span class="sign__why">Gas leaking from a buried line can kill the plants above it.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your gas bill is <b>higher and your use isn't</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>gas leak test</b></span><span class="sign__why">A slow leak can run for months before anyone smells it.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your burner flames are <b>yellow or orange instead of blue</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>gas appliance check</b></span><span class="sign__why">It can mean the gas isn't burning cleanly, which can produce carbon monoxide. Have it checked soon.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If you're <b>adding a gas range, generator, pool heater or outdoor kitchen</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>new or larger gas line</b></span><span class="sign__why">New appliances often need more gas than the old line can carry.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If you're <b>remodeling or selling your home</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>gas pressure test</b></span><span class="sign__why">Many remodel permits and home sales call for a passing gas test.</span></span></button></li>
+    <div class="area__foot"><p>Licensed for gas. We repair, retest and get your service back on.</p><a class="area__go" href="/quote?problem=gas&amp;from=signs">Price my gas line, free <span aria-hidden="true">→</span></a></div>
+  </div>
+</section>
+<section class="area" id="heater" data-k="heater">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="heater-panel" id="heater-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-heater"/></svg></span>
+    <span class="area__label"><span class="area__title">Water heater wearing out</span><span class="area__sub">Running out of hot water, old or leaking tank</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="heater-panel" role="region" aria-labelledby="heater-btn" hidden>
+    
+    <p class="area__means">Usually means <b>an aging tank, or one that's too small</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="heater-1"><input type="checkbox" id="heater-1" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your hot water <b>runs out before the second shower</b></span><span class="sign__need">You may need a <b>bigger or tankless water heater</b></span><span class="sign__why">Your tank is too small for your household, or sediment has taken up part of it.</span></span></label></li>
+<li><label class="sign" for="heater-2"><input type="checkbox" id="heater-2" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your tank is <b>10 or more years old</b> (the date is on the label)</span><span class="sign__need">You may need a <b>water heater replacement</b></span><span class="sign__why">Most tank water heaters last about 8 to 12 years.</span></span></label></li>
+<li><label class="sign" for="heater-3"><input type="checkbox" id="heater-3" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your water heater is <b>popping or rumbling</b></span><span class="sign__need">You may need a <b>water heater check</b></span><span class="sign__why">Sediment has built up at the bottom and is making the tank overheat and work harder.</span></span></label></li>
+<li><label class="sign" for="heater-4"><input type="checkbox" id="heater-4" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If there's <b>water around the base of the tank</b></span><span class="sign__need">You may need a <b>replacement soon</b></span><span class="sign__why">A leaking tank doesn't fix itself, and it can fail all at once.</span></span></label></li>
+<li><label class="sign" for="heater-5"><input type="checkbox" id="heater-5" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If <b>only your hot water is rusty</b></span><span class="sign__need">You may need a <b>new water heater</b></span><span class="sign__why">The tank's lining is failing. If your cold water is rusty too, look at the pipe signs at the top.</span></span></label></li>
+<li><label class="sign" for="heater-6"><input type="checkbox" id="heater-6" name="heater"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If you're <b>tired of waiting on hot water</b> and paying to keep a tank hot</span><span class="sign__need">You may want a <b>tankless conversion</b></span><span class="sign__why">Tankless heats water as you use it: endless hot water, and the closet space back.</span></span></label></li>
     </ul>
-    <div class="prob__foot"><p>Licensed for gas. We repair, retest and get your service back on.</p><a class="prob__go" href="/quote?problem=gas">Price my gas line →</a></div>
-  </section>
-
-  <!-- 5. Water heater -->
-  <section class="prob card" id="heater" data-k="heater">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-heater"/></svg></div><div><h2>Water heater wearing out</h2><p class="prob__means">Usually means: <b>an aging tank, or one that's too small</b></p></div></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 6</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your hot water <b>runs out before the second shower</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>bigger or tankless water heater</b></span><span class="sign__why">Your tank is too small for your household, or sediment has taken up part of it.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your tank is <b>10 or more years old</b> (the date is on the label)<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>water heater replacement</b></span><span class="sign__why">Most tank water heaters last about 8 to 12 years.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your water heater is <b>popping or rumbling</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>water heater check</b></span><span class="sign__why">Sediment has built up at the bottom and is making the tank overheat and work harder.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If there's <b>water around the base of the tank</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>replacement soon</b></span><span class="sign__why">A leaking tank doesn't fix itself, and it can fail all at once.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If <b>only your hot water is rusty</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>new water heater</b></span><span class="sign__why">The tank's lining is failing. If your cold water is rusty too, look at the pipe signs at the top.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If you're <b>tired of waiting on hot water</b> and paying to keep a tank hot<span class="sign__tag">That's me</span></span><span class="sign__need">you may want a&nbsp;<b>tankless conversion</b></span><span class="sign__why">Tankless heats water as you use it: endless hot water, and the closet space back.</span></span></button></li>
+    <div class="area__foot"><p>Ask about Atmos Energy rebates on tankless at your free estimate.</p><a class="area__go" href="/quote?problem=heater&amp;from=signs">Price my water heater, free <span aria-hidden="true">→</span></a></div>
+  </div>
+</section>
+<section class="area" id="yard" data-k="yard">
+  <h3 class="area__h"><button type="button" class="area__btn" aria-expanded="false" aria-controls="yard-panel" id="yard-btn">
+    <span class="area__icon" aria-hidden="true"><svg><use href="#i-yard"/></svg></span>
+    <span class="area__label"><span class="area__title">Yard water line</span><span class="area__sub">Soggy yard, water in the meter box</span></span>
+    <span class="area__count" aria-hidden="true"></span>
+    <span class="area__caret" aria-hidden="true"><svg><use href="#i-caret"/></svg></span>
+  </button></h3>
+  <div class="area__panel" id="yard-panel" role="region" aria-labelledby="yard-btn" hidden>
+    
+    <p class="area__means">Usually means <b>a leak or break between the meter and your house</b>. Check every sign that fits your house.</p>
+    <ul class="signs" role="list">
+<li><label class="sign" for="yard-1"><input type="checkbox" id="yard-1" name="yard" data-id="yard-soggy"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If there's a <b>soggy patch or extra-green strip</b> between the street and your house</span><span class="sign__need">You may need a <b>yard line repair</b></span><span class="sign__why">Water leaking from the buried line comes up through the soil, or feeds one strip of grass.</span></span></label></li>
+<li><label class="sign" for="yard-2"><input type="checkbox" id="yard-2" name="yard"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your meter box is <b>full of water</b></span><span class="sign__need">You may need a <b>yard line repair</b></span><span class="sign__why">The leak may be at a fitting on your side of the meter.</span></span></label></li>
+<li><label class="sign" for="yard-3"><input type="checkbox" id="yard-3" name="yard"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your leak dial moves but <b>nothing inside the house is wet</b></span><span class="sign__need">You may need a <b>yard line check</b></span><span class="sign__why">The leak may be outside, somewhere along the line from the meter to the house.</span></span></label></li>
+<li><label class="sign" for="yard-4"><input type="checkbox" id="yard-4" name="yard"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your pressure <b>dropped suddenly in the whole house</b></span><span class="sign__need">You may need a <b>water line repair</b></span><span class="sign__why">A break in the main line from the meter cuts flow to every faucet at once.</span></span></label></li>
+<li><label class="sign" for="yard-5"><input type="checkbox" id="yard-5" name="yard"><span class="sign__box" aria-hidden="true"><svg><use href="#i-check"/></svg></span><span class="sign__text"><span class="sign__if">If your yard line is <b>old or has been patched before</b></span><span class="sign__need">You may need a <b>new water line</b></span><span class="sign__why">Shifting clay, droughts and freezes keep stressing old lines. One patch usually leads to the next.</span></span></label></li>
     </ul>
-    <div class="prob__foot"><p>Ask about Atmos Energy rebates on tankless at your free estimate.</p><a class="prob__go" href="/quote?problem=heater">Price my water heater →</a></div>
-  </section>
-
-  <!-- 6. Yard line -->
-  <section class="prob card" id="yard" data-k="yard">
-    <div class="prob__head"><div class="prob__icon"><svg aria-hidden="true"><use href="#i-yard"/></svg></div><div><h2>Yard water line</h2><p class="prob__means">Usually means: <b>a leak or break between the meter and your house</b></p></div></div>
-    <div class="prob__meter"><span class="prob__track"><span class="prob__fill"></span></span><span class="prob__count">0 of 5</span></div>
-    <ul class="signs">
-      <li><button type="button" class="sign" aria-pressed="false" data-id="yard-soggy"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If there's a <b>soggy patch or extra-green strip</b> between the street and your house<span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>yard line repair</b></span><span class="sign__why">Water leaking from the buried line comes up through the soil, or feeds one strip of grass.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your meter box is <b>full of water</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>yard line repair</b></span><span class="sign__why">The leak may be at a fitting on your side of the meter.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your leak dial moves but <b>nothing inside the house is wet</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>yard line check</b></span><span class="sign__why">The leak may be outside, somewhere along the line from the meter to the house.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your pressure <b>dropped suddenly in the whole house</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>water line repair</b></span><span class="sign__why">A break in the main line from the meter cuts flow to every faucet at once.</span></span></button></li>
-      <li><button type="button" class="sign" aria-pressed="false"><span class="sign__box"><svg><use href="#i-check"/></svg></span><span><span class="sign__if">If your yard line is <b>old or has been patched before</b><span class="sign__tag">That's me</span></span><span class="sign__need">you may need a&nbsp;<b>new water line</b></span><span class="sign__why">Shifting clay, droughts and freezes keep stressing old lines. One patch usually leads to the next.</span></span></button></li>
-    </ul>
-    <div class="prob__foot"><p>We find where the line is leaking and replace it from the meter to the house.</p><a class="prob__go" href="/quote?problem=yard">Price my water line →</a></div>
+    <div class="area__foot"><p>We find where the line is leaking and replace it from the meter to the house.</p><a class="area__go" href="/quote?problem=yard&amp;from=signs">Price my water line, free <span aria-hidden="true">→</span></a></div>
+  </div>
+</section>
+    </div>
   </section>
 
   <section class="fw">
     <p class="kicker">Why it happens here</p>
     <h2>Fort Worth is hard on pipes.</h2>
-    <div class="fw__grid">
-      <div class="fw__item"><i><svg aria-hidden="true"><use href="#i-soil"/></svg></i><p><b>The ground moves.</b>North Texas clay shrinks in drought and swells after rain. Slabs shift, and the pipes under them bend and break.</p></div>
-      <div class="fw__item"><i><svg aria-hidden="true"><use href="#i-home"/></svg></i><p><b>A lot of the pipe is old.</b>Many older neighborhoods still run on original galvanized water pipe and cast iron drains, and both wear out from the inside.</p></div>
-    </div>
+    <ul>
+      <li><b>The ground moves.</b> North Texas clay shrinks in drought and swells after rain. Slabs shift, and the pipes under them bend and break.</li>
+      <li><b>A lot of the pipe is old.</b> Many older neighborhoods still run on original galvanized water pipe and cast iron drains. Both wear out from the inside.</li>
+    </ul>
   </section>
 
   <section class="who card">
-    <img class="who__img" src="/images/why-1200x900.jpg" alt="Confluent Solutions work truck in Fort Worth" width="900" height="1200" loading="lazy" />
+    <img src="/images/why-1200x900.jpg" alt="Confluent Solutions work truck in Fort Worth" width="1200" height="900" loading="lazy" decoding="async" />
     <div>
       <p class="kicker">Who you're talking to</p>
       <h2>A licensed master plumber, not a call center.</h2>
-      <ul class="who__list">
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Owner Philip O'Hara, Master Plumber License M-44554</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>35+ years fixing Fort Worth plumbing</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span><span class="stars" aria-hidden="true">★★★★★</span> 5.0 from 49 Google reviews</span></li>
-        <li><svg aria-hidden="true"><use href="#i-check"/></svg><span>Free estimate with the exact price before any work. Financing available.</span></li>
+      <ul>
+        <li><svg aria-hidden="true"><use href="#i-ok"/></svg><span>Owner Philip O'Hara, Master Plumber License M-44554</span></li>
+        <li><svg aria-hidden="true"><use href="#i-ok"/></svg><span>35+ years fixing Fort Worth plumbing</span></li>
+        <li><svg aria-hidden="true"><use href="#i-ok"/></svg><span>Free estimate with the exact price before any work. Financing available.</span></li>
       </ul>
-      <a class="who__text" id="text-photo" href="sms:+18179997363?&body=Hi%20Philip%2C%20I%27m%20in%20Fort%20Worth.%20Here%27s%20a%20photo%20of%20what%20I%27m%20seeing%3A">Not sure? Text Philip a photo</a>
+      <a class="who__text" href="sms:+18179997363?&body=Hi%20Philip%2C%20I%27m%20in%20Fort%20Worth.%20Here%27s%20a%20photo%20of%20what%20I%27m%20seeing%3A">Not sure? Text Philip a photo →</a>
     </div>
   </section>
 
   <p class="note">These are common signs, not a diagnosis. A licensed plumber confirms what's actually wrong at your free estimate.</p>
+</div>
 
-  <footer class="foot">
-    <p>Confluent Solutions · Fort Worth, TX · Master Plumber License M-44554 · <a href="tel:+18179997363">817-999-7363</a></p>
-    <nav aria-label="Site"><a href="/quote">Get a quote</a><a href="/">Home</a><a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms</a></nav>
-  </footer>
+<aside class="results card" id="results" aria-labelledby="res-title">
+  <p class="kicker">Your results</p>
+  <div class="results__empty" id="res-empty">
+    <h2 id="res-title">Check the signs that fit your house.</h2>
+    <p>Your results show up here, with what it usually takes to fix.</p>
+  </div>
+  <div class="results__full" id="res-full" hidden>
+    <h2 id="res-title-full" aria-live="polite"></h2>
+    <ul class="results__list" id="res-list"></ul>
+    <p class="results__need">You may need <b id="res-need"></b>. Philip's free estimate confirms it.</p>
+  </div>
+  <a class="results__go" id="res-go" href="/quote?from=signs">Get my exact price, free <span aria-hidden="true">→</span></a>
+  <p class="results__fine">Philip finds what's actually wrong and gives you the exact price before any work starts. Financing available.</p>
+  <a class="results__call" href="tel:+18179997363"><svg aria-hidden="true"><use href="#i-phone"/></svg>Or call 817-999-7363</a>
+</aside>
 </div>
 </main>
 
-<div class="cta" id="cta"><div class="cta__inner">
-  <p class="cta__line" id="cta-line" aria-live="polite">Free estimate · Exact price before any work</p>
-  <a class="cta__btn" id="cta-btn" href="/quote?from=signs"><span id="cta-text">Get my exact price, free</span><span class="cta__arrow" aria-hidden="true">→</span></a>
-</div></div>
+<footer class="foot">
+  <p>Confluent Solutions · Fort Worth, TX · Master Plumber License M-44554 · <a href="tel:+18179997363">817-999-7363</a></p>
+  <nav aria-label="Site"><a href="/quote">Get a quote</a><a href="/">Home</a><a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms</a></nav>
+</footer>
+
+<div class="cta" id="cta" role="region" aria-label="Get your price"><a class="cta__btn" id="cta-btn" href="/quote?from=signs"><span class="cta__n" id="cta-n" aria-hidden="true"></span><span id="cta-text">Get my exact price, free</span><span aria-hidden="true">→</span></a></div>
 
 <script>
 (function () {
-  var NEED = { repipe: "a repipe", leak: "a hidden leak", sewer: "a sewer line problem", gas: "a gas line problem", heater: "a worn-out water heater", yard: "a yard line leak" };
-  var BTN = { repipe: "Price my repipe, free", leak: "Find my leak & price it, free", sewer: "Price my sewer line, free", gas: "Price my gas line, free", heater: "Price my water heater, free", yard: "Price my water line, free" };
-  var secs = Array.prototype.slice.call(document.querySelectorAll(".prob"));
-  var chips = {};
-  Array.prototype.forEach.call(document.querySelectorAll(".chip"), function (c) { chips[c.getAttribute("data-k")] = c; });
-  var cta = document.getElementById("cta"), line = document.getElementById("cta-line"), text = document.getElementById("cta-text"), btn = document.getElementById("cta-btn");
-  var picked = {};
+  var NEED = {"repipe": "a whole-house repipe", "leak": "leak detection and repair", "sewer": "a sewer line inspection or replacement", "gas": "a gas line repair or test", "heater": "a new or tankless water heater", "yard": "a yard water line repair"}, BTN = {"repipe": "Price my repipe", "leak": "Price my leak repair", "sewer": "Price my sewer line", "gas": "Price my gas line", "heater": "Price my water heater", "yard": "Price my water line"}, TITLE = {"repipe": "Rusty water or weak pressure", "leak": "Hidden or slab leak", "sewer": "Sewer backups or old cast iron", "gas": "Gas line problems", "heater": "Water heater wearing out", "yard": "Yard water line"};
+  var areas = Array.prototype.slice.call(document.querySelectorAll(".area"));
+  var $ = function (id) { return document.getElementById(id); };
+  var cta = $("cta"), ctaBtn = $("cta-btn"), ctaText = $("cta-text"), ctaN = $("cta-n");
 
   function track(name, data) {
     try { if (window.clarity) window.clarity("event", name); } catch (e) {}
     try { if (window.fbq) window.fbq("trackCustom", name, data || {}); } catch (e) {}
   }
 
-  function update() {
-    var best = "", bestN = 0, total = 0;
-    secs.forEach(function (s) {
-      var k = s.getAttribute("data-k");
-      var all = s.querySelectorAll(".sign").length;
-      var n = s.querySelectorAll('.sign[aria-pressed="true"]').length;
-      picked[k] = n; total += n;
-      s.querySelector(".prob__fill").style.width = (n / all * 100) + "%";
-      s.querySelector(".prob__count").textContent = n + " of " + all;
-      var badge = chips[k] && chips[k].querySelector(".chip__n");
-      if (badge) { badge.textContent = n; badge.classList.toggle("on", n > 0); }
-      if (n > bestN) { bestN = n; best = k; }
+  // Accordions: several can be open; opening never moves the page.
+  function setOpen(btn, open) {
+    var panel = $(btn.getAttribute("aria-controls"));
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    panel.hidden = !open;
+    var area = btn.closest(".area"); if (area) area.classList.toggle("is-open", open);
+  }
+  function openArea(k, scroll) {
+    var btn = $(k + "-btn"); if (!btn) return;
+    setOpen(btn, true);
+    if (scroll) btn.closest(".area").scrollIntoView({ block: "start" });
+  }
+  document.querySelectorAll(".area__btn, .test__btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var open = btn.getAttribute("aria-expanded") !== "true";
+      setOpen(btn, open);
+      if (open) track("signs_open_area", { problem: (btn.closest(".area") || {}).id || "meter_test" });
     });
-    if (!best) {
-      line.innerHTML = "Free estimate · Exact price before any work";
-      text.textContent = "Get my exact price, free";
-      btn.href = "/quote?from=signs";
-    } else {
-      line.innerHTML = "<b>" + bestN + " sign" + (bestN > 1 ? "s" : "") + "</b> of " + NEED[best] + (total > bestN ? " · " + total + " total" : "");
-      text.textContent = BTN[best];
-      btn.href = "/quote?problem=" + best + "&from=signs";
+  });
+
+  // Results, header counts and the pinned button
+  function update() {
+    var rows = areas.map(function (a) {
+      return { k: a.id, n: a.querySelectorAll("input:checked").length };
+    }).filter(function (r) { return r.n > 0; }).sort(function (x, y) { return y.n - x.n; });
+    areas.forEach(function (a) {
+      var n = a.querySelectorAll("input:checked").length, c = a.querySelector(".area__count");
+      c.textContent = n; c.classList.toggle("on", n > 0);
+    });
+    var total = rows.reduce(function (s, r) { return s + r.n; }, 0);
+    if (!rows.length) {
+      $("res-empty").hidden = false; $("res-full").hidden = true;
+      $("res-go").href = ctaBtn.href = "/quote?from=signs";
+      $("res-go").firstChild.nodeValue = "Get my exact price, free ";
+      ctaText.textContent = "Get my exact price, free"; ctaN.classList.remove("on");
+      return;
     }
-    cta.classList.remove("bump"); void cta.offsetWidth; cta.classList.add("bump");
+    var best = rows[0];
+    $("res-empty").hidden = true; $("res-full").hidden = false;
+    $("res-title-full").textContent = "Most likely: " + TITLE[best.k];
+    $("res-list").innerHTML = rows.map(function (r) { return "<li><span>" + TITLE[r.k] + "</span><span>" + r.n + (r.n > 1 ? " signs" : " sign") + "</span></li>"; }).join("");
+    $("res-need").textContent = NEED[best.k];
+    var href = "/quote?problem=" + best.k + "&from=signs";
+    $("res-go").href = ctaBtn.href = href;
+    $("res-go").firstChild.nodeValue = BTN[best.k] + ", free ";
+    ctaText.textContent = BTN[best.k];
+    ctaN.textContent = total; ctaN.classList.add("on");
   }
-
-  function toggle(b, on) {
-    var now = typeof on === "boolean" ? on : b.getAttribute("aria-pressed") !== "true";
-    b.setAttribute("aria-pressed", now ? "true" : "false");
-  }
-
-  Array.prototype.forEach.call(document.querySelectorAll(".sign"), function (b) {
-    b.addEventListener("click", function () {
-      toggle(b);
-      var k = b.closest(".prob").getAttribute("data-k");
-      if (b.getAttribute("aria-pressed") === "true") {
-        track("sign_tap", { problem: k });
-        try { if (window.clarity) window.clarity("set", "sign_" + k, "yes"); } catch (e) {}
-      }
+  document.querySelectorAll(".sign input").forEach(function (cb) {
+    cb.addEventListener("change", function () {
+      if (cb.checked) track("sign_tap", { problem: cb.name });
       update();
     });
   });
 
   // Meter test
-  Array.prototype.forEach.call(document.querySelectorAll(".tbtn"), function (t) {
-    t.addEventListener("click", function () {
-      var v = t.getAttribute("data-test");
-      Array.prototype.forEach.call(document.querySelectorAll(".tbtn"), function (o) { o.setAttribute("aria-pressed", o === t ? "true" : "false"); });
-      document.getElementById("test-moved").classList.toggle("show", v === "moved");
-      document.getElementById("test-still").classList.toggle("show", v === "still");
-      var dial = document.querySelector('[data-id="leak-dial"]');
-      if (v === "moved") { toggle(dial, true); update(); }
+  document.querySelectorAll(".choice").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = b.getAttribute("data-test");
+      document.querySelectorAll(".choice").forEach(function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
+      $("test-moved").hidden = v !== "moved"; $("test-still").hidden = v !== "still";
+      if (v === "moved") { var dial = document.querySelector('[data-id="leak-dial"]'); if (dial && !dial.checked) { dial.checked = true; update(); } openArea("leak", false); }
       track("meter_test", { result: v });
     });
   });
-
-  // CTA clicks
-  btn.addEventListener("click", function () { track("signs_to_quote", { problem: (btn.href.match(/problem=(\w+)/) || [])[1] || "none" }); });
-  Array.prototype.forEach.call(document.querySelectorAll(".prob__go"), function (a) {
-    a.addEventListener("click", function () { track("signs_to_quote", { problem: a.closest(".prob").getAttribute("data-k"), place: "section" }); });
+  document.querySelectorAll("[data-open]").forEach(function (a) {
+    a.addEventListener("click", function (e) { e.preventDefault(); openArea(a.getAttribute("data-open"), true); });
   });
 
-  // Highlight the chip for the section on screen
+  // Clicks to the quote page
+  [ctaBtn, $("res-go")].forEach(function (a) { a.addEventListener("click", function () { track("signs_to_quote", { problem: (a.href.match(/problem=(\w+)/) || [])[1] || "none" }); }); });
+  document.querySelectorAll(".area__go").forEach(function (a) { a.addEventListener("click", function () { track("signs_to_quote", { problem: a.closest(".area").id, place: "area" }); }); });
+
+  // Pinned button steps aside while the results card or the footer is on screen
   if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        var k = e.target.getAttribute("data-k");
-        Object.keys(chips).forEach(function (c) { chips[c].setAttribute("aria-current", c === k ? "true" : "false"); });
-        var chip = chips[k];
-        if (chip && chip.scrollIntoView) {
-          var row = chip.parentNode;
-          row.scrollTo({ left: chip.offsetLeft - 16, behavior: "smooth" });
-        }
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    secs.forEach(function (s) { io.observe(s); });
+    var seen = new Set();
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) seen.add(e.target); else seen.delete(e.target); });
+      cta.classList.toggle("is-away", seen.size > 0);
+    }, { threshold: 0.35 });
+    io.observe($("results")); io.observe(document.querySelector(".foot"));
   }
 
-  // Arriving at /signs#leak etc. from the quote page: nothing extra needed, the anchor scrolls there.
+  // Deep links from the quote page: /signs#leak opens that problem
+  var h = (location.hash || "").slice(1);
+  if (h === "meter-test") setOpen($("test-btn"), true);
+  else if ($(h + "-btn")) { openArea(h, false); requestAnimationFrame(function () { $(h).scrollIntoView({ block: "start" }); }); }
+  update();
 })();
 </script>
 </body>
