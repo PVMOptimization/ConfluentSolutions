@@ -848,6 +848,11 @@ img { display: block; max-width: 100%; }
   .choices { gap: 0.45rem; }
   .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
+  /* Answering: the headline has done its job; give the step (and its button) the screen. */
+  .form-going .hero__copy { display: none; }
+  .typing .callbar { display: none; }
+  .typing body { padding-bottom: 0; }
+  .rng--budget { margin: 0.1rem 0 0.35rem; }
 }
 
 /* Bottom bar on phones: Call + Text */
@@ -1125,13 +1130,9 @@ const FIRST_QUESTION: Question = {
 
 const QUESTIONS: readonly Question[] = [
   FIRST_QUESTION,
-  // Value first: show the typical price for their problem before asking anything else.
-  {
-    kind: "range",
-    title: "What Fort Worth homeowners typically pay",
-    hint: "Small repairs can cost less. Your free estimate finds what's actually wrong and locks in the exact price.",
-    when: (a) => Boolean(serviceInfo(a)),
-  },
+  // No price before the phone step: "Where should we send your price range?" only works if the range
+  // is still to come. Leading with the price (Nov 7-15) got 0 phone numbers in ~390 visits; the
+  // phone-first order (Oct 25-Nov 6) got about 1 lead per 55 visits. The range shows on the budget step.
   {
     kind: "choice",
     field: "urgency",
@@ -1149,7 +1150,7 @@ const QUESTIONS: readonly Question[] = [
     title: (a) => {
       const info = serviceInfo(a);
       return info
-        ? `If it's what it sounds like, ${info.phrase.charAt(0).toLowerCase()}${info.phrase.slice(1)} could run anywhere from ${info.range.replace("–", " to ")}. Which fits your budget?`
+        ? "Here's your price range. Which fits your budget?"
         : "Most of our projects run $5,000 or more. Do you have a budget of $5,000 or more for this project?";
     },
     hint: (a) => {
@@ -1390,6 +1391,33 @@ function LeadForm() {
   const [rangeLo, rangeHi] = rangeInfo ? parseRange(rangeInfo.range) : [0, 0];
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
+
+  // Phones: past the first screen, collapse the hero headline (CSS) and bring the step's top into view.
+  useEffect(() => {
+    const going = step > firstStep && status !== "sent";
+    document.documentElement.classList.toggle("form-going", going);
+    if (!touched.current) return;
+    const form = document.querySelector<HTMLElement>("form.form--steps");
+    if (!form || window.innerWidth >= T.bp.mobile) return;
+    const header = document.querySelector<HTMLElement>(".header")?.offsetHeight ?? 0;
+    const y = form.getBoundingClientRect().top + window.scrollY - header - 8;
+    if (Math.abs(window.scrollY - y) > 4) window.scrollTo({ top: Math.max(0, y), behavior: reduceMotion ? "auto" : "smooth" });
+  }, [step, status, firstStep, reduceMotion]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const on = (e: FocusEvent): void => {
+      const t = e.target as HTMLElement | null;
+      if (t && t.matches("form.form--steps input:not([type=checkbox])")) root.classList.add("typing");
+    };
+    const off = (): void => root.classList.remove("typing");
+    document.addEventListener("focusin", on);
+    document.addEventListener("focusout", off);
+    return () => {
+      document.removeEventListener("focusin", on);
+      document.removeEventListener("focusout", off);
+    };
+  }, []);
 
   // Focus the new question's first input when it mounts (after the slide), never on first page load.
   const stepRef = useCallback((node: HTMLDivElement | null): void => {
@@ -1684,6 +1712,18 @@ function LeadForm() {
                   </button>
                 );
               })}
+            </div>
+          )}
+
+          {question.field === "budget" && rangeInfo && (
+            <div className="rng rng--budget" aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}`}>
+              <p className="rng__job">{rangeInfo.job}</p>
+              <p className="rng__range">
+                {money(rangeLo)} to {money(rangeHi)}
+              </p>
+              <span className="px__bar rng__bar" aria-hidden="true">
+                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
+              </span>
             </div>
           )}
 
