@@ -1684,6 +1684,18 @@ function LeadForm() {
           </h2>
           <p className="form__hint">{hint}</p>
 
+          {question.field === "budget" && rangeInfo && (
+            <div className="rng rng--budget" aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}`}>
+              <p className="rng__job">{rangeInfo.job}</p>
+              <p className="rng__range">
+                {money(rangeLo)} to {money(rangeHi)}
+              </p>
+              <span className="px__bar rng__bar" aria-hidden="true">
+                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
+              </span>
+            </div>
+          )}
+
           {question.kind === "contact" && (
             <>
               <div className="field">
@@ -1712,18 +1724,6 @@ function LeadForm() {
                   </button>
                 );
               })}
-            </div>
-          )}
-
-          {question.field === "budget" && rangeInfo && (
-            <div className="rng rng--budget" aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}`}>
-              <p className="rng__job">{rangeInfo.job}</p>
-              <p className="rng__range">
-                {money(rangeLo)} to {money(rangeHi)}
-              </p>
-              <span className="px__bar rng__bar" aria-hidden="true">
-                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
-              </span>
             </div>
           )}
 
