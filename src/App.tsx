@@ -245,10 +245,22 @@ function signsProblem(): string {
 function heroTitle(): string {
   return AD_HEADLINES[adOffer()] ?? HERO_TITLE;
 }
-const HERO_SUB = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call with a price range.";
-const HERO_SUB_PRESET = "Free estimates from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call with a price range.";
+const HERO_SUB = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call to set it up.";
+const HERO_SUB_PRESET = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call to set it up.";
 const heroSub = (): string => (adOffer() || signsProblem() ? HERO_SUB_PRESET : HERO_SUB);
-const HERO_CHECKS: readonly string[] = ["Free estimate", "Financing available", "License M-44554", "Open 24/7"];
+const HERO_CHECKS: readonly string[] = ["Free inspection", "Financing available", "License M-44554", "Open 24/7"];
+// The offer: a named free inspection for the visitor's problem (a concrete thing to claim, not "free estimate").
+const DEFAULT_OFFER = "Free in-home plumbing inspection";
+const SERVICE_OFFER: Record<string, string> = {
+  "Rusty water or low water pressure": "Free whole-house pipe inspection",
+  "Water leak, high water bill, or meter keeps running": "Free leak check",
+  "Sewer backing up or cracked drain under the house": "Free sewer camera inspection",
+  "Old pipes and an old water heater": "Free pipe + water heater inspection",
+  "Gas line problem or failed gas test": "Free gas line check",
+  "I want a tankless water heater": "Free tankless assessment",
+  "Leak or break in the yard water line": "Free yard line leak check",
+};
+const offerFor = (service: string): string => SERVICE_OFFER[service] ?? DEFAULT_OFFER;
 
 
 
@@ -851,6 +863,8 @@ img { display: block; max-width: 100%; }
   /* Answering: the headline has done its job; give the step (and its button) the screen. */
   .form-going .hero__copy { display: none; }
   .typing .callbar { display: none; }
+  /* Once answering, the offer names the job; the picked-problem line gives its room to the step. */
+  .form-going .form__got { display: none; }
   .typing body { padding-bottom: 0; }
   .rng--budget { margin: 0.1rem 0 0.35rem; }
 }
@@ -892,6 +906,9 @@ img { display: block; max-width: 100%; }
 .px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
 .px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
 .px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
+.form__offer { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0; padding: 0.45rem 0.6rem; border-radius: 10px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); font-size: 0.9375rem; line-height: 1.2; color: #fff; }
+.form__offer-tag { flex: none; padding: 0.1rem 0.45rem; border-radius: 6px; background: #4ade80; color: #06230f; font-weight: 800; font-size: 0.8125rem; }
+.form__offer-sub { margin-left: auto; font-size: 0.75rem; color: rgba(244, 248, 255, 0.8); white-space: nowrap; }
 /* Header line as a button + its answer */
 .form__info-btn { appearance: none; background: none; border: 0; padding: 0.35rem 0; margin: -0.35rem 0; font: inherit; color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: pointer; }
 .form__info { margin-top: 0.6rem; padding: 0.8rem 0.9rem; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); display: grid; gap: 0.45rem; font-size: 0.875rem; line-height: 1.4; color: rgba(244, 248, 255, 0.92); }
@@ -1143,7 +1160,7 @@ const QUESTIONS: readonly Question[] = [
         : "No need to know exactly what's wrong. That's what the free estimate is for.",
     options: TIMELINE_OPTIONS,
   },
-  { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
+  { kind: "contact", title: "Where should we send your price range?", hint: (a) => `Includes your ${offerFor(a.service).replace(/^Free /, "free ")}. We call back fast. No spam, ever.` },
   {
     kind: "choice",
     field: "budget",
@@ -1640,7 +1657,7 @@ function LeadForm() {
       <div className="form__top">
         {step === firstStep ? (
           <button type="button" className="form__info-btn" aria-expanded={infoOpen} onClick={toggleInfo}>
-            Free estimate · Financing available <span aria-hidden="true">{infoOpen ? "▴" : "▾"}</span>
+            $0 inspection · Financing available <span aria-hidden="true">{infoOpen ? "▴" : "▾"}</span>
           </button>
         ) : (
           <span>{`Step ${shownStep} of ${shownTotal}`}</span>
@@ -1650,7 +1667,7 @@ function LeadForm() {
       {infoOpen && step === firstStep && (
         <div className="form__info">
           <p>
-            <strong>Free estimate:</strong> Philip's team comes out, finds what's actually wrong and gives you the exact price. No charge, no obligation.
+            <strong>{offerFor(answers.service)}:</strong> Philip's team comes out, finds what's actually wrong and gives you the exact price. No charge, no obligation.
           </p>
           <p>
             <strong>Financing:</strong> If the price lands on the higher end, you can pay over time. Ask about it at your free estimate.
@@ -1662,6 +1679,11 @@ function LeadForm() {
           )}
         </div>
       )}
+      <p className="form__offer">
+        <span className="form__offer-tag">$0</span>
+        <strong>{offerFor(answers.service)}</strong>
+        <span className="form__offer-sub">No obligation</span>
+      </p>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
       </div>
