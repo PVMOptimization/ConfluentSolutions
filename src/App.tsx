@@ -865,6 +865,8 @@ img { display: block; max-width: 100%; }
   .typing .callbar { display: none; }
   /* Once answering, the offer names the job; the picked-problem line gives its room to the step. */
   .form-going .form__got { display: none; }
+  .form__offer { flex-wrap: nowrap; padding: 0.4rem 0.55rem; font-size: 0.875rem; }
+  .form__offer-sub { display: none; }
   .typing body { padding-bottom: 0; }
   .rng--budget { margin: 0.1rem 0 0.35rem; }
 }
@@ -1413,6 +1415,9 @@ function LeadForm() {
   useEffect(() => {
     const going = step > firstStep && status !== "sent";
     document.documentElement.classList.toggle("form-going", going);
+    // Steps with text fields: keep the call bar away the whole time, so it can never slide under a tap on the button.
+    const kind = activeQuestions(answers)[step]?.kind;
+    document.documentElement.classList.toggle("typing", status !== "sent" && (kind === "contact" || kind === "address"));
     if (!touched.current) return;
     const form = document.querySelector<HTMLElement>("form.form--steps");
     if (!form || window.innerWidth >= T.bp.mobile) return;
@@ -1420,21 +1425,6 @@ function LeadForm() {
     const y = form.getBoundingClientRect().top + window.scrollY - header - 8;
     if (Math.abs(window.scrollY - y) > 4) window.scrollTo({ top: Math.max(0, y), behavior: reduceMotion ? "auto" : "smooth" });
   }, [step, status, firstStep, reduceMotion]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const on = (e: FocusEvent): void => {
-      const t = e.target as HTMLElement | null;
-      if (t && t.matches("form.form--steps input:not([type=checkbox])")) root.classList.add("typing");
-    };
-    const off = (): void => root.classList.remove("typing");
-    document.addEventListener("focusin", on);
-    document.addEventListener("focusout", off);
-    return () => {
-      document.removeEventListener("focusin", on);
-      document.removeEventListener("focusout", off);
-    };
-  }, []);
 
   // Focus the new question's first input when it mounts (after the slide), never on first page load.
   const stepRef = useCallback((node: HTMLDivElement | null): void => {
