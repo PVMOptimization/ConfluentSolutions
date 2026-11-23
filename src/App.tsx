@@ -185,7 +185,7 @@ const STAGES: readonly Stage[] = [
 ];
 
 // Update by hand from the Google Business Profile. Never round up.
-const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
+const GOOGLE_RATING = { stars: "5.0", count: 49 } as const;
 
 interface Review {
   name: string;
