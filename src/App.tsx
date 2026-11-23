@@ -80,7 +80,7 @@ const T = {
     mega: "clamp(3rem, 6.4vw, 6.5rem)",
   },
   sizeMobile: { xs: "0.6875rem", sm: "0.8125rem", md: "0.9375rem", lg: "1.0625rem", xl: "1.5rem", xxl: "2rem", mega: "2.375rem" },
-  bp: { mobile: 1024, wide: 1280 },
+  bp: { mobile: 768, wide: 1280 },
   layout: { max: "1200px", maxWide: "1360px", gutter: "clamp(1rem, 4vw, 3rem)", header: "88px", callBar: "60px", protrude: "clamp(28px, calc((100vw - 1230px) / 2), 88px)", wave: "clamp(32px, 5vw, 64px)", meterMin: 1280 },
   map: { w: 800, h: 520, pad: 50, lonMin: -97.5, lonSpan: 0.45, latMax: 32.97, latSpan: 0.42, home: "Fort Worth", rotateMs: 2600 },
   motion: { ease: "cubic-bezier(0.22, 1, 0.36, 1)", fast: "180ms", base: "320ms" },
@@ -185,7 +185,7 @@ const STAGES: readonly Stage[] = [
 ];
 
 // Update by hand from the Google Business Profile. Never round up.
-const GOOGLE_RATING = { stars: "5.0", count: 49 } as const;
+const GOOGLE_RATING = { stars: "5.0", count: 44 } as const;
 
 interface Review {
   name: string;
@@ -227,40 +227,18 @@ const AD_HEADLINES: Record<string, string> = {
 // O1–O5 from the ad link (utm_content), or "" when the visitor didn't come from one of the offer ads.
 function adOffer(): string {
   if (typeof window === "undefined") return "";
-  // Came from /signs with a problem picked: that beats the ad they first clicked.
-  const problem = signsProblem();
-  if (problem) return PROBLEM_OFFER[problem] ?? "";
   const fromUrl = new URLSearchParams(window.location.search).get("utm_content") ?? "";
   const content = fromUrl || readAttribution().utm_content || "";
   const offer = content.trim().slice(0, 2).toUpperCase();
   return offer in AD_HEADLINES ? offer : "";
 }
-// /signs links back here with ?problem=<key>. Keys match the section ids on signs.html.
-const PROBLEM_OFFER: Record<string, string> = { repipe: "O1", leak: "O2", sewer: "O3", gas: "O5" };
-function signsProblem(): string {
-  if (typeof window === "undefined") return "";
-  const p = (new URLSearchParams(window.location.search).get("problem") ?? "").trim().toLowerCase();
-  return p in PROBLEM_SERVICE ? p : "";
-}
 function heroTitle(): string {
   return AD_HEADLINES[adOffer()] ?? HERO_TITLE;
 }
-const HERO_SUB = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call to set it up.";
-const HERO_SUB_PRESET = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call to set it up.";
-const heroSub = (): string => (adOffer() || signsProblem() ? HERO_SUB_PRESET : HERO_SUB);
-const HERO_CHECKS: readonly string[] = ["Free inspection", "Financing available", "License M-44554", "Open 24/7"];
-// The offer: a named free inspection for the visitor's problem (a concrete thing to claim, not "free estimate").
-const DEFAULT_OFFER = "Free in-home plumbing inspection";
-const SERVICE_OFFER: Record<string, string> = {
-  "Rusty water or low water pressure": "Free whole-house pipe inspection",
-  "Water leak, high water bill, or meter keeps running": "Free leak check",
-  "Sewer backing up or cracked drain under the house": "Free sewer camera inspection",
-  "Old pipes and an old water heater": "Free pipe + water heater inspection",
-  "Gas line problem or failed gas test": "Free gas line check",
-  "I want a tankless water heater": "Free tankless assessment",
-  "Leak or break in the yard water line": "Free yard line leak check",
-};
-const offerFor = (service: string): string => SERVICE_OFFER[service] ?? DEFAULT_OFFER;
+const HERO_SUB = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. Choose your problem below and we'll call with a price range.";
+const HERO_SUB_PRESET = "Free inspection from a licensed master plumber with 35+ years in Fort Worth. A few quick taps and we'll call with a price range.";
+const heroSub = (): string => (adOffer() ? HERO_SUB_PRESET : HERO_SUB);
+const HERO_CHECKS: readonly string[] = ["$0 inspection", "Financing available", "License M-44554", "Open 24/7"];
 
 
 
@@ -838,37 +816,7 @@ img { display: block; max-width: 100%; }
   .form { padding: 1.1rem; }
   .form__hint { font-size: 0.875rem; }
   .choice { min-height: 52px; padding: 0.6rem 0.9rem; }
-  .choices--short { grid-template-columns: 1fr 1fr; gap: 0.45rem; }
-  .choices--short .choice { min-height: 46px; padding: 0.5rem 0.6rem; font-size: 0.875rem; line-height: 1.15; justify-content: center; text-align: center; }
-  /* Financing moves into the form's top line on phones, so the answers clear the call bar. */
-  .hero__side .fin-badge--edge { display: none; }
-  .hero__side { padding-top: 0; }
-  .hero__side .form { padding-top: 1rem; }
-  .hero__layout { padding-top: calc(var(--header-h) + 0.75rem); gap: 0.85rem; }
-  .hero__title { font-size: 1.875rem; }
-  .form--steps { gap: 0.45rem; }
-  .form__hint { font-size: 0.8125rem; line-height: 1.3; }
-  .form__top { font-size: 0.75rem; white-space: nowrap; gap: 0.5rem; }
-  /* The picked problem stays on one line, "change" next to it. */
-  .form__got { flex-wrap: nowrap; min-width: 0; align-items: flex-start; }
-  .hero__layout { grid-template-columns: minmax(0, 1fr); }
-  .hero__side, .hero__copy, .form--steps, .form__step { min-width: 0; }
-  .form__got-text { font-style: normal; min-width: 0; font-size: 0.8125rem; line-height: 1.3; }
-  .form__q, .form__q--long { font-size: 1.25rem; line-height: 1.15; }
-  .form__hint { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .choice { min-height: 46px; padding: 0.5rem 0.85rem; font-size: 0.9375rem; }
-  .choices { gap: 0.45rem; }
-  .choices--short .choice::after { display: none; }
   .field input { min-height: 52px; font-size: 16px; }
-  /* Answering: the headline has done its job; give the step (and its button) the screen. */
-  .form-going .hero__copy { display: none; }
-  .typing .callbar { display: none; }
-  /* Once answering, the offer names the job; the picked-problem line gives its room to the step. */
-  .form-going .form__got { display: none; }
-  .form__offer { flex-wrap: nowrap; padding: 0.4rem 0.55rem; font-size: 0.875rem; }
-  .form__offer-sub { display: none; }
-  .typing body { padding-bottom: 0; }
-  .rng--budget { margin: 0.1rem 0 0.35rem; }
 }
 
 /* Bottom bar on phones: Call + Text */
@@ -892,59 +840,6 @@ img { display: block; max-width: 100%; }
 .lp__step h3 { font-family: var(--f-display); font-size: 1.125rem; line-height: 1.2; color: var(--c-brand); }
 .lp__step p { font-size: 0.9375rem; color: var(--c-ink-soft); margin-top: 0.25rem; }
 .lp__lead { margin-top: var(--s-md); max-width: 40rem; color: var(--c-ink-soft); font-size: 1.0625rem; }
-/* Price explorer: pick a problem, see the range */
-.px { margin-top: var(--s-lg); max-width: 56rem; }
-.px__chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.px__chip { min-height: 44px; padding: 0.55rem 0.95rem; border-radius: 999px; border: 1.5px solid var(--c-line); background: var(--c-paper); color: var(--c-ink); font-weight: 600; font-size: 0.9375rem; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-.px__chip:hover { border-color: var(--c-brand); }
-.px__chip[aria-pressed="true"] { background: var(--c-brand); border-color: var(--c-brand); color: #fff; }
-.px__card { margin-top: var(--s-md); padding: 1.5rem 1.5rem 1.35rem; border-radius: var(--r-lg, 18px); background: var(--c-paper); box-shadow: 0 10px 30px rgba(10, 30, 70, 0.10); border: 1px solid var(--c-line); }
-.px__job { font-size: 0.875rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-aqua-deep); }
-.px__could { margin-top: 0.6rem; color: var(--c-ink-soft); font-size: 1rem; }
-.px__range { font-family: var(--f-display); font-weight: 700; font-size: clamp(2rem, 6vw, 2.75rem); line-height: 1.05; color: var(--c-brand); letter-spacing: -0.02em; }
-.px__bar { position: relative; height: 10px; margin: 1.1rem 0 0.4rem; border-radius: 999px; background: rgba(10, 40, 90, 0.08); }
-.px__fill { position: absolute; top: 0; bottom: 0; border-radius: 999px; background: linear-gradient(90deg, var(--c-aqua), var(--c-brand)); transition: left 0.35s ease, width 0.35s ease; }
-.px__scale { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--c-ink-soft); }
-.px__rows { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.5rem; margin-top: 1.25rem; padding-top: 1.1rem; border-top: 1px solid var(--c-line); }
-.px__row h3 { font-family: var(--f-display); font-size: 1rem; color: var(--c-brand); }
-.px__row p { margin-top: 0.25rem; font-size: 0.9375rem; color: var(--c-ink-soft); line-height: 1.45; }
-.form__offer { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin: 0; padding: 0.45rem 0.6rem; border-radius: 10px; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.4); font-size: 0.9375rem; line-height: 1.2; color: #fff; }
-.form__offer-tag { flex: none; padding: 0.1rem 0.45rem; border-radius: 6px; background: #4ade80; color: #06230f; font-weight: 800; font-size: 0.8125rem; }
-.form__offer-sub { margin-left: auto; font-size: 0.75rem; color: rgba(244, 248, 255, 0.8); white-space: nowrap; }
-/* Header line as a button + its answer */
-.form__info-btn { appearance: none; background: none; border: 0; padding: 0.35rem 0; margin: -0.35rem 0; font: inherit; color: inherit; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; cursor: pointer; }
-.form__info { margin-top: 0.6rem; padding: 0.8rem 0.9rem; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14); display: grid; gap: 0.45rem; font-size: 0.875rem; line-height: 1.4; color: rgba(244, 248, 255, 0.92); }
-.form__info strong { color: #fff; }
-.form__info-go { width: 100%; margin-top: 0.2rem; }
-.rng__tap { display: grid; gap: 0.35rem; width: 100%; padding: 0; background: none; border: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
-.rng__tap .rng__job, .rng__tap .rng__range { display: block; }
-.rng__tap .px__bar { display: block; }
-/* Range step in the form */
-.rng { display: grid; gap: 0.35rem; margin-top: 0.35rem; }
-.rng__job { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-aqua); }
-.rng__range { font-family: var(--f-display); font-weight: 700; font-size: clamp(1.9rem, 7vw, 2.4rem); line-height: 1.05; color: #fff; letter-spacing: -0.02em; }
-.rng__bar { margin: 0.4rem 0 0.6rem; background: rgba(255, 255, 255, 0.14); }
-.rng__go { width: 100%; margin-top: 0.25rem; }
-.signs-link { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.7rem; min-height: 42px; padding: 0.45rem 0.9rem; border-radius: 10px; border: 1px solid rgba(142, 197, 245, 0.5); background: rgba(142, 197, 245, 0.12); color: #fff; font-weight: 700; font-size: 0.9375rem; line-height: 1.25; text-align: center; text-decoration: none; }
-.signs-link:hover { background: rgba(142, 197, 245, 0.22); }
-.signs-link svg { flex: 0 0 18px; width: 18px; height: 18px; color: var(--c-aqua); }
-.signs-link--rng { margin-top: 0.2rem; }
-.rng__text { display: block; text-align: center; padding: 0.7rem; font-weight: 600; font-size: 0.9375rem; color: #fff; text-decoration: underline; text-underline-offset: 3px; }
-.px__note { margin-top: 0.5rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
-.px__signs { display: inline-flex; align-items: center; gap: 0.45rem; margin-top: 0.75rem; min-height: 42px; padding: 0.4rem 0.95rem; border-radius: 999px; border: 1.5px solid var(--c-brand); color: var(--c-brand); font-weight: 700; font-size: 0.9375rem; text-decoration: none; }
-.px__signs:hover { background: rgba(24, 46, 111, 0.06); }
-.px__signs svg { flex: 0 0 17px; width: 17px; height: 17px; }
-.px__book { margin-top: 1.25rem; padding: 1rem 1.1rem; border-radius: var(--r-md); background: rgba(10, 60, 140, 0.06); }
-.px__book p { font-size: 0.9375rem; color: var(--c-ink); line-height: 1.45; }
-.px__book strong { color: var(--c-brand); }
-.px__cta { margin-top: 0.85rem; width: 100%; border: 0; cursor: pointer; font-family: inherit; }
-.px__fine { margin-top: 0.9rem; font-size: 0.8125rem; color: var(--c-ink-soft); }
-/* Tablets use the phone layout, centered at a readable width. */
-@media (min-width: 600px) and (max-width: ${mq}) {
-  .hero__layout { max-width: 640px; margin-inline: auto; }
-  .hero__title { font-size: 2.5rem; }
-}
-@media (max-width: ${mq}) { .px__rows { grid-template-columns: 1fr; } .px__card { padding: 1.25rem 1.1rem 1.1rem; } .px__chip { font-size: 0.875rem; padding: 0.5rem 0.8rem; } }
 .lp__costs { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s-sm); margin-top: var(--s-lg); max-width: 56rem; }
 .lp__cost { display: flex; justify-content: space-between; align-items: center; gap: var(--s-md); padding: 1rem 1.25rem; }
 .lp__cost span { font-weight: 500; color: var(--c-ink); }
@@ -971,7 +866,7 @@ img { display: block; max-width: 100%; }
 .fin-badge--block small { font-family: var(--f-body); font-weight: 500; font-size: 0.9375rem; opacity: 0.95; }
 .hero__below { display: none; }
 @media (max-width: ${mq}) { .hero__top-only { display: none; } .hero__below { display: grid; gap: 0.6rem; margin-top: 1rem; text-shadow: 0 2px 18px rgba(5, 10, 30, 0.6); } }
-@media (max-width: ${mq}) { .hero__side .form { padding-top: 1rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
+@media (max-width: ${mq}) { .hero__side .form { padding-top: 2.4rem; } .fin-badge--edge { font-size: 1.05rem; } .fin-badge--block { width: 100%; font-size: 1.125rem; } }
 @media (max-width: 1024px) { .lp__steps, .lp__reviews { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: ${mq}) {
   .lp__steps, .lp__costs, .lp__reviews, .lp__owner { grid-template-columns: 1fr; }
@@ -1063,7 +958,7 @@ const EMPTY_ANSWERS: LeadAnswers = {
 };
 
 type ChoiceField = "service" | "leakCheck" | "budget" | "urgency" | "ownership";
-type QuestionKind = "contact" | "choice" | "address" | "range";
+type QuestionKind = "contact" | "choice" | "address";
 
 interface Question {
   kind: QuestionKind;
@@ -1078,11 +973,10 @@ interface Question {
 }
 
 // Confluent's services, in the order they should appear in the form.
-// range + depends feed the budget question and the price explorer. Lows checked against published
-// DFW/Fort Worth cost guides (Nov 2026); sewer-under-slab and yard-line are rough. Replace with Philip's numbers.
+// range + depends feed the budget question. They are DFW research ranges (Oct 2026);
+// replace them with Philip's real numbers when he sends them.
 interface ServiceOption {
   label: string; // button text in the form: the symptom, in homeowner words (also sent to GHL as "service")
-  short: string; // chip text in the price explorer
   job: string; // the job behind it, used in the price list
   phrase: string; // how the budget question refers to the job
   range: string; // what it usually runs, low to high
@@ -1090,13 +984,13 @@ interface ServiceOption {
 }
 
 const SERVICE_OPTIONS: readonly ServiceOption[] = [
-  { label: "Rusty water or low water pressure", short: "Rusty water / low pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$4,500–$15,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
-  { label: "Water leak, high water bill, or meter keeps running", short: "Hidden or slab leak", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$1,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
-  { label: "Sewer backing up or cracked drain under the house", short: "Sewer backing up", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$3,000–$20,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
-  { label: "Old pipes and an old water heater", short: "Old pipes + water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$9,000–$22,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
-  { label: "Gas line problem or failed gas test", short: "Gas line / failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$2,000–$10,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
-  { label: "I want a tankless water heater", short: "Tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$4,500–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
-  { label: "Leak or break in the yard water line", short: "Yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$1,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
+  { label: "Rusty water or low water pressure", job: "Whole-house repipe (galvanized pipes)", phrase: "A whole-house repipe", range: "$6,000–$20,000", depends: "the size of your home, the number of bathrooms and how far the line runs from the meter" },
+  { label: "Water leak, high water bill, or meter keeps running", job: "Slab or hidden leak repair", phrase: "Finding and fixing a hidden leak", range: "$4,500–$15,000", depends: "where the leak is and how many lines need to be rerouted" },
+  { label: "Sewer backing up or cracked drain under the house", job: "Cast iron sewer line under the slab", phrase: "Replacing a cracked sewer line under the slab", range: "$9,000–$28,000", depends: "how many feet of pipe need replacing and how far we have to tunnel" },
+  { label: "Old pipes and an old water heater", job: "Repipe + tankless water heater", phrase: "A repipe plus tankless", range: "$10,000–$25,000", depends: "the size of your home and whether your gas line and venting need upgrading" },
+  { label: "Gas line problem or failed gas test", job: "Gas line replacement", phrase: "A gas line replacement", range: "$3,000–$7,000", depends: "the length of the line and whether it runs under your yard, driveway or house" },
+  { label: "I want a tankless water heater", job: "Tankless water heater conversion", phrase: "A tankless conversion", range: "$6,000–$12,000", depends: "whether your gas line needs upsizing and where the new venting has to run" },
+  { label: "Leak or break in the yard water line", job: "Water line replacement (meter to house)", phrase: "Replacing a water line", range: "$2,000–$5,000", depends: "the length of the line and what's on top of it, like a driveway, trees or landscaping" },
 ]
 
 const OTHER_SERVICE = "Not sure / something else";
@@ -1110,22 +1004,8 @@ const OFFER_SERVICE: Record<string, string> = {
   O4: "Old pipes and an old water heater",
   O5: "Gas line problem or failed gas test",
 };
-// Problem keys used by /signs (?problem=) and its section anchors (/signs#leak).
-const PROBLEM_SERVICE: Record<string, string> = {
-  repipe: "Rusty water or low water pressure",
-  leak: LEAK_SERVICE,
-  sewer: SEWER_SERVICE,
-  gas: "Gas line problem or failed gas test",
-  heater: "I want a tankless water heater",
-  yard: "Leak or break in the yard water line",
-};
-const signsHref = (service: string = ""): string => {
-  const key = Object.keys(PROBLEM_SERVICE).find((k) => PROBLEM_SERVICE[k] === service);
-  return key ? `/signs#${key}` : "/signs";
-};
 const presetService = (): string => {
-  const problem = signsProblem();
-  const label = problem ? (PROBLEM_SERVICE[problem] ?? "") : (OFFER_SERVICE[adOffer()] ?? "");
+  const label = OFFER_SERVICE[adOffer()] ?? "";
   return SERVICE_OPTIONS.some((o) => o.label === label) ? label : "";
 };
 const FORM_SERVICES: readonly string[] = [...SERVICE_OPTIONS.map((s) => s.label), OTHER_SERVICE];
@@ -1149,33 +1029,49 @@ const FIRST_QUESTION: Question = {
 
 const QUESTIONS: readonly Question[] = [
   FIRST_QUESTION,
-  // No price before the phone step: "Where should we send your price range?" only works if the range
-  // is still to come. Leading with the price (Nov 7-15) got 0 phone numbers in ~390 visits; the
-  // phone-first order (Oct 25-Nov 6) got about 1 lead per 55 visits. The range shows on the budget step.
+  {
+    kind: "choice",
+    field: "leakCheck",
+    title: "Where do you think the leak is: under the house or in the yard?",
+    hint: "If your water meter keeps running with everything turned off, you have a leak, and it could be under the slab.",
+    options: ["Under the house", "In the yard", "Not sure"],
+    when: (a) => a.service === LEAK_SERVICE,
+    long: true,
+  },
+  {
+    kind: "choice",
+    // Shares the leakCheck field with the leak follow-up (only one of them is ever shown), so GHL needs no new field.
+    field: "leakCheck",
+    title: "What's going on with your sewer line?",
+    hint: "If another plumber already looked at it, we can often replace it by tunneling under the house instead of cutting through your floors.",
+    options: ["Drains keep backing up", "A plumber found a cracked pipe", "I was told it needs replacing", "Not sure"],
+    when: (a) => a.service === SEWER_SERVICE,
+    long: true,
+  },
   {
     kind: "choice",
     field: "urgency",
-    title: "When do you want someone to take a look?",
+    title: "When do you want the work done?",
     hint: (a) =>
       a.service.startsWith("Gas")
         ? "Smell gas? Get everyone outside first, then call us."
-        : "No need to know exactly what's wrong. That's what the free estimate is for.",
+        : "Pick the closest one. It helps us schedule your free estimate.",
     options: TIMELINE_OPTIONS,
   },
-  { kind: "contact", title: "Where should we send your price range?", hint: (a) => `Includes your ${offerFor(a.service).replace(/^Free /, "free ")}. We call back fast. No spam, ever.` },
+  { kind: "contact", title: "Where should we send your price range?", hint: "We call back fast. No spam, ever." },
   {
     kind: "choice",
     field: "budget",
     title: (a) => {
       const info = serviceInfo(a);
       return info
-        ? "Here's your price range. Which fits your budget?"
+        ? `${info.phrase} usually runs ${info.range}. Do you have a budget of $5,000 or more for this project?`
         : "Most of our projects run $5,000 or more. Do you have a budget of $5,000 or more for this project?";
     },
     hint: (a) => {
       const info = serviceInfo(a);
       const why = info ? `Depending on ${info.depends}. ` : "";
-      return `${why}Your free estimate confirms what's actually needed and the exact price before any work starts. If it lands higher, financing spreads it out.`;
+      return `${why}Financing available. Doing it right the first time costs less than doing it twice.`;
     },
     options: BUDGET_OPTIONS,
     long: true,
@@ -1235,8 +1131,6 @@ function validateStep(question: Question, a: LeadAnswers): string | null {
     case "address":
       if (!a.address.trim()) return "Please enter the street address.";
       return /^\d{5}$/.test(a.zip.trim()) ? null : "Please enter a 5-digit ZIP code.";
-    case "range":
-      return null;
   }
 }
 
@@ -1369,12 +1263,7 @@ function initMetaPixel(pixelId: string | undefined): void {
 const META_PIXEL_ID: string | undefined = import.meta.env.VITE_META_PIXEL_ID;
 
 // Microsoft Clarity session recordings + heatmaps (free). Paste the project ID from clarity.microsoft.com.
-const CLARITY_ID = "z9hu2tcqp8";
-// Clarity custom events/tags so recordings can be filtered by ad, step reached and outcome.
-type ClarityFn = (...args: unknown[]) => void;
-const clarity = (...args: unknown[]): void => {
-  (window as unknown as { clarity?: ClarityFn }).clarity?.(...args);
-};
+const CLARITY_ID = "";
 function initClarity(id: string): void {
   if (!id || typeof window === "undefined" || document.getElementById("clarity-js")) return;
   const w = window as unknown as { clarity?: ((...args: unknown[]) => void) & { q?: unknown[][] } };
@@ -1401,30 +1290,9 @@ function LeadForm() {
   const total = active.length;
   const question: Question = active[step] ?? FIRST_QUESTION;
   const pct = status === "sent" ? 100 : Math.round(15 + (step / total) * 85);
-  // Steps the visitor actually sees (an ad-preset service skips the first question).
-  const firstStep = preset.current ? 1 : 0;
-  const shownStep = step - firstStep + 1;
-  const shownTotal = total - firstStep;
   const isLast = step === total - 1;
-  const rangeInfo = serviceInfo(answers);
-  const [rangeLo, rangeHi] = rangeInfo ? parseRange(rangeInfo.range) : [0, 0];
   const title = textFor(question.title, answers);
   const hint = textFor(question.hint, answers);
-
-  // Phones: past the first screen, collapse the hero headline (CSS) and bring the step's top into view.
-  useEffect(() => {
-    const going = step > firstStep && status !== "sent";
-    document.documentElement.classList.toggle("form-going", going);
-    // Steps with text fields: keep the call bar away the whole time, so it can never slide under a tap on the button.
-    const kind = activeQuestions(answers)[step]?.kind;
-    document.documentElement.classList.toggle("typing", status !== "sent" && (kind === "contact" || kind === "address"));
-    if (!touched.current) return;
-    const form = document.querySelector<HTMLElement>("form.form--steps");
-    if (!form || window.innerWidth >= T.bp.mobile) return;
-    const header = document.querySelector<HTMLElement>(".header")?.offsetHeight ?? 0;
-    const y = form.getBoundingClientRect().top + window.scrollY - header - 8;
-    if (Math.abs(window.scrollY - y) > 4) window.scrollTo({ top: Math.max(0, y), behavior: reduceMotion ? "auto" : "smooth" });
-  }, [step, status, firstStep, reduceMotion]);
 
   // Focus the new question's first input when it mounts (after the slide), never on first page load.
   const stepRef = useCallback((node: HTMLDivElement | null): void => {
@@ -1511,7 +1379,6 @@ function LeadForm() {
         setStatus("sent");
         fireLead(a);
         window.fbq?.("trackCustom", "QuoteComplete", { content_name: a.service });
-        clarity("event", "quote_complete");
         window.gtag?.("event", "quote_complete", { service: a.service });
       } else {
         setStatus("error");
@@ -1535,8 +1402,6 @@ function LeadForm() {
     if (leadFired.current) return;
     leadFired.current = true;
     window.fbq?.("track", "Lead", { content_name: a.service }, { eventID: `lead-${leadId.current}` });
-    clarity("event", "lead");
-    clarity("upgrade", "lead");
     sendGoogleLead(a, leadId.current);
   };
 
@@ -1550,7 +1415,6 @@ function LeadForm() {
     const name = q.kind === "choice" ? q.field ?? "choice" : q.kind;
     const data = { step: step + 1, question: name, service: answers.service || "none" };
     window.fbq?.("trackCustom", "FormStep", data);
-    clarity("set", "furthest_step", String(step + 1));
     window.gtag?.("event", "form_step", data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, status]);
@@ -1571,40 +1435,6 @@ function LeadForm() {
     window.fbq?.("trackCustom", "FormStarted", { content_name: service }, { eventID: id });
     (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("FormStarted", id, { content_name: service });
     window.gtag?.("event", "form_started", { service });
-    clarity("event", "form_started");
-    // Standard "Contact" event = real intent (form tap here, call/text taps elsewhere). Meta optimizes on it.
-    const cid = `ct-${leadId.current}`;
-    window.fbq?.("track", "Contact", { content_name: service, contact_method: "form" }, { eventID: cid });
-    (window as unknown as { __capi?: (n: string, i: string, d: Record<string, string>) => void }).__capi?.("Contact", cid, { content_name: service, contact_method: "form" });
-  };
-
-  // "Book my free estimate" in the price explorer: start the form on that problem,
-  // unless the visitor is already past the first question.
-  useEffect(() => {
-    const onBook = (e: Event): void => {
-      const service = (e as CustomEvent<string>).detail;
-      if (!service || status === "sent" || step > (preset.current ? 1 : 0)) return;
-      fireStarted(service);
-      const next = { ...answers, service };
-      setAnswers(next);
-      const urgency = activeQuestions(next).findIndex((q) => q.field === "urgency");
-      setStep(urgency > 0 ? urgency : 1);
-    };
-    window.addEventListener("cs:book", onBook);
-    return () => window.removeEventListener("cs:book", onBook);
-  });
-
-  // The header line was the most-tapped text on the page (Clarity dead clicks), so it opens an answer.
-  const [infoOpen, setInfoOpen] = useState(false);
-  const toggleInfo = (): void => {
-    setInfoOpen((o) => !o);
-    clarity("event", "info_tap");
-  };
-
-  const continueFromRange = (): void => {
-    fireStarted(answers.service);
-    clarity("event", "range_continue");
-    void goNext();
   };
 
   const pick = (field: ChoiceField, value: string): void => {
@@ -1645,42 +1475,18 @@ function LeadForm() {
   return (
     <form className="form form--steps glass" onSubmit={onSubmit} noValidate aria-label="Request a call back">
       <div className="form__top">
-        {step === firstStep ? (
-          <button type="button" className="form__info-btn" aria-expanded={infoOpen} onClick={toggleInfo}>
-            $0 inspection · Financing available <span aria-hidden="true">{infoOpen ? "▴" : "▾"}</span>
-          </button>
-        ) : (
-          <span>{`Step ${shownStep} of ${shownTotal}`}</span>
-        )}
-        <span className="form__pct">{step === firstStep ? "30 seconds" : `${pct}% done`}</span>
+        <span>
+          Step {step + 1} of {total}
+        </span>
+        <span className="form__pct">{step === 0 ? "About 45 seconds" : `${pct}% done`}</span>
       </div>
-      {infoOpen && step === firstStep && (
-        <div className="form__info">
-          <p>
-            <strong>{offerFor(answers.service)}:</strong> Philip's team comes out, finds what's actually wrong and gives you the exact price. No charge, no obligation.
-          </p>
-          <p>
-            <strong>Financing:</strong> If the price lands on the higher end, you can pay over time. Ask about it at your free estimate.
-          </p>
-          {question.kind === "range" && (
-            <button type="button" className="submit form__info-go" onClick={continueFromRange}>
-              Get my free estimate →
-            </button>
-          )}
-        </div>
-      )}
-      <p className="form__offer">
-        <span className="form__offer-tag">$0</span>
-        <strong>{offerFor(answers.service)}</strong>
-        <span className="form__offer-sub">No obligation</span>
-      </p>
       <div className="form__track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="Form progress">
         <div className="form__bar" style={{ width: `${pct}%` }} />
       </div>
 
       {step > 0 && answers.service && (
         <p className="form__got">
-          <span aria-hidden="true">✓</span> <em className="form__got-text">{answers.service}</em>
+          <span aria-hidden="true">✓</span> {answers.service}
           {preset.current && step === 1 && (
             <button type="button" className="form__change" onClick={goBack}>
               change
@@ -1695,18 +1501,6 @@ function LeadForm() {
             {title}
           </h2>
           <p className="form__hint">{hint}</p>
-
-          {question.field === "budget" && rangeInfo && (
-            <div className="rng rng--budget" aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}`}>
-              <p className="rng__job">{rangeInfo.job}</p>
-              <p className="rng__range">
-                {money(rangeLo)} to {money(rangeHi)}
-              </p>
-              <span className="px__bar rng__bar" aria-hidden="true">
-                <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
-              </span>
-            </div>
-          )}
 
           {question.kind === "contact" && (
             <>
@@ -1727,7 +1521,7 @@ function LeadForm() {
           )}
 
           {question.kind === "choice" && question.field && question.options && (
-            <div className={`choices${question.options.every((o) => o.length <= 22) ? " choices--short" : ""}`} role="group" aria-labelledby={`lead-q-${step}`}>
+            <div className="choices" role="group" aria-labelledby={`lead-q-${step}`}>
               {question.options.map((option) => {
                 const field = question.field as ChoiceField;
                 return (
@@ -1736,35 +1530,6 @@ function LeadForm() {
                   </button>
                 );
               })}
-            </div>
-          )}
-
-          {question === FIRST_QUESTION && (
-            <a className="signs-link" href="/signs" onClick={() => clarity("event", "signs_open")}>
-              <SearchIcon /> Not sure what's wrong? Check the signs →
-            </a>
-          )}
-
-          {question.kind === "range" && rangeInfo && (
-            <div className="rng">
-              <button type="button" className="rng__tap" onClick={continueFromRange} aria-label={`${rangeInfo.job}: ${money(rangeLo)} to ${money(rangeHi)}. Get my exact price, free`}>
-                <span className="rng__job">{rangeInfo.job}</span>
-                <span className="rng__range">
-                  {money(rangeLo)} to {money(rangeHi)}
-                </span>
-                <span className="px__bar rng__bar" aria-hidden="true">
-                  <span className="px__fill" style={{ left: `${(rangeLo / PX_MAX) * 100}%`, width: `${((Math.min(rangeHi, PX_MAX) - rangeLo) / PX_MAX) * 100}%` }} />
-                </span>
-              </button>
-              <button type="button" className="submit rng__go" onClick={continueFromRange}>
-                Get my exact price, free →
-              </button>
-              <a className="rng__text" href={smsHref(answers.service)}>
-                Or text Philip a photo of the problem
-              </a>
-              <a className="signs-link signs-link--rng" href={signsHref(answers.service)} onClick={() => clarity("event", "signs_open")}>
-                <SearchIcon /> Not sure this is your problem? Check the signs →
-              </a>
             </div>
           )}
 
@@ -1790,10 +1555,10 @@ function LeadForm() {
         <button type="button" className="form__back" onClick={goBack} hidden={step === 0}>
           ← Back
         </button>
-        {question.kind !== "choice" && question.kind !== "range" && (
+        {question.kind !== "choice" && (
           <div className="form__go">
             <button className="submit" type="submit" disabled={status === "sending"}>
-              {isLast ? (status === "sending" ? "Sending…" : "Get my free estimate →") : "Get my price range →"}
+              {isLast ? (status === "sending" ? "Sending…" : "Get my free inspection →") : "Get my price range →"}
             </button>
           </div>
         )}
@@ -2049,11 +1814,7 @@ function WistiaBackground() {
   const bgRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<WistiaPlayerElement>(null);
   const inView = useInView(bgRef, { margin: "120px" });
-  const motionOk = !useReducedMotion();
-  // Phones get the still poster only: the video player slowed the first paint in the
-  // Facebook in-app browser and shifted the whole hero when it started (Clarity CLS ~1.0).
-  const [wide] = useState(() => typeof window !== "undefined" && window.matchMedia(`(min-width: ${T.bp.mobile}px)`).matches);
-  const reduceMotion = !motionOk || !wide;
+  const reduceMotion = useReducedMotion();
 
   // Same scripts as Wistia's embed code, loaded once.
   useEffect(() => {
@@ -2292,21 +2053,8 @@ function Footer() {
   );
 }
 
-// Pre-written text that names their problem, so tapping Text is one tap + send (photo optional).
-function smsHref(service: string = presetService()): string {
-  const body = service
-    ? `Hi Philip, I'm in Fort Worth and need a price on: ${service}. Here's a photo of what I'm seeing:`
-    : "Hi Philip, I'm in Fort Worth and need a price on a plumbing problem. Here's a photo of what I'm seeing:";
-  return `sms:${T.business.smsNumber}?&body=${encodeURIComponent(body)}`;
-}
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="2.2" />
-      <path d="M15.5 15.5 21 21" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
+function smsHref(): string {
+  return `sms:${T.business.smsNumber}?&body=${encodeURIComponent(T.business.smsBody)}`;
 }
 
 function ChatIcon() {
@@ -2341,11 +2089,31 @@ function TextUsButton() {
 /* ==========================================================================
    WATER DETAILS: animated headings, wave dividers, rotating line, level meter
    ========================================================================== */
+const HEADING_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const HEADING_STAGGER_S = 0.07;
+const HEADING_DURATION_S = 0.7;
 
-// Headings render as plain text. The old word-by-word reveal hid them until scrolled into view,
-// and Clarity recordings showed those sections blank.
 function RevealHeading({ children }: { children: string }) {
-  return <h2 className="h2 reveal">{children}</h2>;
+  const ref = useRef<HTMLHeadingElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-12% 0px" });
+  const reduce = useReducedMotion();
+  const shown = inView || reduce === true;
+  return (
+    <h2 className="h2 reveal" ref={ref} aria-label={children}>
+      {children.split(" ").map((word, i) => (
+        <span className="reveal__mask" key={`${word}-${i}`} aria-hidden="true">
+          <motion.span
+            className="reveal__word"
+            initial={{ y: "115%" }}
+            animate={{ y: shown ? "0%" : "115%" }}
+            transition={{ delay: i * HEADING_STAGGER_S, duration: HEADING_DURATION_S, ease: HEADING_EASE }}
+          >
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </h2>
+  );
 }
 
 type WaveTone = "bg-deep" | "deep-bg" | "deep-navy" | "navy-bg" | "bg-brand";
@@ -2421,7 +2189,7 @@ function MobileCallBar() {
       </a>
       <a className="callbar__text" href={smsHref()} aria-label={`Text ${T.business.name}`}>
         <ChatIcon />
-        Text a photo
+        Text us
       </a>
     </div>
   );
@@ -2499,85 +2267,31 @@ function NextStepsSection() {
   );
 }
 
-const PX_MAX = 30000; // right end of the price bar
-const parseRange = (r: string): [number, number] => {
-  const n = r.match(/[\d,]+/g)?.map((x) => Number(x.replace(/,/g, ""))) ?? [0, 0];
-  return [n[0] ?? 0, n[1] ?? n[0] ?? 0];
-};
-const money = (n: number): string => `$${n.toLocaleString("en-US")}`;
-
 function CostSection() {
-  // Start on the problem from the ad they clicked, if any.
-  const [pick, setPick] = useState(() => {
-    const preset = presetService();
-    const i = SERVICE_OPTIONS.findIndex((o) => o.label === preset);
-    return i >= 0 ? i : 0;
-  });
-  const o = SERVICE_OPTIONS[pick] ?? SERVICE_OPTIONS[0]!;
-  const [lo, hi] = parseRange(o.range);
-  const choose = (i: number) => {
-    setPick(i);
-    clarity("event", "price_check");
-    clarity("set", "price_check", SERVICE_OPTIONS[i]?.short ?? "");
-  };
-  const book = (): void => {
-    clarity("event", "price_book");
-    window.dispatchEvent(new CustomEvent("cs:book", { detail: o.label }));
-    document.getElementById("top")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
   return (
     <section className="section lp lp--deep" id="cost">
       <div className="wrap">
-        <p className="eyebrow">What it could cost</p>
-        <RevealHeading>Pick what you're dealing with. See the range.</RevealHeading>
-        <p className="lp__lead">Typical Fort Worth-area ranges, not a quote. Your free estimate finds what's actually wrong and gives you the exact price before any work starts.</p>
-        <div className="px">
-          <div className="px__chips" role="group" aria-label="Choose a problem to see its price range">
-            {SERVICE_OPTIONS.map((s, i) => (
-              <button key={s.label} type="button" className="px__chip" aria-pressed={i === pick} onClick={() => choose(i)}>
-                {s.short}
-              </button>
-            ))}
-          </div>
-          <div className="px__card" aria-live="polite">
-            <p className="px__job">{o.job}</p>
-            <p className="px__could">Could be anywhere from</p>
-            <p className="px__range">
-              {money(lo)} to {money(hi)}
-            </p>
-            <div className="px__bar" aria-hidden="true">
-              <span className="px__fill" style={{ left: `${(lo / PX_MAX) * 100}%`, width: `${(Math.min(hi, PX_MAX) - lo) / PX_MAX * 100}%` }} />
-            </div>
-            <div className="px__scale" aria-hidden="true">
-              <span>$0</span>
-              <span>$15,000</span>
-              <span>$30,000+</span>
-            </div>
-            <p className="px__note">Small spot repairs can cost less.</p>
-            <a className="px__signs" href={signsHref(o.label)} onClick={() => clarity("event", "signs_open")}>
-              <SearchIcon /> Not sure it's this? See the signs →
-            </a>
-            <div className="px__rows">
-              <div className="px__row">
-                <h3>What moves the price</h3>
-                <p>{o.depends.charAt(0).toUpperCase() + o.depends.slice(1)}.</p>
-              </div>
-              <div className="px__row">
-                <h3>Why do it right once</h3>
-                <p>Fixed right the first time, so you're not paying for the same problem again a few years down the road.</p>
-              </div>
-            </div>
-            <div className="px__book">
-              <p>
-                <strong>Your free estimate pins down the real number</strong> before any work starts. If it lands on the higher end, financing spreads it out.
-              </p>
-              <button type="button" className="lp__cta px__cta" onClick={book}>
-                Book my free estimate →
-              </button>
-            </div>
-            <p className="px__fine">Licensed Master Plumber, License M-44554. 35+ years in Fort Worth.</p>
-          </div>
+        <p className="eyebrow">What it usually costs</p>
+        <RevealHeading>Straight numbers, before anyone shows up.</RevealHeading>
+        <p className="lp__lead">Typical Fort Worth-area ranges. Your free estimate gives you the exact price before any work starts. Financing available.</p>
+        <div className="fin-badge fin-badge--block">
+          <span className="fin-badge__icon" aria-hidden="true">$</span>
+          <span>
+            <strong>Financing available</strong>
+            <small>Fix it right now, pay over time. Ask during your free estimate.</small>
+          </span>
         </div>
+        <ul className="lp__costs">
+          {SERVICE_OPTIONS.map((o) => (
+            <li className="lp__cost card" key={o.label}>
+              <span>{o.job}</span>
+              <strong>{o.range}</strong>
+            </li>
+          ))}
+        </ul>
+        <a className="lp__cta" href="#top">
+          Get my free estimate →
+        </a>
       </div>
     </section>
   );
@@ -2587,23 +2301,19 @@ function CostSection() {
    APP
    ========================================================================== */
 export default function App() {
+  const reduceMotion = useReducedMotion();
   // Ad tracking: remember which ad brought them, and load the Meta Pixel if it's configured.
   useEffect(() => {
     captureAttribution();
     initMetaPixel(META_PIXEL_ID);
     initClarity(CLARITY_ID);
-    const ad = new URLSearchParams(window.location.search).get("utm_content") || readAttribution().utm_content || "";
-    if (ad) {
-      clarity("set", "ad", ad.slice(0, 60));
-      clarity("set", "offer", ad.trim().slice(0, 2).toUpperCase());
-    }
   }, []);
   return (
     <FramesContext.Provider value="ok">
       <style>{CSS}</style>
       <Header />
       <WaterMeter />
-      <motion.main initial={false}>
+      <motion.main initial={reduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7, ease: HEADING_EASE }}>
         <HeroSection />
         <ReviewsSection />
         <OwnerSection />
